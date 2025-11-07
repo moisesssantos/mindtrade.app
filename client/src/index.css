@@ -1,0 +1,286 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ======================================================
+   🎨 MINDTRADE OFFICIAL THEME (LIGHT + DARK)
+   ====================================================== */
+
+:root {
+  /* 🎨 Paleta principal (modo claro) */
+  --mind-blue: 200 100% 45%;
+  /* Azul #00A4E4 */
+  --mind-wine: 324 52% 35%;
+  /* Vinho #5A1B43 */
+  --mind-gray: 210 6% 28%;
+  /* Cinza #44494D */
+  --mind-gold: 50 100% 50%;
+  /* Dourado #FFD700 */
+
+  /* 🌞 Fundo e texto */
+  --background: 0 0% 98%;
+  --foreground: var(--mind-gray);
+
+  --card: 0 0% 100%;
+  --card-foreground: var(--mind-gray);
+
+  --border: 0 0% 90%;
+  --muted: 0 0% 94%;
+  --muted-foreground: 0 0% 36%;
+
+  /* 💠 Cores principais de destaque */
+  --primary: var(--mind-blue);
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: var(--mind-wine);
+  --secondary-foreground: 0 0% 100%;
+
+  --accent: var(--mind-gold);
+  --accent-foreground: 0 0% 20%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: var(--mind-gray);
+
+  --input: 0 0% 85%;
+  --ring: var(--mind-blue);
+
+  /* 📊 Cores para gráficos */
+  --chart-1: var(--mind-blue);
+  --chart-2: var(--mind-wine);
+  --chart-3: 42 92% 56%;
+  /* Amarelo suave */
+  --chart-4: 159 100% 36%;
+  /* Verde esmeralda */
+  --chart-5: var(--mind-gold);
+
+  /* ⚙️ Tipografia e formas */
+  --font-sans: 'Inter', sans-serif;
+  --radius: 0.8rem;
+
+  /* ✨ Sombras */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.10);
+}
+
+/* ======================================================
+   🌑 MODO ESCURO (MindTrade Dark Gold Theme)
+   ====================================================== */
+.dark {
+  --background: 220 8% 6%;
+  --foreground: 0 0% 95%;
+
+  --card: 220 8% 10%;
+  --card-foreground: 0 0% 96%;
+
+  --border: 220 8% 20%;
+  --muted: 220 8% 15%;
+  --muted-foreground: 0 0% 70%;
+
+  --primary: var(--mind-blue);
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: var(--mind-wine);
+  --secondary-foreground: 0 0% 100%;
+
+  --accent: var(--mind-gold);
+  --accent-foreground: 0 0% 10%;
+
+  --popover: 220 8% 8%;
+  --popover-foreground: 0 0% 95%;
+
+  --input: 220 8% 18%;
+  --ring: var(--mind-gold);
+
+  --chart-1: var(--mind-gold);
+  --chart-2: var(--mind-blue);
+  --chart-3: var(--mind-wine);
+  --chart-4: 147 78% 41%;
+  --chart-5: 42 92% 56%;
+
+  --shadow-sm: 0 1px 2px rgba(255, 255, 255, 0.05);
+  --shadow-md: 0 2px 4px rgba(255, 255, 255, 0.08);
+  --shadow-lg: 0 4px 8px rgba(255, 255, 255, 0.1);
+}
+
+/* ======================================================
+   ⚙️ BASE E FUNDAMENTOS
+   ====================================================== */
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-semibold text-foreground;
+  }
+
+  a {
+    color: hsl(var(--primary));
+    transition: color 0.2s ease;
+  }
+
+  a:hover {
+    color: hsl(var(--accent));
+  }
+
+  /* Scrollbar minimalista */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground) / 0.5);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--primary));
+  }
+}
+
+/* ======================================================
+   💎 MELHORIAS VISUAIS MINDTRADE PREMIUM
+   ====================================================== */
+
+/* Cartões e áreas */
+.card,
+.bg-card {
+  background-color: hsl(220 8% 10%) !important;
+  border: 1px solid hsl(220 8% 18%) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  border-radius: var(--radius);
+  transition: all 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
+}
+
+/* Cabeçalhos dos cards */
+h3 {
+  color: hsl(var(--accent));
+  letter-spacing: 0.02em;
+}
+
+/* Valores importantes (ROI, Lucro etc.) */
+.font-mono {
+  font-weight: 600;
+}
+
+/* Botões */
+button,
+.btn {
+  background-color: hsl(var(--primary));
+  color: white;
+  border-radius: 0.6rem;
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover,
+.btn:hover {
+  background-color: hsl(var(--accent));
+  box-shadow: 0 0 8px hsl(var(--accent) / 0.8);
+}
+
+/* Barras dos gráficos */
+.recharts-bar-rectangle path {
+  stroke: hsl(var(--background));
+  stroke-width: 0.5;
+  transition: fill 0.2s ease;
+}
+
+/* Tooltips dos gráficos */
+.recharts-default-tooltip {
+  border: 1px solid hsl(var(--accent)) !important;
+  background-color: hsl(220 8% 12%) !important;
+  color: white !important;
+  border-radius: 8px;
+  font-size: 12px;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+}
+
+/* Linhas dos gráficos */
+.recharts-line path {
+  filter: drop-shadow(0px 0px 4px hsl(var(--primary)));
+}
+
+/* Seção final (Análise Comportamental) */
+.bg-gradient-to-br {
+  background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%);
+  border: 1px solid hsl(var(--accent) / 0.3);
+  box-shadow: inset 0 0 20px rgba(255, 215, 0, 0.05);
+  border-radius: var(--radius);
+}
+
+/* Tooltips gerais */
+.tooltip {
+  background-color: hsl(var(--popover)) !important;
+  color: hsl(var(--popover-foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: 8px;
+}
+
+/* ======================================================
+   💰 ESTILOS DE VALORES POSITIVOS E NEGATIVOS
+   ====================================================== */
+
+.text-profit,
+.value-positive {
+  color: #00ff88 !important;
+}
+
+.text-loss,
+.value-negative {
+  color: #ff4c4c !important;
+}
+
+/* Tooltips e rótulos */
+.recharts-tooltip-item-list .recharts-tooltip-item-value {
+  font-weight: bold;
+}
+
+/* Barras de ganhos e perdas */
+.recharts-bar-rectangle path[fill="#E74C3C"],
+.recharts-bar-rectangle path[fill="#ff4c4c"] {
+  fill: linear-gradient(90deg, #ff4c4c 0%, #b30000 100%) !important;
+}
+
+.recharts-bar-rectangle path[fill="#FFD700"],
+.recharts-bar-rectangle path[fill="#00FF88"] {
+  fill: linear-gradient(90deg, #00ff88 0%, #007a50 100%) !important;
+}
+
+/* ======================================================
+   💫 UTILITÁRIOS EXTRAS
+   ====================================================== */
+@layer utilities {
+  .hover-elevate {
+    transition: all 0.25s ease;
+  }
+
+  .hover-elevate:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .active-scale {
+    transition: transform 0.15s ease;
+  }
+
+  .active-scale:active {
+    transform: scale(0.97);
+  }
+}
