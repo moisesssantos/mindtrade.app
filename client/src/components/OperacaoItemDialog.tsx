@@ -74,27 +74,11 @@ interface OperacaoItemDialogProps {
 
 const tiposEncerramento = ['Automático', 'Manual', 'Parcial'];
 
-const defaultEstadosEmocionais = [
-  'Ansioso',
-  'Calmo',
-  'Eufórico',
-  'Foda-se',
-  'Frustrado',
-  'Irritado',
-  'Neutro',
-  'Preocupado com o red',
-];
+const defaultEstadosEmocionais = [];
 
-const defaultMotivacoesEntrada = [
-  'Aleatória',
-  'Análise/Método Pré-Jogo',
-  'Intuição/Feeling',
-  'Medo de perder oportunidade',
-  'Recuperar prejuízo',
-  'Sinal técnico',
-];
+const defaultMotivacoesEntrada = [];
 
-const defaultAutoavaliacoes = ['Excelente', 'Boa', 'Regular', 'Ruim', 'Péssima'];
+const defaultAutoavaliacoes = [];
 
 export default function OperacaoItemDialog({
   open,
