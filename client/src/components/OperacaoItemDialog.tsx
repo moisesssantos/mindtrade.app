@@ -74,28 +74,6 @@ interface OperacaoItemDialogProps {
 
 const tiposEncerramento = ['Automático', 'Manual', 'Parcial'];
 
-const defaultEstadosEmocionais = [
-  'Ansioso',
-  'Calmo',
-  'Eufórico',
-  'Foda-se',
-  'Frustrado',
-  'Irritado',
-  'Neutro',
-  'Preocupado com o red',
-];
-
-const defaultMotivacoesEntrada = [
-  'Aleatória',
-  'Análise/Método Pré-Jogo',
-  'Intuição/Feeling',
-  'Medo de perder oportunidade',
-  'Recuperar prejuízo',
-  'Sinal técnico',
-];
-
-const defaultAutoavaliacoes = ['Excelente', 'Boa', 'Regular', 'Ruim', 'Péssima'];
-
 export default function OperacaoItemDialog({
   open,
   onClose,
@@ -107,10 +85,9 @@ export default function OperacaoItemDialog({
   const { toast } = useToast();
   const isEdit = !!item;
 
-  // Usar hook para buscar opções do banco de dados
-  const estadosEmocionais = useOpcoes('estadoEmocional', defaultEstadosEmocionais);
-  const motivacoesEntrada = useOpcoes('motivacaoEntrada', defaultMotivacoesEntrada);
-  const autoavaliacoes = useOpcoes('autoavaliacao', defaultAutoavaliacoes);
+  const estadosEmocionais = useOpcoes('estadoEmocional');
+const motivacoesEntrada = useOpcoes('motivacaoEntrada');
+const autoavaliacoes = useOpcoes('autoavaliacao');
 
   const [showEstadoManager, setShowEstadoManager] = useState(false);
   const [showMotivacaoManager, setShowMotivacaoManager] = useState(false);
@@ -688,7 +665,6 @@ export default function OperacaoItemDialog({
         onClose={() => setShowEstadoManager(false)}
         campo="estadoEmocional"
         fieldLabel="Estados Emocionais"
-        defaultOptions={defaultEstadosEmocionais}
       />
 
       <GerenciarOpcoesDialog
@@ -696,7 +672,6 @@ export default function OperacaoItemDialog({
         onClose={() => setShowMotivacaoManager(false)}
         campo="motivacaoEntrada"
         fieldLabel="Motivações de Entrada"
-        defaultOptions={defaultMotivacoesEntrada}
       />
 
       <GerenciarOpcoesDialog
@@ -704,7 +679,6 @@ export default function OperacaoItemDialog({
         onClose={() => setShowAutoavaliacaoManager(false)}
         campo="autoavaliacao"
         fieldLabel="Autoavaliações"
-        defaultOptions={defaultAutoavaliacoes}
       />
     </>
   );
