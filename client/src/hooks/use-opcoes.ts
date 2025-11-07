@@ -7,13 +7,15 @@ type OpcaoCustomizada = {
   ordem: number;
 };
 
-export function useOpcoes(campo: string, defaultOptions: string[]) {
+export function useOpcoes(campo: string, defaultOptions: string[] = []) {
   const { data: opcoesCustomizadas = [] } = useQuery<OpcaoCustomizada[]>({
     queryKey: [`/api/opcoes/${campo}`],
   });
 
+  const safeDefaults = Array.isArray(defaultOptions) ? defaultOptions : [];
+
   const allOptions = [
-    ...defaultOptions,
+    ...safeDefaults,
     ...opcoesCustomizadas.map(opt => opt.opcao),
   ];
 
