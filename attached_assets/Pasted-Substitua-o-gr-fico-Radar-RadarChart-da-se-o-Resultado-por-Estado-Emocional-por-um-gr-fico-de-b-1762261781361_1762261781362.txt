@@ -1,0 +1,67 @@
+Substitua o gráfico Radar (RadarChart) da seção “Resultado por Estado Emocional” por um gráfico de barras horizontais.
+O gráfico deve ter:
+
+Barras douradas para lucro (#FFD700) e vermelhas para prejuízo (#E74C3C);
+
+Uma linha dourada no zero (usando ReferenceLine de recharts);
+
+Tooltip mostrando o percentual e o lucro em R$;
+
+Rótulos ao lado direito de cada barra com o valor em reais (R$ 0,00);
+
+Layout horizontal (layout="vertical") e design compatível com o tema escuro do MindTrade.
+
+Substitua apenas o conteúdo entre <ResponsiveContainer> e </ResponsiveContainer> dentro dessa seção.
+Use este modelo base:
+
+<ResponsiveContainer width="100%" height={300}>
+  <BarChart data={emotionalData} layout="vertical">
+    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+    <XAxis
+      type="number"
+      stroke="hsl(var(--muted-foreground))"
+      fontSize={11}
+      tickFormatter={(v) => `${v >= 0 ? '+' : ''}${v.toFixed(1)}%`}
+    />
+    <YAxis
+      dataKey="name"
+      type="category"
+      stroke="hsl(var(--muted-foreground))"
+      fontSize={11}
+      width={100}
+    />
+    <Tooltip
+      contentStyle={{
+        backgroundColor: "hsl(var(--popover))",
+        border: "1px solid hsl(var(--border))",
+        borderRadius: "8px",
+      }}
+      formatter={(v: number, name: string, props: any) => [
+        `${v >= 0 ? '+' : ''}${v.toFixed(2).replace('.', ',')}%`,
+        `R$ ${props.payload.valueAbsoluto.toFixed(2).replace('.', ',')}`,
+      ]}
+    />
+    <ReferenceLine x={0} stroke="#FFD700" strokeWidth={1.5} />
+    <Bar dataKey="value" radius={[6, 6, 6, 6]}>
+      {emotionalData.map((row, idx) => (
+        <Cell
+          key={`cell-${idx}`}
+          fill={row.valueAbsoluto >= 0 ? "#FFD700" : "#E74C3C"}
+        />
+      ))}
+      <LabelList
+        dataKey="valueAbsoluto"
+        position="right"
+        formatter={(v: number) => `R$ ${v.toFixed(2).replace('.', ',')}`}
+        style={{ fill: "hsl(var(--foreground))", fontSize: "11px", fontWeight: 500 }}
+      />
+    </Bar>
+  </BarChart>
+</ResponsiveContainer>
+
+
+Importante:
+
+Adicione ReferenceLine ao import do recharts.
+
+Remova RadarChart, Radar, PolarGrid, PolarAngleAxis e PolarRadiusAxis dos imports.

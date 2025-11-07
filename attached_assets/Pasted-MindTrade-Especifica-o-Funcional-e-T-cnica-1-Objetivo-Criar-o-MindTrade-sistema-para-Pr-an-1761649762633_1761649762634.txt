@@ -1,0 +1,421 @@
+MindTrade — Especificação Funcional e Técnica
+1) Objetivo
+Criar o MindTrade, sistema para:
+Pré-análise estruturada de partidas (estudo pré-jogo).
+
+
+Registro de operações profissionais de trading esportivo (com múltiplos mercados/estratégias por partida).
+
+
+Relatórios de performance financeira e comportamental.
+
+
+Rastreabilidade completa (auditoria) e controles de acesso.
+
+
+2) Escopo e conceitos
+Ciclo de vida por partida (registro único): cada partida tem um único registro base (tabela partidas), que pode ter Pré-Análise e/ou Operações associadas.
+
+
+Operação sem pré-análise: permitido (ex.: entradas “ao vivo” sem estudo prévio).
+
+
+Vários mercados e estratégias na mesma partida: modelados por itens de operação (um item = 1 mercado + 1 estratégia + métricas próprias).
+
+
+3) Tabelas de cadastro (CRUD)
+Regras comuns:
+Campos padrão: id (PK), nome (obrigatório, único case-insensitive, máx. 30).
+
+
+Edição: somente se mantiver unicidade.
+
+
+Exclusão: bloqueada se houver vínculo em operações ou pré-análises.
+
+
+Listagem: ordem alfabética + busca dinâmica (case/accents-insensitive).
+
+
+Mensagens padronizadas para duplicidade.
+
+
+3.1) equipes
+Exemplos: “Botafogo”, “Botafogo SP”, “Botafogo PB”.
+
+
+3.2) competicoes
+Exemplos: “Super Liga CHN”, “Super Liga DEN”, “Serie A ITA”.
+
+
+3.3) mercados
+Exemplos: “Match Odds”, “Ambas Marcam”, “Correct Score”.
+
+
+3.4) estrategias
+Dependente de mercado (FK mercado_id).
+
+
+Exemplos: “Lay 0-1”, “Over Limite”, “Scalping HT”.
+
+
+4) Partidas
+4.1) partidas
+Campos (sempre presentes):
+id (PK)
+
+
+data (date), hora (time)
+
+
+competicao_id (FK)
+
+
+mandante_id (FK equipes)
+
+
+visitante_id (FK equipes)
+
+
+Odds de abertura (opcional, numérico > 1.01): odd_mandante, odd_visitante, odd_empate
+
+
+Estado da partida (status):
+PRE_ANALISE (tem pré-análise ativa, sem operação)
+
+
+OPERACAO_PENDENTE (há operação não concluída)
+
+
+OPERACAO_CONCLUIDA
+
+
+NAO_OPERADA (pré-analisada e não operada)
+
+
+5) Pré-Análise
+5.1) pre_analises
+Relacionada 1:1 com partidas (pode não existir).
+
+
+Conversão: pré-análise pode virar operação; operação não volta para pré-análise.
+
+
+Campos e opções (máx. onde indicado):
+classificacao_m, classificacao_v (até 2 chars) – posição na tabela.
+
+
+momento_m, momento_v (até 30)
+ Opções: Boa Fase, Má Fase, Regular, Equipe em Construção, Técnico Interino, Irregular, Em Crise.
+
+
+must_win_m, must_win_v (até 40)
+ Opções: Título, Rebaixamento, Classificação competições importantes, Clássico, Quebra de Tabus, Classificação próxima fase, Irrelevante.
+
+
+importancia_prox_partida_m, importancia_prox_partida_v (até 30)
+ Opções: Mais importante, Menos importante, Mesma importância, Sem importância.
+
+
+desfalques_m, desfalques_v (até 30)
+ Opções: Goleador, Capitão, Técnico, Jogador Importante, Jogador Decisivo, Sem desfalques importantes.
+
+
+tendencia_esperada (até 30)
+ Opções: M Dominante, V Dominante, Trocação, Jogo Truncado, Jogo Complexo, Jogo Morno.
+
+
+desempenho_casa_m, desempenho_fora_v (até 30)
+ Opções: Ótimo, Bom, Regular, Ruim, Péssimo.
+
+
+valor_potencial (até 30)
+ Opções: Odds Justas, Odds Esmagadas, Odds sem Valor, Odds Boas.
+
+
+destaque_essencial (texto livre, até 300).
+
+
+5.2) Histórico automático
+D+1 (no dia seguinte a data da partida), se não houver operação: mover para histórico e perguntar: “A pré-análise foi operada?”
+ Se não, registrar em historico_pre_analise:
+
+
+justificativa_nao_operacao (texto curto, até 50)
+
+
+data_envio_historico (date automático)
+
+
+Atualizar partidas.status = NAO_OPERADA.
+
+
+6) Operações
+6.1) operacoes
+FK partida_id
+
+
+Fluxo de conclusão:
+
+
+Ao salvar, perguntar: “A operação foi finalizada?”
+
+
+Se Não: status = PENDENTE (não permitir data_conclusao).
+
+
+Se Sim: status = CONCLUIDA, data_conclusao = now().
+
+
+Regra: Não permitir conclusão se qualquer item estiver sem resultado_financeiro.
+
+
+data_hora_registro (timestamp automático na criação).
+
+
+6.2) Itens de Operação (suporte a múltiplos mercados/estratégias)
+operacao_itens (cada linha = 1 método aplicado):
+operacao_id (FK)
+
+
+mercado_id (FK)
+
+
+estrategia_id (FK, compatível com mercado_id)
+
+
+Métricas por item:
+
+
+stake (num > 0, obrigatório)
+
+
+resultado_financeiro (num, obrigatório, pode ser < 0)
+
+
+odd_entrada (num > 1.01, obrigatório)
+
+
+odd_saida (num > 1.01, opcional)
+
+
+tempo_exposicao_min (inteiro ≥ 0, opcional)
+
+
+seguiu_plano (boolean)
+
+
+estado_emocional (enum)
+ Opções: Ansioso, Calmo, Eufórico, Foda-se (manter expressão do usuário), Frustrado, Irritado, Neutro, Preocupado com o red.
+
+
+motivacao_entrada (enum)
+ Opções: Aleatória, Análise/Método Pré-Jogo, Intuição/Feeling, Medo de perder oportunidade, Recuperar prejuízo, Sinal técnico.
+
+
+autoavaliacao (enum)
+ Opções: Excelente, Boa, Regular, Ruim, Péssima.
+
+
+motivacao_saida_observacao (texto, até 400).
+
+
+Observação importante: Ao trazer as estratégias da pré-análise para a operação, criar sugestões de itens que o trader confirma/edita antes de salvar.
+6.3) Agregações da operação (derivadas)
+operacao.total_stake = SUM(itens.stake)
+
+
+operacao.resultado_total = SUM(itens.resultado_financeiro)
+
+
+operacao.roi_pct = resultado_total / total_stake (se total_stake > 0)
+
+
+7) Validações e regras de negócio
+stake > 0; odd_entrada > 1.01; se odd_saida informado, > 1.01.
+
+
+Conclusão de operação exige que todos os itens tenham resultado_financeiro preenchido.
+
+
+Unicidade case-insensitive nos cadastros (normalizar para comparação).
+
+
+Exclusão em cadastros bloqueada se houver referências (FK).
+
+
+Campos de seleção devem validar domínios (enums).
+
+
+8) Menu e UX
+Menu: Pré-Análise, Operações, Relatórios, Cadastros, Configurações.
+
+
+Pré-Análise: filtros por período, competição, equipes; conversão rápida para operação.
+
+
+Operações:
+
+
+Formulário principal da partida + lista de itens de operação (cada item com mercado/estratégia/ods/stake/…).
+
+
+Ao salvar: diálogo “Finalizar operação?” [Sim/Não].
+
+
+Cadastros: CRUD simples, ordenação alfabética, busca dinâmica, bloqueio de exclusões com vínculo.
+
+
+Campos de texto curtos (UI):
+ Equipes, Competições, Mercados, Estratégias: inputs máx. 30 chars (largura reduzida).
+ justificativa_nao_operacao: máx. 50 chars (input compacto).
+ destaque_essencial e motivacao_saida_observacao: textareas com contador.
+
+
+9) Relatórios (filtros: período, competição, equipe, mercado, estratégia)
+Geral: lucro total, ROI, taxa de acerto, média por operação.
+
+
+Por mercado: lucro e ROI por mercado.
+
+
+Por estratégia: lucro e ROI por estratégia.
+
+
+Por competição: lucro e ROI por competição.
+
+
+Comportamental: média de resultado por seguiu_plano (true/false).
+
+
+Por períodos: diário, semanal, mensal, custom.
+
+
+Por estado emocional.
+
+
+Equipes lucrativas: top N mandante/visitante, e menos lucrativas idem.
+
+
+Definições:
+ ROI = resultado_total / total_stake.
+ Taxa de acerto = #itens com resultado > 0 / #itens (ou por operação, conforme filtro).
+10) Auditoria
+Registrar criação, edição, mudança de status, conclusão e reabertura.
+
+
+Guardar: usuário, data/hora, campo alterado, valor anterior e novo.
+
+
+Tabela sugerida: auditoria com (entidade, entidade_id, acao, campo, valor_antigo, valor_novo, usuario_id, timestamp).
+
+
+11) Perfis e permissões
+Admin: acesso total.
+
+
+Trader: CRUD nos próprios registros; pode concluir, editar e apagar seus registros.
+
+
+Leitor: somente leitura.
+
+
+Modo inicial: mono-usuário (sem multi-tenant). Preparar chave usuario_id para evolução.
+
+
+12) Modelagem de dados (proposta de tabelas principais)
+equipes(id, nome, nome_normalizado, created_at, updated_at)
+
+
+competicoes(id, nome, nome_normalizado, created_at, updated_at)
+
+
+mercados(id, nome, nome_normalizado, created_at, updated_at)
+
+
+estrategias(id, mercado_id, nome, nome_normalizado, created_at, updated_at)
+
+
+partidas(id, data, hora, competicao_id, mandante_id, visitante_id, odd_mandante, odd_visitante, odd_empate, status, created_at, updated_at)
+
+
+pre_analises(partida_id PK/FK, ...campos do §5.1, created_at, updated_at)
+
+
+historico_pre_analise(id, partida_id, justificativa_nao_operacao, data_envio_historico)
+
+
+operacoes(id, partida_id, status, data_hora_registro, data_conclusao, created_at, updated_at)
+
+
+operacao_itens(id, operacao_id, mercado_id, estrategia_id, stake, resultado_financeiro, odd_entrada, odd_saida, tempo_exposicao_min, seguiu_plano, estado_emocional, motivacao_entrada, autoavaliacao, motivacao_saida_observacao, created_at, updated_at)
+
+
+auditoria(...)
+
+
+(futuro) usuarios(...)
+
+
+Índices e integridade:
+Índices em nome_normalizado nos cadastros (unicidade).
+
+
+Índices FK usuais (competicao_id, mercado_id, etc.).
+
+
+Constraint: estrategias.mercado_id deve bater com operacao_itens.mercado_id na hora de inserir (validação de compatibilidade).
+
+
+13) Regras de API (esqueleto)
+GET /cadastros/{tipo} — listar (ordenado + busca).
+
+
+POST /cadastros/{tipo} — criar (valida unicidade).
+
+
+PUT /cadastros/{tipo}/{id} — atualizar (mantendo unicidade).
+
+
+DELETE /cadastros/{tipo}/{id} — excluir (bloqueio se FK).
+
+
+POST /partidas — cria partida.
+
+
+POST /pre-analises/{partidaId} — cria/atualiza pré-análise.
+
+
+POST /operacoes/{partidaId} — cria operação + itens.
+
+
+POST /operacoes/{operacaoId}/itens — adiciona item.
+
+
+PATCH /operacoes/{operacaoId}/concluir — valida itens e conclui.
+
+
+GET /relatorios/... — endpoints por dimensão (mercado, estratégia, etc.).
+
+
+Auditoria em middleware/serviço cruzado.
+
+
+
+O que melhorei em relação ao texto original
+Modelei itens de operação para separar por estratégia (exatamente o que você pediu).
+
+
+Padronizei enums, tamanhos e validações.
+
+
+Separei status claros para partidas e operações.
+
+
+Especifiquei auditoria e perfis com escopo de edição.
+
+
+Propus índices/uniqueness robustos e compatibilidade mercado-estratégia.
+
+
+Explicitei relatórios com fórmulas e filtros.
