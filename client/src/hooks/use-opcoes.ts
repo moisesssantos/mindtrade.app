@@ -50,11 +50,13 @@ export function useOpcoes(campo: string, defaultOptions: string[]) {
 
   // === DELETE (usa ID) ===
   const deleteOpcaoMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const res = await fetch(`/api/opcoes/${id}`, { method: "DELETE" })
-      if (!res.ok) throw new Error("Erro ao excluir opção")
-      return res.json()
-    },
+  mutationFn: async (id: number) => {
+    const res = await fetch(`/api/opcoes/${id}`, { method: "DELETE" })
+    if (res.status === 204) return true // ✅ trata DELETE sem corpo
+    if (!res.ok) throw new Error("Erro ao excluir opção")
+    const ct = res.headers.get("content-type") || ""
+    return ct.includes("application/json") ? res.json() : true
+  },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["opcoes", campo] }),
   })
   const deleteOpcao = (valor: string) => {
