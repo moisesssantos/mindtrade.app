@@ -2,15 +2,43 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Plus, Pencil, Trash2, Settings } from "lucide-react";
-import { useOpcoes } from "@/hooks/use-opcoes"; // certifique-se que esse hook existe
+import { useOpcoes } from "@/hooks/use-opcoes";
 
 interface PreAnaliseDialogProps {
   open: boolean;
@@ -21,38 +49,61 @@ interface PreAnaliseDialogProps {
   isLoading: boolean;
 }
 
-//const MOMENTO_OPTIONS_DEFAULT = ["Boa Fase", "Má Fase", "Regular"];
-//const MUST_WIN_OPTIONS_DEFAULT = ["Título", "Rebaixamento", "Classificação competições importantes", "Clássico", "Quebra de Tabus", "Classificação próxima fase", "Irrelevante"];
-//const IMPORTANCIA_OPTIONS_DEFAULT = ["Mais importante", "Menos importante", "Mesma importância", "Sem importância"];
-//const DESFALQUES_OPTIONS_DEFAULT = ["Goleador", "Capitão", "Técnico", "Jogador Importante", "Jogador Decisivo", "Sem desfalques importantes"];
-//const TENDENCIA_OPTIONS_DEFAULT = ["M Dominante", "V Dominante", "Trocação", "Jogo Truncado", "Jogo Complexo", "Jogo Morno"];
-//const DESEMPENHO_OPTIONS_DEFAULT = ["Ótimo", "Bom", "Regular", "Ruim", "Péssimo"];
-//const VALOR_OPTIONS_DEFAULT = ["Odds Justas", "Odds Esmagadas", "Odds sem Valor", "Odds Boas"];
+const MOMENTO_OPTIONS_DEFAULT = ["Boa Fase", "Má Fase", "Regular"];
+const MUST_WIN_OPTIONS_DEFAULT = [
+  "Título",
+  "Rebaixamento",
+  "Classificação competições importantes",
+  "Clássico",
+  "Quebra de Tabus",
+  "Classificação próxima fase",
+  "Irrelevante",
+];
+const IMPORTANCIA_OPTIONS_DEFAULT = [
+  "Mais importante",
+  "Menos importante",
+  "Mesma importância",
+  "Sem importância",
+];
+const DESFALQUES_OPTIONS_DEFAULT = [
+  "Goleador",
+  "Capitão",
+  "Técnico",
+  "Jogador Importante",
+  "Jogador Decisivo",
+  "Sem desfalques importantes",
+];
+const TENDENCIA_OPTIONS_DEFAULT = [
+  "M Dominante",
+  "V Dominante",
+  "Trocação",
+  "Jogo Truncado",
+  "Jogo Complexo",
+  "Jogo Morno",
+];
+const DESEMPENHO_OPTIONS_DEFAULT = ["Ótimo", "Bom", "Regular", "Ruim", "Péssimo"];
+const VALOR_OPTIONS_DEFAULT = [
+  "Odds Justas",
+  "Odds Esmagadas",
+  "Odds sem Valor",
+  "Odds Boas",
+];
 
-const { opcoes: momentoOptions, addOpcao: addMomento } = useOpcoes("momento", MOMENTO_OPTIONS_DEFAULT);
-const { opcoes: mustWinOptions, addOpcao: addMustWin } = useOpcoes("mustWin", MUST_WIN_OPTIONS_DEFAULT);
-const { opcoes: importanciaOptions, addOpcao: addImportancia } = useOpcoes("importancia", IMPORTANCIA_OPTIONS_DEFAULT);
-const { opcoes: desfalquesOptions, addOpcao: addDesfalques } = useOpcoes("desfalques", DESFALQUES_OPTIONS_DEFAULT);
-const { opcoes: tendenciaOptions, addOpcao: addTendencia } = useOpcoes("tendencia", TENDENCIA_OPTIONS_DEFAULT);
-const { opcoes: desempenhoOptions, addOpcao: addDesempenho } = useOpcoes("desempenho", DESEMPENHO_OPTIONS_DEFAULT);
-const { opcoes: valorOptions, addOpcao: addValor } = useOpcoes("valor", VALOR_OPTIONS_DEFAULT);
-
-export function PreAnaliseDialog({ 
-  open, 
-  onClose, 
-  onSubmit, 
+export function PreAnaliseDialog({
+  open,
+  onClose,
+  onSubmit,
   partidaId,
-  initialData, 
-  isLoading 
+  initialData,
+  isLoading,
 }: PreAnaliseDialogProps) {
-  const [momentoOptions, setMomentoOptions] = useState<string[]>(MOMENTO_OPTIONS_DEFAULT);
-  const [mustWinOptions, setMustWinOptions] = useState<string[]>(MUST_WIN_OPTIONS_DEFAULT);
-  const [importanciaOptions, setImportanciaOptions] = useState<string[]>(IMPORTANCIA_OPTIONS_DEFAULT);
-  const [desfalquesOptions, setDesfalquesOptions] = useState<string[]>(DESFALQUES_OPTIONS_DEFAULT);
-  const [tendenciaOptions, setTendenciaOptions] = useState<string[]>(TENDENCIA_OPTIONS_DEFAULT);
-  const [desempenhoOptions, setDesempenhoOptions] = useState<string[]>(DESEMPENHO_OPTIONS_DEFAULT);
-  const [valorOptions, setValorOptions] = useState<string[]>(VALOR_OPTIONS_DEFAULT);
-
+  const { opcoes: momentoOptions, addOpcao: addMomento, deleteOpcao: deleteMomento } = useOpcoes("momento", MOMENTO_OPTIONS_DEFAULT);
+  const { opcoes: mustWinOptions, addOpcao: addMustWin, deleteOpcao: deleteMustWin } = useOpcoes("mustWin", MUST_WIN_OPTIONS_DEFAULT);
+  const { opcoes: importanciaOptions, addOpcao: addImportancia, deleteOpcao: deleteImportancia } = useOpcoes("importancia", IMPORTANCIA_OPTIONS_DEFAULT);
+  const { opcoes: desfalquesOptions, addOpcao: addDesfalques, deleteOpcao: deleteDesfalques } = useOpcoes("desfalques", DESFALQUES_OPTIONS_DEFAULT);
+  const { opcoes: tendenciaOptions, addOpcao: addTendencia, deleteOpcao: deleteTendencia } = useOpcoes("tendencia", TENDENCIA_OPTIONS_DEFAULT);
+  const { opcoes: desempenhoOptions, addOpcao: addDesempenho, deleteOpcao: deleteDesempenho } = useOpcoes("desempenho", DESEMPENHO_OPTIONS_DEFAULT);
+  const { opcoes: valorOptions, addOpcao: addValor, deleteOpcao: deleteValor } = useOpcoes("valor", VALOR_OPTIONS_DEFAULT);
 
   // Estados para gerenciamento de opções
   const [manageDialogOpen, setManageDialogOpen] = useState(false);
