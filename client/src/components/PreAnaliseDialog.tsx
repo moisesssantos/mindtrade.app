@@ -220,14 +220,30 @@ const handleAddOption = () => {
   }
 };
 
-const handleEditOption = (index: number) => {
-  setEditingIndex(index);
-  setEditingValue(getOptionsForField(managingField)[index]);
-};
-
 const handleSaveEdit = () => {
-  // Edição persistente ainda não implementada no hook
-  // Pode ser mantida local ou removida até implementar updateOpcao
+  if (editingIndex === null) return;
+
+  const oldValue = getOptionsForField(managingField)[editingIndex];
+  const newValue = editingValue.trim();
+
+  // Evita salvar vazio ou idêntico
+  if (!newValue || newValue === oldValue) {
+    setEditingIndex(null);
+    setEditingValue("");
+    return;
+  }
+
+  // Chama o update correspondente ao campo
+  switch (managingField) {
+    case "momento": updateMomento(oldValue, newValue); break;
+    case "mustWin": updateMustWin(oldValue, newValue); break;
+    case "importancia": updateImportancia(oldValue, newValue); break;
+    case "desfalques": updateDesfalques(oldValue, newValue); break;
+    case "tendencia": updateTendencia(oldValue, newValue); break;
+    case "desempenho": updateDesempenho(oldValue, newValue); break;
+    case "valor": updateValor(oldValue, newValue); break;
+  }
+
   setEditingIndex(null);
   setEditingValue("");
 };
