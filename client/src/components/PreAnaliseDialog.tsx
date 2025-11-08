@@ -133,26 +133,59 @@ export function PreAnaliseDialog({
   });
 
   const form = useForm({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      classificacaoM: "",
-      classificacaoV: "",
-      momentoM: "",
-      momentoV: "",
-      mustWinM: "",
-      mustWinV: "",
-      importanciaProxPartidaM: "",
-      importanciaProxPartidaV: "",
-      desfalquesM: "",
-      desfalquesV: "",
-      tendenciaEsperada: "",
-      desempenhoCasaM: "",
-      desempenhoForaV: "",
-      valorPotencial: "",
-      destaqueEssencial: "",
-    },
-  });
+  resolver: zodResolver(schema),
+  defaultValues: {
+    classificacaoM: "",
+    classificacaoV: "",
+    momentoM: "",
+    momentoV: "",
+    mustWinM: "",
+    mustWinV: "",
+    importanciaProxPartidaM: "",
+    importanciaProxPartidaV: "",
+    desfalquesM: "",
+    desfalquesV: "",
+    tendenciaEsperada: "",
+    desempenhoCasaM: "",
+    desempenhoForaV: "",
+    valorPotencial: "",
+    destaqueEssencial: "",
+  },
+});
 
+const [campoGerenciado, setCampoGerenciado] = useState<string | null>(null);
+
+function handleOpenManageDialog(campo: string) {
+  setCampoGerenciado(campo);
+}
+
+function handleCloseManageDialog() {
+  setCampoGerenciado(null);
+}
+function getFieldLabel(campo: string | null): string {
+  switch (campo) {
+    case "momento": return "Momentos";
+    case "importancia": return "Importância";
+    case "desfalques": return "Desfalques";
+    case "valor": return "Valor Potencial";
+    case "tendencia": return "Tendência Esperada";
+    case "desempenho": return "Desempenho";
+    default: return "";
+  }
+}
+
+function getDefaultOptions(campo: string | null): string[] {
+  switch (campo) {
+    case "momento": return defaultMomentoOptions;
+    case "importancia": return defaultImportanciaOptions;
+    case "desfalques": return defaultDesfalquesOptions;
+    case "valor": return defaultValorOptions;
+    case "tendencia": return defaultTendenciaOptions;
+    case "desempenho": return defaultDesempenhoOptions;
+    default: return [];
+  }
+}
+  
   useEffect(() => {
     if (open) {
       form.reset({
@@ -297,470 +330,539 @@ const handleClose = () => {
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3">
             
             {/* Classificação M vs V + Momento M e V na mesma linha */}
-            <div className="grid grid-cols-[80px_80px_1fr_1fr] gap-3">
-              <FormField
-                control={form.control}
-                name="classificacaoM"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Classif. M</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="M" maxLength={2} data-testid="input-classificacao-m" className="text-center" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="classificacaoV"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Classif. V</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="V" maxLength={2} data-testid="input-classificacao-v" className="text-center" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="momentoM"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Momento M</FormLabel>
-                    <Select onValueChange={(value) => {
-                      if (value === "__manage__") {
-                        handleOpenManageDialog("momento");
-                      } else {
-                        field.onChange(value);
-                      }
-                    }} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-momento-m">
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Array.isArray(momentoOptions) &&
-                          momentoOptions.map((option) => (
-                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
-                        <SelectItem value="__manage__">
-                          <div className="flex items-center gap-2">
-                            <Settings className="h-4 w-4" />
-                            <span>Gerenciar opções...</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="momentoV"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Momento V</FormLabel>
-                    <Select onValueChange={(value) => {
-                      if (value === "__manage__") {
-                        handleOpenManageDialog("momento");
-                      } else {
-                        field.onChange(value);
-                      }
-                    }} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-momento-v">
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Array.isArray(momentoOptions) &&
-                          momentoOptions.map((option) => (
-                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
-                        <SelectItem value="__manage__">
-                          <div className="flex items-center gap-2">
-                            <Settings className="h-4 w-4" />
-                            <span>Gerenciar opções...</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+<div className="grid grid-cols-[80px_80px_1fr_1fr] gap-3">
+  <FormField
+    control={form.control}
+    name="classificacaoM"
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>Classif. M</FormLabel>
+        <FormControl>
+          <Input
+            {...field}
+            placeholder="M"
+            maxLength={2}
+            data-testid="input-classificacao-m"
+            className="text-center"
+          />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
 
-            {/* Must Win M e V */}
-            <div className="grid grid-cols-2 gap-3">
-              <FormField
-                control={form.control}
-                name="mustWinM"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Must Win M</FormLabel>
-                    <Select onValueChange={(value) => {
-                      if (value === "__manage__") {
-                        handleOpenManageDialog("mustWin");
-                      } else {
-                        field.onChange(value);
-                      }
-                    }} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-must-win-m">
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Array.isArray(mustWinOptions) &&
-                          mustWinOptions.map((option) => (
-                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
-                        <SelectItem value="__manage__">
-                          <div className="flex items-center gap-2">
-                            <Settings className="h-4 w-4" />
-                            <span>Gerenciar opções...</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="mustWinV"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Must Win V</FormLabel>
-                    <Select onValueChange={(value) => {
-                      if (value === "__manage__") {
-                        handleOpenManageDialog("mustWin");
-                      } else {
-                        field.onChange(value);
-                      }
-                    }} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-must-win-v">
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Array.isArray(mustWinOptions) &&
-                          mustWinOptions.map((option) => (
-                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
-                        <SelectItem value="__manage__">
-                          <div className="flex items-center gap-2">
-                            <Settings className="h-4 w-4" />
-                            <span>Gerenciar opções...</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+  <FormField
+    control={form.control}
+    name="classificacaoV"
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>Classif. V</FormLabel>
+        <FormControl>
+          <Input
+            {...field}
+            placeholder="V"
+            maxLength={2}
+            data-testid="input-classificacao-v"
+            className="text-center"
+          />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
+
+  <FormField
+    control={form.control}
+    name="momentoM"
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>Momento M</FormLabel>
+        <Select
+          onValueChange={(value) => {
+            if (value === "__manage__") {
+              handleOpenManageDialog("momento");
+            } else {
+              field.onChange(value);
+            }
+          }}
+          value={field.value}
+        >
+          <FormControl>
+            <SelectTrigger data-testid="select-momento-m">
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+          </FormControl>
+          <SelectContent>
+            {(momentoOptions ?? []).map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+            <SelectItem value="__manage__">
+              <div className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                <span>Gerenciar opções...</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
+
+  <FormField
+    control={form.control}
+    name="momentoV"
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>Momento V</FormLabel>
+        <Select
+          onValueChange={(value) => {
+            if (value === "__manage__") {
+              handleOpenManageDialog("momento");
+            } else {
+              field.onChange(value);
+            }
+          }}
+          value={field.value}
+        >
+          <FormControl>
+            <SelectTrigger data-testid="select-momento-v">
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+          </FormControl>
+          <SelectContent>
+            {(momentoOptions ?? []).map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+            <SelectItem value="__manage__">
+              <div className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                <span>Gerenciar opções...</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
+</div>
+
+           {/* Must Win M e V */}
+<div className="grid grid-cols-2 gap-3">
+  <FormField
+    control={form.control}
+    name="mustWinM"
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>Must Win M</FormLabel>
+        <Select
+          onValueChange={(value) => {
+            if (value === "__manage__") {
+              handleOpenManageDialog("mustWin");
+            } else {
+              field.onChange(value);
+            }
+          }}
+          value={field.value}
+        >
+          <FormControl>
+            <SelectTrigger data-testid="select-must-win-m">
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+          </FormControl>
+          <SelectContent>
+            {(mustWinOptions ?? []).map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+            <SelectItem value="__manage__">
+              <div className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                <span>Gerenciar opções...</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
+
+  <FormField
+    control={form.control}
+    name="mustWinV"
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>Must Win V</FormLabel>
+        <Select
+          onValueChange={(value) => {
+            if (value === "__manage__") {
+              handleOpenManageDialog("mustWin");
+            } else {
+              field.onChange(value);
+            }
+          }}
+          value={field.value}
+        >
+          <FormControl>
+            <SelectTrigger data-testid="select-must-win-v">
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+          </FormControl>
+          <SelectContent>
+            {(mustWinOptions ?? []).map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+            <SelectItem value="__manage__">
+              <div className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                <span>Gerenciar opções...</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
+</div>
 
             {/* Importância Próx. Partida M e V */}
-            <div className="grid grid-cols-2 gap-3">
-              <FormField
-                control={form.control}
-                name="importanciaProxPartidaM"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Importância Próx. M</FormLabel>
-                    <Select onValueChange={(value) => {
-                      if (value === "__manage__") {
-                        handleOpenManageDialog("importancia");
-                      } else {
-                        field.onChange(value);
-                      }
-                    }} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-importancia-m">
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Array.isArray(importanciaOptions) &&
-                          importanciaOptions.map((option) => (
-                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
-                        <SelectItem value="__manage__">
-                          <div className="flex items-center gap-2">
-                            <Settings className="h-4 w-4" />
-                            <span>Gerenciar opções...</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="importanciaProxPartidaV"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Importância Próx. V</FormLabel>
-                    <Select onValueChange={(value) => {
-                      if (value === "__manage__") {
-                        handleOpenManageDialog("importancia");
-                      } else {
-                        field.onChange(value);
-                      }
-                    }} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-importancia-v">
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Array.isArray(importanciaOptions) &&
-                          importanciaOptions.map((option) => (
-                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
-                        <SelectItem value="__manage__">
-                          <div className="flex items-center gap-2">
-                            <Settings className="h-4 w-4" />
-                            <span>Gerenciar opções...</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+<div className="grid grid-cols-2 gap-3">
+  <FormField
+    control={form.control}
+    name="importanciaProxPartidaM"
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>Importância Próx. M</FormLabel>
+        <Select
+          onValueChange={(value) => {
+            if (value === "__manage__") {
+              handleOpenManageDialog("importancia");
+            } else {
+              field.onChange(value);
+            }
+          }}
+          value={field.value}
+        >
+          <FormControl>
+            <SelectTrigger data-testid="select-importancia-m">
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+          </FormControl>
+          <SelectContent>
+            {(importanciaOptions ?? []).map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+            <SelectItem value="__manage__">
+              <div className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                <span>Gerenciar opções...</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
+
+  <FormField
+    control={form.control}
+    name="importanciaProxPartidaV"
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>Importância Próx. V</FormLabel>
+        <Select
+          onValueChange={(value) => {
+            if (value === "__manage__") {
+              handleOpenManageDialog("importancia");
+            } else {
+              field.onChange(value);
+            }
+          }}
+          value={field.value}
+        >
+          <FormControl>
+            <SelectTrigger data-testid="select-importancia-v">
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+          </FormControl>
+          <SelectContent>
+            {(importanciaOptions ?? []).map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+            <SelectItem value="__manage__">
+              <div className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                <span>Gerenciar opções...</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
+</div>
 
             {/* Desfalques M, V e Valor Potencial */}
-            <div className="grid grid-cols-3 gap-3">
-              <FormField
-                control={form.control}
-                name="desfalquesM"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Desfalques M</FormLabel>
-                    <Select onValueChange={(value) => {
-                      if (value === "__manage__") {
-                        handleOpenManageDialog("desfalques");
-                      } else {
-                        field.onChange(value);
-                      }
-                    }} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-desfalques-m">
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Array.isArray(desfalquesOptions) &&
-                          desfalquesOptions.map((option) => (
-                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
-                        <SelectItem value="__manage__">
-                          <div className="flex items-center gap-2">
-                            <Settings className="h-4 w-4" />
-                            <span>Gerenciar opções...</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="desfalquesV"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Desfalques V</FormLabel>
-                    <Select onValueChange={(value) => {
-                      if (value === "__manage__") {
-                        handleOpenManageDialog("desfalques");
-                      } else {
-                        field.onChange(value);
-                      }
-                    }} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-desfalques-v">
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Array.isArray(desfalquesOptions) &&
-                          desfalquesOptions.map((option) => (
-                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                          ))}
-                        <SelectItem value="__manage__">
-                          <div className="flex items-center gap-2">
-                            <Settings className="h-4 w-4" />
-                            <span>Gerenciar opções...</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="valorPotencial"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Valor Potencial</FormLabel>
-                    <Select onValueChange={(value) => {
-                      if (value === "__manage__") {
-                        handleOpenManageDialog("valor");
-                      } else {
-                        field.onChange(value);
-                      }
-                    }} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-valor-potencial">
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Array.isArray(valorOptions) &&
-                          valorOptions.map((option) => (
-                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
-                        <SelectItem value="__manage__">
-                          <div className="flex items-center gap-2">
-                            <Settings className="h-4 w-4" />
-                            <span>Gerenciar opções...</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+<div className="grid grid-cols-3 gap-3">
+  <FormField
+    control={form.control}
+    name="desfalquesM"
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>Desfalques M</FormLabel>
+        <Select
+          onValueChange={(value) => {
+            if (value === "__manage__") {
+              handleOpenManageDialog("desfalques");
+            } else {
+              field.onChange(value);
+            }
+          }}
+          value={field.value}
+        >
+          <FormControl>
+            <SelectTrigger data-testid="select-desfalques-m">
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+          </FormControl>
+          <SelectContent>
+            {(desfalquesOptions ?? []).map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+            <SelectItem value="__manage__">
+              <div className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                <span>Gerenciar opções...</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
+
+  <FormField
+    control={form.control}
+    name="desfalquesV"
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>Desfalques V</FormLabel>
+        <Select
+          onValueChange={(value) => {
+            if (value === "__manage__") {
+              handleOpenManageDialog("desfalques");
+            } else {
+              field.onChange(value);
+            }
+          }}
+          value={field.value}
+        >
+          <FormControl>
+            <SelectTrigger data-testid="select-desfalques-v">
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+          </FormControl>
+          <SelectContent>
+            {(desfalquesOptions ?? []).map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+            <SelectItem value="__manage__">
+              <div className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                <span>Gerenciar opções...</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
+
+  <FormField
+    control={form.control}
+    name="valorPotencial"
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>Valor Potencial</FormLabel>
+        <Select
+          onValueChange={(value) => {
+            if (value === "__manage__") {
+              handleOpenManageDialog("valor");
+            } else {
+              field.onChange(value);
+            }
+          }}
+          value={field.value}
+        >
+          <FormControl>
+            <SelectTrigger data-testid="select-valor-potencial">
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+          </FormControl>
+          <SelectContent>
+            {(valorOptions ?? []).map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+            <SelectItem value="__manage__">
+              <div className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                <span>Gerenciar opções...</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
+</div>
 
             {/* Tendência Esperada + Desempenho Casa M + Desempenho Fora V na mesma linha */}
-            <div className="grid grid-cols-3 gap-3">
-              <FormField
-                control={form.control}
-                name="tendenciaEsperada"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tendência Esperada</FormLabel>
-                    <Select onValueChange={(value) => {
-                      if (value === "__manage__") {
-                        handleOpenManageDialog("tendencia");
-                      } else {
-                        field.onChange(value);
-                      }
-                    }} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-tendencia">
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Array.isArray(tendenciaOptions) &&
-                          tendenciaOptions.map((option) => (
-                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                          ))}
-                        <SelectItem value="__manage__">
-                          <div className="flex items-center gap-2">
-                            <Settings className="h-4 w-4" />
-                            <span>Gerenciar opções...</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="desempenhoCasaM"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Desempenho Casa M</FormLabel>
-                    <Select onValueChange={(value) => {
-                      if (value === "__manage__") {
-                        handleOpenManageDialog("desempenho");
-                      } else {
-                        field.onChange(value);
-                      }
-                    }} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-desempenho-casa">
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Array.isArray(desempenhoOptions) &&
-                          desempenhoOptions.map((option) => (
-                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
-                        <SelectItem value="__manage__">
-                          <div className="flex items-center gap-2">
-                            <Settings className="h-4 w-4" />
-                            <span>Gerenciar opções...</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="desempenhoForaV"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Desempenho Fora V</FormLabel>
-                    <Select onValueChange={(value) => {
-                      if (value === "__manage__") {
-                        handleOpenManageDialog("desempenho");
-                      } else {
-                        field.onChange(value);
-                      }
-                    }} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-desempenho-fora">
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Array.isArray(desempenhoOptions) &&
-                          desempenhoOptions.map((option) => (
-                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
-                        <SelectItem value="__manage__">
-                          <div className="flex items-center gap-2">
-                            <Settings className="h-4 w-4" />
-                            <span>Gerenciar opções...</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+<div className="grid grid-cols-3 gap-3">
+  <FormField
+    control={form.control}
+    name="tendenciaEsperada"
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>Tendência Esperada</FormLabel>
+        <Select
+          onValueChange={(value) => {
+            if (value === "__manage__") {
+              handleOpenManageDialog("tendencia");
+            } else {
+              field.onChange(value);
+            }
+          }}
+          value={field.value}
+        >
+          <FormControl>
+            <SelectTrigger data-testid="select-tendencia">
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+          </FormControl>
+          <SelectContent>
+            {(tendenciaOptions ?? []).map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+            <SelectItem value="__manage__">
+              <div className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                <span>Gerenciar opções...</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
+
+  <FormField
+    control={form.control}
+    name="desempenhoCasaM"
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>Desempenho Casa M</FormLabel>
+        <Select
+          onValueChange={(value) => {
+            if (value === "__manage__") {
+              handleOpenManageDialog("desempenho");
+            } else {
+              field.onChange(value);
+            }
+          }}
+          value={field.value}
+        >
+          <FormControl>
+            <SelectTrigger data-testid="select-desempenho-casa">
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+          </FormControl>
+          <SelectContent>
+            {(desempenhoOptions ?? []).map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+            <SelectItem value="__manage__">
+              <div className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                <span>Gerenciar opções...</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
+
+  <FormField
+    control={form.control}
+    name="desempenhoForaV"
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>Desempenho Fora V</FormLabel>
+        <Select
+          onValueChange={(value) => {
+            if (value === "__manage__") {
+              handleOpenManageDialog("desempenho");
+            } else {
+              field.onChange(value);
+            }
+          }}
+          value={field.value}
+        >
+          <FormControl>
+            <SelectTrigger data-testid="select-desempenho-fora">
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+          </FormControl>
+          <SelectContent>
+            {(desempenhoOptions ?? []).map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+            <SelectItem value="__manage__">
+              <div className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                <span>Gerenciar opções...</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <FormMessage />
+      </FormItem>
+    )}
+  />
+</div>
 
             {/* Destaques Importantes */}
             <FormField
