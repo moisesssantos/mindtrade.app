@@ -37,8 +37,8 @@ import OperacaoItemDialog from "@/components/OperacaoItemDialog";
 // ================== Tipos ==================
 type Partida = {
   id: number;
-  data: string;   // ISO ou 'YYYY-MM-DD'
-  hora: string;   // 'HH:mm'
+  data: string;
+  hora: string;
   competicaoId: number;
   mandanteId: number;
   visitanteId: number;
@@ -113,20 +113,15 @@ export default function OperacaoDialog({
 
   const form = useForm<any>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      partidaId: undefined,
-    },
+    defaultValues: { partidaId: undefined },
   });
 
   // ================== Data sem deslocamento ==================
   const corrigirDataLocal = (dataString: string) => {
     if (!dataString) return new Date();
-    // Mantém a data cadastrada (YYYY-MM-DD) sem deslocar por fuso.
     const d = new Date(dataString);
     d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
     return d;
-    // Se sua API já devolve 'YYYY-MM-DD', você também pode:
-    // return new Date(`${dataString}T00:00:00`);
   };
 
   // ================== Query: Itens da operação ==================
@@ -137,8 +132,7 @@ export default function OperacaoDialog({
   } = useQuery<OperacaoItem[]>({
     queryKey: ["/api/operacoes", operacaoId, "itens"],
     enabled: isEdit && !!operacaoId,
-    queryFn: () =>
-      apiRequest(`/api/operacoes/${operacaoId}/itens`, "GET"),
+    queryFn: () => apiRequest(`/api/operacoes/${operacaoId}/itens`, "GET"),
   });
 
   // ================== Effects ==================
@@ -220,45 +214,15 @@ export default function OperacaoDialog({
   });
 
   // ================== Handlers ==================
-  const handleSubmit = (data: any) => {
-    createMutation.mutate(data);
-  };
+  const handleSubmit = (data: any) => createMutation.mutate(data);
 
-  // Estado para abrir/fechar o modal de confirmação
-const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
+  // ======== Excluir item ========
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
+  const handleDeleteItem = (itemId: number) => setConfirmDeleteId(itemId);
 
-// Nova função para abrir o modal
-const handleDeleteItem = (itemId: number) => {
-  setConfirmDeleteId(itemId);
-};
-
-// (No final do return principal, logo antes do fechamento do componente)
-{confirmDeleteId !== null && (
-  <Dialog open={true} onOpenChange={() => setConfirmDeleteId(null)}>
-    <DialogContent className="sm:max-w-[400px]">
-      <DialogHeader>
-        <DialogTitle>Excluir item da operação</DialogTitle>
-      </DialogHeader>
-      <p className="text-sm text-muted-foreground mb-4">
-        Tem certeza que deseja excluir este item? Esta ação não pode ser desfeita.
-      </p>
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={() => setConfirmDeleteId(null)}>
-          Cancelar
-        </Button>
-        <Button
-          variant="destructive"
-          onClick={() => {
-            deleteItemMutation.mutate(confirmDeleteId);
-            setConfirmDeleteId(null);
-          }}
-        >
-          Excluir
-        </Button>
-      </div>
-    </DialogContent>
-  </Dialog>
-)}
+  // ======== Concluir operação ========
+  const [confirmConcluir, setConfirmConcluir] = useState(false);
+  const handleConcluirOperacao = () => setConfirmConcluir(true);
 
   const handleEditItem = (item: OperacaoItem) => {
     setSelectedItem(item);
@@ -268,7 +232,6 @@ const handleDeleteItem = (itemId: number) => {
   const podeConcluir = useMemo(() => {
     if (!isEdit || isCompleted) return false;
     if (!itens || itens.length === 0) return false;
-    // todos os itens com resultadoFinanceiro preenchido
     return itens.every(
       (i) =>
         i.resultadoFinanceiro !== null &&
@@ -293,20 +256,13 @@ const handleDeleteItem = (itemId: number) => {
     if (!partida)
       return { mandante: "", visitante: "", competicao: "", data: "", hora: "" };
 
-    const mandante =
-      equipes.find((e) => e.id === partida.mandanteId)?.nome || "";
+    const mandante = equipes.find((e) => e.id === partida.mandanteId)?.nome || "";
     const visitante =
       equipes.find((e) => e.id === partida.visitanteId)?.nome || "";
     const competicao =
       competicoes.find((c) => c.id === partida.competicaoId)?.nome || "";
 
-    return {
-      mandante,
-      visitante,
-      competicao,
-      data: partida.data,
-      hora: partida.hora,
-    };
+    return { mandante, visitante, competicao, data: partida.data, hora: partida.hora };
   };
 
   const getMercadoNome = (id: number) =>
@@ -325,7 +281,6 @@ const handleDeleteItem = (itemId: number) => {
       0
     );
     const roi = totalStake > 0 ? (resultadoTotal / totalStake) * 100 : 0;
-
     return { totalStake, resultadoTotal, roi };
   };
 
@@ -373,10 +328,7 @@ const handleDeleteItem = (itemId: number) => {
                           {partidasDisponiveis.map((partida) => {
                             const info = getPartidaInfo(partida.id);
                             return (
-                              <SelectItem
-                                key={partida.id}
-                                value={partida.id.toString()}
-                              >
+                              <SelectItem key={partida.id} value={partida.id.toString()}>
                                 {info.mandante} vs {info.visitante} -{" "}
                                 {format(
                                   corrigirDataLocal(info.data),
@@ -406,7 +358,7 @@ const handleDeleteItem = (itemId: number) => {
                           <Button
                             type="button"
                             size="sm"
-                            onClick={() => concluirMutation.mutate()}
+                            onClick={handleConcluirOperacao}
                             disabled={!podeConcluir || concluirMutation.isPending}
                             data-testid="button-concluir-operacao"
                             className="gap-2"
@@ -425,41 +377,29 @@ const handleDeleteItem = (itemId: number) => {
                         return (
                           <>
                             <div className="flex justify-between">
-                              <span className="text-sm text-muted-foreground">
-                                Partida:
-                              </span>
+                              <span className="text-sm text-muted-foreground">Partida:</span>
                               <span className="font-medium">
                                 {info.mandante} vs {info.visitante}
                               </span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-sm text-muted-foreground">
-                                Competição:
-                              </span>
+                              <span className="text-sm text-muted-foreground">Competição:</span>
                               <span>{info.competicao}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-sm text-muted-foreground">
-                                Data/Hora:
-                              </span>
+                              <span className="text-sm text-muted-foreground">Data/Hora:</span>
                               <span>
-                                {format(
-                                  corrigirDataLocal(info.data),
-                                  "dd/MM/yyyy",
-                                  { locale: ptBR }
-                                )}{" "}
+                                {format(corrigirDataLocal(info.data), "dd/MM/yyyy", {
+                                  locale: ptBR,
+                                })}{" "}
                                 às {info.hora}
                               </span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-sm text-muted-foreground">
-                                Status:
-                              </span>
+                              <span className="text-sm text-muted-foreground">Status:</span>
                               <Badge
                                 variant={
-                                  operacao.status === "CONCLUIDA"
-                                    ? "default"
-                                    : "secondary"
+                                  operacao.status === "CONCLUIDA" ? "default" : "secondary"
                                 }
                               >
                                 {operacao.status === "CONCLUIDA"
@@ -467,7 +407,6 @@ const handleDeleteItem = (itemId: number) => {
                                   : "Pendente"}
                               </Badge>
                             </div>
-
                             {!isCompleted && itensPendentes > 0 && (
                               <div className="mt-2 text-xs text-amber-600">
                                 {itensPendentes} item(ns) sem Resultado Financeiro — preencha para concluir.
@@ -486,17 +425,13 @@ const handleDeleteItem = (itemId: number) => {
                       </CardHeader>
                       <CardContent className="grid grid-cols-3 gap-4">
                         <div>
-                          <div className="text-sm text-muted-foreground">
-                            Total Stake
-                          </div>
+                          <div className="text-sm text-muted-foreground">Total Stake</div>
                           <div className="text-lg font-bold font-mono">
                             R$ {stats.totalStake.toFixed(2).replace(".", ",")}
                           </div>
                         </div>
                         <div>
-                          <div className="text-sm text-muted-foreground">
-                            Resultado Total
-                          </div>
+                          <div className="text-sm text-muted-foreground">Resultado Total</div>
                           <div
                             className={`text-lg font-bold font-mono ${
                               stats.resultadoTotal >= 0
@@ -636,20 +571,11 @@ const handleDeleteItem = (itemId: number) => {
               )}
 
               <div className="flex justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={onClose}
-                  data-testid="button-cancel"
-                >
+                <Button type="button" variant="outline" onClick={onClose}>
                   {isEdit ? "Fechar" : "Cancelar"}
                 </Button>
                 {!isEdit && (
-                  <Button
-                    type="submit"
-                    disabled={createMutation.isPending}
-                    data-testid="button-submit"
-                  >
+                  <Button type="submit" disabled={createMutation.isPending}>
                     {createMutation.isPending ? "Criando..." : "Criar Operação"}
                   </Button>
                 )}
@@ -671,6 +597,62 @@ const handleDeleteItem = (itemId: number) => {
           mercados={mercados}
           estrategias={estrategias}
         />
+      )}
+
+      {/* ===== Modal de Exclusão ===== */}
+      {confirmDeleteId !== null && (
+        <Dialog open={true} onOpenChange={() => setConfirmDeleteId(null)}>
+          <DialogContent className="sm:max-w-[400px]">
+            <DialogHeader>
+              <DialogTitle>Excluir item da operação</DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-muted-foreground mb-4">
+              Tem certeza que deseja excluir este item? Esta ação não pode ser desfeita.
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setConfirmDeleteId(null)}>
+                Cancelar
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  deleteItemMutation.mutate(confirmDeleteId);
+                  setConfirmDeleteId(null);
+                }}
+              >
+                Excluir
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* ===== Modal de Conclusão ===== */}
+      {confirmConcluir && (
+        <Dialog open={true} onOpenChange={() => setConfirmConcluir(false)}>
+          <DialogContent className="sm:max-w-[400px]">
+            <DialogHeader>
+              <DialogTitle>Concluir Operação</DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-muted-foreground mb-4">
+              Tem certeza que deseja concluir esta operação?
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setConfirmConcluir(false)}>
+                Cancelar
+              </Button>
+              <Button
+                variant="default"
+                onClick={async () => {
+                  await concluirMutation.mutateAsync();
+                  setConfirmConcluir(false);
+                }}
+              >
+                Concluir
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </>
   );
