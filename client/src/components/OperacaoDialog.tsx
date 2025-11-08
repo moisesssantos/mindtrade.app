@@ -224,11 +224,41 @@ export default function OperacaoDialog({
     createMutation.mutate(data);
   };
 
-  const handleDeleteItem = (itemId: number) => {
-    if (confirm("Tem certeza que deseja excluir este item?")) {
-      deleteItemMutation.mutate(itemId);
-    }
-  };
+  // Estado para abrir/fechar o modal de confirmação
+const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
+
+// Nova função para abrir o modal
+const handleDeleteItem = (itemId: number) => {
+  setConfirmDeleteId(itemId);
+};
+
+// (No final do return principal, logo antes do fechamento do componente)
+{confirmDeleteId !== null && (
+  <Dialog open={true} onOpenChange={() => setConfirmDeleteId(null)}>
+    <DialogContent className="sm:max-w-[400px]">
+      <DialogHeader>
+        <DialogTitle>Excluir item da operação</DialogTitle>
+      </DialogHeader>
+      <p className="text-sm text-muted-foreground mb-4">
+        Tem certeza que deseja excluir este item? Esta ação não pode ser desfeita.
+      </p>
+      <div className="flex justify-end gap-2">
+        <Button variant="outline" onClick={() => setConfirmDeleteId(null)}>
+          Cancelar
+        </Button>
+        <Button
+          variant="destructive"
+          onClick={() => {
+            deleteItemMutation.mutate(confirmDeleteId);
+            setConfirmDeleteId(null);
+          }}
+        >
+          Excluir
+        </Button>
+      </div>
+    </DialogContent>
+  </Dialog>
+)}
 
   const handleEditItem = (item: OperacaoItem) => {
     setSelectedItem(item);
