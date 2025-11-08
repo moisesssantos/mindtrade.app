@@ -34,6 +34,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import OperacaoItemDialog from "@/components/OperacaoItemDialog";
 
+// ================== Tipos ==================
 type Partida = {
   id: number;
   data: string;
@@ -47,7 +48,7 @@ type Partida = {
 type Operacao = {
   id: number;
   partidaId: number;
-  status: 'PENDENTE' | 'CONCLUIDA';
+  status: "PENDENTE" | "CONCLUIDA";
   dataHoraRegistro: string;
   dataConclusao: string | null;
 };
@@ -69,26 +70,10 @@ type OperacaoItem = {
   motivacaoSaidaObservacao: string | null;
 };
 
-type Equipe = {
-  id: number;
-  nome: string;
-};
-
-type Competicao = {
-  id: number;
-  nome: string;
-};
-
-type Mercado = {
-  id: number;
-  nome: string;
-};
-
-type Estrategia = {
-  id: number;
-  nome: string;
-  mercadoId: number;
-};
+type Equipe = { id: number; nome: string };
+type Competicao = { id: number; nome: string };
+type Mercado = { id: number; nome: string };
+type Estrategia = { id: number; nome: string; mercadoId: number };
 
 interface OperacaoDialogProps {
   open: boolean;
@@ -101,6 +86,7 @@ interface OperacaoDialogProps {
   estrategias: Estrategia[];
 }
 
+// ================== Componente ==================
 export default function OperacaoDialog({
   open,
   onClose,
@@ -116,10 +102,13 @@ export default function OperacaoDialog({
   const { toast } = useToast();
 
   const isEdit = !!operacao;
-  const isCompleted = operacao?.status === 'CONCLUIDA';
+  const isCompleted = operacao?.status === "CONCLUIDA";
 
   const schema = z.object({
-    partidaId: z.number({ required_error: "Partida é obrigatória" }).int().positive(),
+    partidaId: z
+      .number({ required_error: "Partida é obrigatória" })
+      .int()
+      .positive(),
   });
 
   const form = useForm<any>({
@@ -129,9 +118,18 @@ export default function OperacaoDialog({
     },
   });
 
-  // Buscar itens quando editando
+  // ================== Função para corrigir data ==================
+  // Remove o deslocamento UTC e mantém a data exata cadastrada
+  const corrigirDataLocal = (dataString: string) => {
+    if (!dataString) return "";
+    const d = new Date(dataString);
+    d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+    return d;
+  };
+
+  // ================== Query: Itens da operação ==================
   const { data: itens = [], isLoading: isLoadingItens } = useQuery<OperacaoItem[]>({
-    queryKey: ['/api/operacoes', operacao?.id, 'itens'],
+    queryKey: ["/api/operacoes", operacao?.id, "itens"],
     enabled: isEdit,
   });
 
@@ -143,13 +141,12 @@ export default function OperacaoDialog({
     }
   }, [open, operacao, form]);
 
+  // ================== Mutations ==================
   const createMutation = useMutation({
-    mutationFn: async (data: any) => {
-      return apiRequest('/api/operacoes', 'POST', data);
-    },
+    mutationFn: async (data: any) => apiRequest("/api/operacoes", "POST", data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/operacoes'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/partidas'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/operacoes"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/partidas"] });
       toast({
         title: "Operação criada",
         description: "A operação foi criada com sucesso.",
@@ -166,11 +163,12 @@ export default function OperacaoDialog({
   });
 
   const deleteItemMutation = useMutation({
-    mutationFn: async (itemId: number) => {
-      return apiRequest(`/api/operacoes/itens/${itemId}`, 'DELETE');
-    },
+    mutationFn: async (itemId: number) =>
+      apiRequest(`/api/operacoes/itens/${itemId}`, "DELETE"),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/operacoes', operacao?.id, 'itens'] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/operacoes", operacao?.id, "itens"],
+      });
       toast({
         title: "Item excluído",
         description: "O item foi excluído com sucesso.",
@@ -200,13 +198,18 @@ export default function OperacaoDialog({
     setItemDialogOpen(true);
   };
 
+  // ================== Funções auxiliares ==================
   const getPartidaInfo = (partidaId: number) => {
-    const partida = partidas.find(p => p.id === partidaId);
-    if (!partida) return { mandante: '', visitante: '', competicao: '', data: '', hora: '' };
+    const partida = partidas.find((p) => p.id === partidaId);
+    if (!partida)
+      return { mandante: "", visitante: "", competicao: "", data: "", hora: "" };
 
-    const mandante = equipes.find(e => e.id === partida.mandanteId)?.nome || '';
-    const visitante = equipes.find(e => e.id === partida.visitanteId)?.nome || '';
-    const competicao = competicoes.find(c => c.id === partida.competicaoId)?.nome || '';
+    const mandante =
+      equipes.find((e) => e.id === partida.mandanteId)?.nome || "";
+    const visitante =
+      equipes.find((e) => e.id === partida.visitanteId)?.nome || "";
+    const competicao =
+      competicoes.find((c) => c.id === partida.competicaoId)?.nome || "";
 
     return {
       mandante,
@@ -217,12 +220,21 @@ export default function OperacaoDialog({
     };
   };
 
-  const getMercadoNome = (id: number) => mercados.find(m => m.id === id)?.nome || '';
-  const getEstrategiaNome = (id: number) => estrategias.find(e => e.id === id)?.nome || '';
+  const getMercadoNome = (id: number) =>
+    mercados.find((m) => m.id === id)?.nome || "";
+
+  const getEstrategiaNome = (id: number) =>
+    estrategias.find((e) => e.id === id)?.nome || "";
 
   const calcularEstatisticas = () => {
-    const totalStake = itens.reduce((acc, item) => acc + parseFloat(item.stake || '0'), 0);
-    const resultadoTotal = itens.reduce((acc, item) => acc + parseFloat(item.resultadoFinanceiro || '0'), 0);
+    const totalStake = itens.reduce(
+      (acc, item) => acc + parseFloat(item.stake || "0"),
+      0
+    );
+    const resultadoTotal = itens.reduce(
+      (acc, item) => acc + parseFloat(item.resultadoFinanceiro || "0"),
+      0
+    );
     const roi = totalStake > 0 ? (resultadoTotal / totalStake) * 100 : 0;
 
     return { totalStake, resultadoTotal, roi };
@@ -230,19 +242,23 @@ export default function OperacaoDialog({
 
   const stats = isEdit ? calcularEstatisticas() : null;
 
-  // Filtrar partidas disponíveis para operação
-  const partidasDisponiveis = partidas.filter(p => 
-    p.status === 'OPERACAO_PENDENTE' || 
-    (operacao && p.id === operacao.partidaId)
+  const partidasDisponiveis = partidas.filter(
+    (p) =>
+      p.status === "OPERACAO_PENDENTE" ||
+      (operacao && p.id === operacao.partidaId)
   );
 
+  // ================== Render ==================
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" data-testid="dialog-operacao">
+        <DialogContent
+          className="max-w-4xl max-h-[90vh] overflow-y-auto"
+          data-testid="dialog-operacao"
+        >
           <DialogHeader>
             <DialogTitle>
-              {isEdit ? 'Detalhes da Operação' : 'Nova Operação'}
+              {isEdit ? "Detalhes da Operação" : "Nova Operação"}
             </DialogTitle>
           </DialogHeader>
 
@@ -268,8 +284,16 @@ export default function OperacaoDialog({
                           {partidasDisponiveis.map((partida) => {
                             const info = getPartidaInfo(partida.id);
                             return (
-                              <SelectItem key={partida.id} value={partida.id.toString()}>
-                                {info.mandante} vs {info.visitante} - {format(new Date(info.data), 'dd/MM/yyyy', { locale: ptBR })}
+                              <SelectItem
+                                key={partida.id}
+                                value={partida.id.toString()}
+                              >
+                                {info.mandante} vs {info.visitante} -{" "}
+                                {format(
+                                  corrigirDataLocal(info.data),
+                                  "dd/MM/yyyy",
+                                  { locale: ptBR }
+                                )}
                               </SelectItem>
                             );
                           })}
@@ -285,7 +309,9 @@ export default function OperacaoDialog({
                 <div className="space-y-4">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-base">Informações da Partida</CardTitle>
+                      <CardTitle className="text-base">
+                        Informações da Partida
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2">
                       {(() => {
@@ -293,21 +319,46 @@ export default function OperacaoDialog({
                         return (
                           <>
                             <div className="flex justify-between">
-                              <span className="text-sm text-muted-foreground">Partida:</span>
-                              <span className="font-medium">{info.mandante} vs {info.visitante}</span>
+                              <span className="text-sm text-muted-foreground">
+                                Partida:
+                              </span>
+                              <span className="font-medium">
+                                {info.mandante} vs {info.visitante}
+                              </span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-sm text-muted-foreground">Competição:</span>
+                              <span className="text-sm text-muted-foreground">
+                                Competição:
+                              </span>
                               <span>{info.competicao}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-sm text-muted-foreground">Data/Hora:</span>
-                              <span>{format(new Date(info.data), 'dd/MM/yyyy', { locale: ptBR })} às {info.hora}</span>
+                              <span className="text-sm text-muted-foreground">
+                                Data/Hora:
+                              </span>
+                              <span>
+                                {format(
+                                  corrigirDataLocal(info.data),
+                                  "dd/MM/yyyy",
+                                  { locale: ptBR }
+                                )}{" "}
+                                às {info.hora}
+                              </span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-sm text-muted-foreground">Status:</span>
-                              <Badge variant={operacao.status === 'CONCLUIDA' ? 'default' : 'secondary'}>
-                                {operacao.status === 'CONCLUIDA' ? 'Concluída' : 'Pendente'}
+                              <span className="text-sm text-muted-foreground">
+                                Status:
+                              </span>
+                              <Badge
+                                variant={
+                                  operacao.status === "CONCLUIDA"
+                                    ? "default"
+                                    : "secondary"
+                                }
+                              >
+                                {operacao.status === "CONCLUIDA"
+                                  ? "Concluída"
+                                  : "Pendente"}
                               </Badge>
                             </div>
                           </>
@@ -323,21 +374,42 @@ export default function OperacaoDialog({
                       </CardHeader>
                       <CardContent className="grid grid-cols-3 gap-4">
                         <div>
-                          <div className="text-sm text-muted-foreground">Total Stake</div>
+                          <div className="text-sm text-muted-foreground">
+                            Total Stake
+                          </div>
                           <div className="text-lg font-bold font-mono">
-                            R$ {stats.totalStake.toFixed(2).replace('.', ',')}
+                            R$ {stats.totalStake.toFixed(2).replace(".", ",")}
                           </div>
                         </div>
                         <div>
-                          <div className="text-sm text-muted-foreground">Resultado Total</div>
-                          <div className={`text-lg font-bold font-mono ${stats.resultadoTotal >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            R$ {stats.resultadoTotal >= 0 ? '+' : ''}{stats.resultadoTotal.toFixed(2).replace('.', ',')}
+                          <div className="text-sm text-muted-foreground">
+                            Resultado Total
+                          </div>
+                          <div
+                            className={`text-lg font-bold font-mono ${
+                              stats.resultadoTotal >= 0
+                                ? "text-green-600"
+                                : "text-red-600"
+                            }`}
+                          >
+                            R${" "}
+                            {stats.resultadoTotal >= 0 ? "+" : ""}
+                            {stats.resultadoTotal
+                              .toFixed(2)
+                              .replace(".", ",")}
                           </div>
                         </div>
                         <div>
                           <div className="text-sm text-muted-foreground">ROI</div>
-                          <div className={`text-lg font-bold font-mono ${stats.roi >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            {stats.roi >= 0 ? '+' : ''}{stats.roi.toFixed(2).replace('.', ',')}%
+                          <div
+                            className={`text-lg font-bold font-mono ${
+                              stats.roi >= 0
+                                ? "text-green-600"
+                                : "text-red-600"
+                            }`}
+                          >
+                            {stats.roi >= 0 ? "+" : ""}
+                            {stats.roi.toFixed(2).replace(".", ",")}%
                           </div>
                         </div>
                       </CardContent>
@@ -369,7 +441,8 @@ export default function OperacaoDialog({
                     ) : itens.length === 0 ? (
                       <Card>
                         <CardContent className="py-8 text-center text-muted-foreground">
-                          Nenhum item adicionado. Clique em "Adicionar Item" para começar.
+                          Nenhum item adicionado. Clique em "Adicionar Item" para
+                          começar.
                         </CardContent>
                       </Card>
                     ) : (
@@ -380,25 +453,62 @@ export default function OperacaoDialog({
                               <div className="flex items-start justify-between">
                                 <div className="flex-1">
                                   <div className="font-semibold mb-2">
-                                    Item #{index + 1} - {getMercadoNome(item.mercadoId)} / {getEstrategiaNome(item.estrategiaId)}
+                                    Item #{index + 1} - {getMercadoNome(item.mercadoId)} /{" "}
+                                    {getEstrategiaNome(item.estrategiaId)}
                                   </div>
                                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
                                     <div>
-                                      <span className="text-muted-foreground">Stake:</span>{' '}
-                                      <span className="font-mono">R$ {parseFloat(item.stake).toFixed(2).replace('.', ',')}</span>
+                                      <span className="text-muted-foreground">
+                                        Stake:
+                                      </span>{" "}
+                                      <span className="font-mono">
+                                        R${" "}
+                                        {parseFloat(item.stake)
+                                          .toFixed(2)
+                                          .replace(".", ",")}
+                                      </span>
                                     </div>
                                     <div>
-                                      <span className="text-muted-foreground">Odd Entrada:</span>{' '}
-                                      <span className="font-mono">{parseFloat(item.oddEntrada).toFixed(2).replace('.', ',')}</span>
+                                      <span className="text-muted-foreground">
+                                        Odd Entrada:
+                                      </span>{" "}
+                                      <span className="font-mono">
+                                        {parseFloat(item.oddEntrada)
+                                          .toFixed(2)
+                                          .replace(".", ",")}
+                                      </span>
                                     </div>
                                     <div>
-                                      <span className="text-muted-foreground">Odd Saída:</span>{' '}
-                                      <span className="font-mono">{item.oddSaida ? parseFloat(item.oddSaida).toFixed(2).replace('.', ',') : '-'}</span>
+                                      <span className="text-muted-foreground">
+                                        Odd Saída:
+                                      </span>{" "}
+                                      <span className="font-mono">
+                                        {item.oddSaida
+                                          ? parseFloat(item.oddSaida)
+                                              .toFixed(2)
+                                              .replace(".", ",")
+                                          : "-"}
+                                      </span>
                                     </div>
                                     <div>
-                                      <span className="text-muted-foreground">Resultado:</span>{' '}
-                                      <span className={`font-mono ${item.resultadoFinanceiro && parseFloat(item.resultadoFinanceiro) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                        {item.resultadoFinanceiro ? `R$ ${parseFloat(item.resultadoFinanceiro).toFixed(2).replace('.', ',')}` : '-'}
+                                      <span className="text-muted-foreground">
+                                        Resultado:
+                                      </span>{" "}
+                                      <span
+                                        className={`font-mono ${
+                                          item.resultadoFinanceiro &&
+                                          parseFloat(item.resultadoFinanceiro) >= 0
+                                            ? "text-green-600"
+                                            : "text-red-600"
+                                        }`}
+                                      >
+                                        {item.resultadoFinanceiro
+                                          ? `R$ ${parseFloat(
+                                              item.resultadoFinanceiro
+                                            )
+                                              .toFixed(2)
+                                              .replace(".", ",")}`
+                                          : "-"}
                                       </span>
                                     </div>
                                   </div>
@@ -436,16 +546,21 @@ export default function OperacaoDialog({
               )}
 
               <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={onClose} data-testid="button-cancel">
-                  {isEdit ? 'Fechar' : 'Cancelar'}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onClose}
+                  data-testid="button-cancel"
+                >
+                  {isEdit ? "Fechar" : "Cancelar"}
                 </Button>
                 {!isEdit && (
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     disabled={createMutation.isPending}
                     data-testid="button-submit"
                   >
-                    {createMutation.isPending ? 'Criando...' : 'Criar Operação'}
+                    {createMutation.isPending ? "Criando..." : "Criar Operação"}
                   </Button>
                 )}
               </div>
