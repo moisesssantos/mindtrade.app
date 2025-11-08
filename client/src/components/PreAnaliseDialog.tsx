@@ -152,39 +152,6 @@ export function PreAnaliseDialog({
     destaqueEssencial: "",
   },
 });
-
-const [campoGerenciado, setCampoGerenciado] = useState<string | null>(null);
-
-function handleOpenManageDialog(campo: string) {
-  setCampoGerenciado(campo);
-}
-
-function handleCloseManageDialog() {
-  setCampoGerenciado(null);
-}
-function getFieldLabel(campo: string | null): string {
-  switch (campo) {
-    case "momento": return "Momentos";
-    case "importancia": return "Importância";
-    case "desfalques": return "Desfalques";
-    case "valor": return "Valor Potencial";
-    case "tendencia": return "Tendência Esperada";
-    case "desempenho": return "Desempenho";
-    default: return "";
-  }
-}
-
-function getDefaultOptions(campo: string | null): string[] {
-  switch (campo) {
-    case "momento": return defaultMomentoOptions;
-    case "importancia": return defaultImportanciaOptions;
-    case "desfalques": return defaultDesfalquesOptions;
-    case "valor": return defaultValorOptions;
-    case "tendencia": return defaultTendenciaOptions;
-    case "desempenho": return defaultDesempenhoOptions;
-    default: return [];
-  }
-}
   
   useEffect(() => {
     if (open) {
