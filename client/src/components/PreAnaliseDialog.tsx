@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Plus, Pencil, Trash2, Settings } from "lucide-react";
+import { useOpcoes } from "@/hooks/use-opcoes"; // certifique-se que esse hook existe
 
 interface PreAnaliseDialogProps {
   open: boolean;
@@ -20,13 +21,21 @@ interface PreAnaliseDialogProps {
   isLoading: boolean;
 }
 
-const MOMENTO_OPTIONS_DEFAULT = ["Boa Fase", "Má Fase", "Regular"];
-const MUST_WIN_OPTIONS_DEFAULT = ["Título", "Rebaixamento", "Classificação competições importantes", "Clássico", "Quebra de Tabus", "Classificação próxima fase", "Irrelevante"];
-const IMPORTANCIA_OPTIONS_DEFAULT = ["Mais importante", "Menos importante", "Mesma importância", "Sem importância"];
-const DESFALQUES_OPTIONS_DEFAULT = ["Goleador", "Capitão", "Técnico", "Jogador Importante", "Jogador Decisivo", "Sem desfalques importantes"];
-const TENDENCIA_OPTIONS_DEFAULT = ["M Dominante", "V Dominante", "Trocação", "Jogo Truncado", "Jogo Complexo", "Jogo Morno"];
-const DESEMPENHO_OPTIONS_DEFAULT = ["Ótimo", "Bom", "Regular", "Ruim", "Péssimo"];
-const VALOR_OPTIONS_DEFAULT = ["Odds Justas", "Odds Esmagadas", "Odds sem Valor", "Odds Boas"];
+//const MOMENTO_OPTIONS_DEFAULT = ["Boa Fase", "Má Fase", "Regular"];
+//const MUST_WIN_OPTIONS_DEFAULT = ["Título", "Rebaixamento", "Classificação competições importantes", "Clássico", "Quebra de Tabus", "Classificação próxima fase", "Irrelevante"];
+//const IMPORTANCIA_OPTIONS_DEFAULT = ["Mais importante", "Menos importante", "Mesma importância", "Sem importância"];
+//const DESFALQUES_OPTIONS_DEFAULT = ["Goleador", "Capitão", "Técnico", "Jogador Importante", "Jogador Decisivo", "Sem desfalques importantes"];
+//const TENDENCIA_OPTIONS_DEFAULT = ["M Dominante", "V Dominante", "Trocação", "Jogo Truncado", "Jogo Complexo", "Jogo Morno"];
+//const DESEMPENHO_OPTIONS_DEFAULT = ["Ótimo", "Bom", "Regular", "Ruim", "Péssimo"];
+//const VALOR_OPTIONS_DEFAULT = ["Odds Justas", "Odds Esmagadas", "Odds sem Valor", "Odds Boas"];
+
+const { opcoes: momentoOptions, addOpcao: addMomento } = useOpcoes("momento", MOMENTO_OPTIONS_DEFAULT);
+const { opcoes: mustWinOptions, addOpcao: addMustWin } = useOpcoes("mustWin", MUST_WIN_OPTIONS_DEFAULT);
+const { opcoes: importanciaOptions, addOpcao: addImportancia } = useOpcoes("importancia", IMPORTANCIA_OPTIONS_DEFAULT);
+const { opcoes: desfalquesOptions, addOpcao: addDesfalques } = useOpcoes("desfalques", DESFALQUES_OPTIONS_DEFAULT);
+const { opcoes: tendenciaOptions, addOpcao: addTendencia } = useOpcoes("tendencia", TENDENCIA_OPTIONS_DEFAULT);
+const { opcoes: desempenhoOptions, addOpcao: addDesempenho } = useOpcoes("desempenho", DESEMPENHO_OPTIONS_DEFAULT);
+const { opcoes: valorOptions, addOpcao: addValor } = useOpcoes("valor", VALOR_OPTIONS_DEFAULT);
 
 export function PreAnaliseDialog({ 
   open, 
@@ -116,114 +125,113 @@ export function PreAnaliseDialog({
   }, [open, initialData, form]);
 
   // Funções auxiliares para gerenciar opções
-  const getOptionsForField = (field: string): string[] => {
-    switch (field) {
-      case "momento": return momentoOptions;
-      case "mustWin": return mustWinOptions;
-      case "importancia": return importanciaOptions;
-      case "desfalques": return desfalquesOptions;
-      case "tendencia": return tendenciaOptions;
-      case "desempenho": return desempenhoOptions;
-      case "valor": return valorOptions;
-      default: return [];
+const getOptionsForField = (field: string): string[] => {
+  switch (field) {
+    case "momento": return momentoOptions;
+    case "mustWin": return mustWinOptions;
+    case "importancia": return importanciaOptions;
+    case "desfalques": return desfalquesOptions;
+    case "tendencia": return tendenciaOptions;
+    case "desempenho": return desempenhoOptions;
+    case "valor": return valorOptions;
+    default: return [];
+  }
+};
+
+const handleOpenManageDialog = (field: string) => {
+  setManagingField(field);
+  setEditingIndex(null);
+  setEditingValue("");
+  setManageDialogOpen(true);
+};
+
+const handleCloseManageDialog = () => {
+  setManageDialogOpen(false);
+  setManagingField("");
+  setEditingIndex(null);
+  setEditingValue("");
+  setNewOptionValue("");
+};
+
+const handleAddOption = () => {
+  if (newOptionValue.trim()) {
+    const valor = newOptionValue.trim();
+    switch (managingField) {
+      case "momento": addMomento(valor); break;
+      case "mustWin": addMustWin(valor); break;
+      case "importancia": addImportancia(valor); break;
+      case "desfalques": addDesfalques(valor); break;
+      case "tendencia": addTendencia(valor); break;
+      case "desempenho": addDesempenho(valor); break;
+      case "valor": addValor(valor); break;
     }
-  };
-
-  const setOptionsForField = (field: string, options: string[]) => {
-    switch (field) {
-      case "momento": setMomentoOptions(options); break;
-      case "mustWin": setMustWinOptions(options); break;
-      case "importancia": setImportanciaOptions(options); break;
-      case "desfalques": setDesfalquesOptions(options); break;
-      case "tendencia": setTendenciaOptions(options); break;
-      case "desempenho": setDesempenhoOptions(options); break;
-      case "valor": setValorOptions(options); break;
-    }
-  };
-
-  const handleOpenManageDialog = (field: string) => {
-    setManagingField(field);
-    setEditingIndex(null);
-    setEditingValue("");
-    setManageDialogOpen(true);
-  };
-
-  const handleCloseManageDialog = () => {
-    setManageDialogOpen(false);
-    setManagingField("");
-    setEditingIndex(null);
-    setEditingValue("");
     setNewOptionValue("");
-  };
+  }
+};
 
-  const handleAddOption = () => {
-    if (newOptionValue.trim()) {
-      const options = [...getOptionsForField(managingField), newOptionValue.trim()];
-      setOptionsForField(managingField, options);
-      setNewOptionValue("");
+const handleEditOption = (index: number) => {
+  setEditingIndex(index);
+  setEditingValue(getOptionsForField(managingField)[index]);
+};
+
+const handleSaveEdit = () => {
+  // Edição persistente ainda não implementada no hook
+  // Pode ser mantida local ou removida até implementar updateOpcao
+  setEditingIndex(null);
+  setEditingValue("");
+};
+
+const handleCancelEdit = () => {
+  setEditingIndex(null);
+  setEditingValue("");
+};
+
+const handleDeleteOption = (index: number) => {
+  setDeleteIndex(index);
+  setDeleteConfirmOpen(true);
+};
+
+const confirmDelete = () => {
+  if (deleteIndex !== null) {
+    const valor = getOptionsForField(managingField)[deleteIndex];
+    switch (managingField) {
+      case "momento": deleteMomento(valor); break;
+      case "mustWin": deleteMustWin(valor); break;
+      case "importancia": deleteImportancia(valor); break;
+      case "desfalques": deleteDesfalques(valor); break;
+      case "tendencia": deleteTendencia(valor); break;
+      case "desempenho": deleteDesempenho(valor); break;
+      case "valor": deleteValor(valor); break;
     }
-  };
+    setDeleteIndex(null);
+    setDeleteConfirmOpen(false);
+  }
+};
 
-  const handleEditOption = (index: number) => {
-    setEditingIndex(index);
-    setEditingValue(getOptionsForField(managingField)[index]);
-  };
+const getFieldLabel = (field: string): string => {
+  switch (field) {
+    case "momento": return "Momento";
+    case "mustWin": return "Must Win";
+    case "importancia": return "Importância";
+    case "desfalques": return "Desfalques";
+    case "tendencia": return "Tendência";
+    case "desempenho": return "Desempenho";
+    case "valor": return "Valor Potencial";
+    default: return "";
+  }
+};
 
-  const handleSaveEdit = () => {
-    if (editingIndex !== null && editingValue.trim()) {
-      const options = [...getOptionsForField(managingField)];
-      options[editingIndex] = editingValue.trim();
-      setOptionsForField(managingField, options);
-      setEditingIndex(null);
-      setEditingValue("");
-    }
-  };
+const handleSubmit = (data: any) => {
+  const payload = Object.fromEntries(
+    Object.entries(data).filter(([_, v]) => v !== "")
+  );
+  onSubmit({ ...payload, partidaId });
+};
 
-  const handleCancelEdit = () => {
-    setEditingIndex(null);
-    setEditingValue("");
-  };
-
-  const handleDeleteOption = (index: number) => {
-    setDeleteIndex(index);
-    setDeleteConfirmOpen(true);
-  };
-
-  const confirmDelete = () => {
-    if (deleteIndex !== null) {
-      const options = [...getOptionsForField(managingField)];
-      options.splice(deleteIndex, 1);
-      setOptionsForField(managingField, options);
-      setDeleteIndex(null);
-      setDeleteConfirmOpen(false);
-    }
-  };
-
-  const getFieldLabel = (field: string): string => {
-    switch (field) {
-      case "momento": return "Momento";
-      case "mustWin": return "Must Win";
-      case "importancia": return "Importância";
-      case "desfalques": return "Desfalques";
-      case "tendencia": return "Tendência";
-      case "desempenho": return "Desempenho";
-      case "valor": return "Valor Potencial";
-      default: return "";
-    }
-  };
-
-  const handleSubmit = (data: any) => {
-    const payload = Object.fromEntries(
-      Object.entries(data).filter(([_, v]) => v !== "")
-    );
-    onSubmit({ ...payload, partidaId });
-  };
-
-  const handleClose = () => {
-    form.reset();
-    onClose();
-  };
-
+const handleClose = () => {
+  form.reset();
+  onClose();
+};
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
