@@ -417,8 +417,8 @@ const handleClose = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {Array.isArray(momentoOptions) &&
-                          momentoOptions.map((option) => (
+                        {Array.isArray(mustWinOptions) &&
+                          mustWinOptions.map((option) => (
                             <SelectItem key={option} value={option}>{option}</SelectItem>
                             ))}
                         <SelectItem value="__manage__">
@@ -452,8 +452,8 @@ const handleClose = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {Array.isArray(momentoOptions) &&
-                          momentoOptions.map((option) => (
+                        {Array.isArray(mustWinOptions) &&
+                          mustWinOptions.map((option) => (
                             <SelectItem key={option} value={option}>{option}</SelectItem>
                             ))}
                         <SelectItem value="__manage__">
@@ -491,8 +491,8 @@ const handleClose = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {Array.isArray(momentoOptions) &&
-                          momentoOptions.map((option) => (
+                        {Array.isArray(importanciaOptions) &&
+                          importanciaOptions.map((option) => (
                             <SelectItem key={option} value={option}>{option}</SelectItem>
                             ))}
                         <SelectItem value="__manage__">
@@ -526,8 +526,8 @@ const handleClose = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {Array.isArray(momentoOptions) &&
-                          momentoOptions.map((option) => (
+                        {Array.isArray(importanciaOptions) &&
+                          importanciaOptions.map((option) => (
                             <SelectItem key={option} value={option}>{option}</SelectItem>
                             ))}
                         <SelectItem value="__manage__">
@@ -565,8 +565,8 @@ const handleClose = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {Array.isArray(momentoOptions) &&
-                          momentoOptions.map((option) => (
+                        {Array.isArray(desfalquesOptions) &&
+                          desfalquesOptions.map((option) => (
                             <SelectItem key={option} value={option}>{option}</SelectItem>
                             ))}
                         <SelectItem value="__manage__">
@@ -600,10 +600,10 @@ const handleClose = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {Array.isArray(momentoOptions) &&
-                          momentoOptions.map((option) => (
+                        {Array.isArray(desfalquesOptions) &&
+                          desfalquesOptions.map((option) => (
                             <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
+                          ))}
                         <SelectItem value="__manage__">
                           <div className="flex items-center gap-2">
                             <Settings className="h-4 w-4" />
@@ -635,8 +635,8 @@ const handleClose = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {Array.isArray(momentoOptions) &&
-                          momentoOptions.map((option) => (
+                        {Array.isArray(valorOptions) &&
+                          valorOptions.map((option) => (
                             <SelectItem key={option} value={option}>{option}</SelectItem>
                             ))}
                         <SelectItem value="__manage__">
@@ -674,10 +674,10 @@ const handleClose = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {Array.isArray(momentoOptions) &&
-                          momentoOptions.map((option) => (
+                        {Array.isArray(tendenciaOptions) &&
+                          tendenciaOptions.map((option) => (
                             <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
+                          ))}
                         <SelectItem value="__manage__">
                           <div className="flex items-center gap-2">
                             <Settings className="h-4 w-4" />
@@ -709,8 +709,8 @@ const handleClose = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {Array.isArray(momentoOptions) &&
-                          momentoOptions.map((option) => (
+                        {Array.isArray(desempenhoOptions) &&
+                          desempenhoOptions.map((option) => (
                             <SelectItem key={option} value={option}>{option}</SelectItem>
                             ))}
                         <SelectItem value="__manage__">
@@ -744,8 +744,8 @@ const handleClose = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {Array.isArray(momentoOptions) &&
-                          momentoOptions.map((option) => (
+                        {Array.isArray(desempenhoOptions) &&
+                          desempenhoOptions.map((option) => (
                             <SelectItem key={option} value={option}>{option}</SelectItem>
                             ))}
                         <SelectItem value="__manage__">
