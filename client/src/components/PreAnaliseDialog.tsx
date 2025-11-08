@@ -343,9 +343,10 @@ const handleClose = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {momentoOptions.map((option) => (
-                          <SelectItem key={option} value={option}>{option}</SelectItem>
-                        ))}
+                        {Array.isArray(momentoOptions) &&
+                          momentoOptions.map((option) => (
+                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                            ))}
                         <SelectItem value="__manage__">
                           <div className="flex items-center gap-2">
                             <Settings className="h-4 w-4" />
@@ -377,9 +378,10 @@ const handleClose = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {momentoOptions.map((option) => (
-                          <SelectItem key={option} value={option}>{option}</SelectItem>
-                        ))}
+                        {Array.isArray(momentoOptions) &&
+                          momentoOptions.map((option) => (
+                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                            ))}
                         <SelectItem value="__manage__">
                           <div className="flex items-center gap-2">
                             <Settings className="h-4 w-4" />
@@ -415,9 +417,10 @@ const handleClose = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {mustWinOptions.map((option) => (
-                          <SelectItem key={option} value={option}>{option}</SelectItem>
-                        ))}
+                        {Array.isArray(momentoOptions) &&
+                          momentoOptions.map((option) => (
+                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                            ))}
                         <SelectItem value="__manage__">
                           <div className="flex items-center gap-2">
                             <Settings className="h-4 w-4" />
@@ -449,9 +452,10 @@ const handleClose = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {mustWinOptions.map((option) => (
-                          <SelectItem key={option} value={option}>{option}</SelectItem>
-                        ))}
+                        {Array.isArray(momentoOptions) &&
+                          momentoOptions.map((option) => (
+                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                            ))}
                         <SelectItem value="__manage__">
                           <div className="flex items-center gap-2">
                             <Settings className="h-4 w-4" />
@@ -487,9 +491,10 @@ const handleClose = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {importanciaOptions.map((option) => (
-                          <SelectItem key={option} value={option}>{option}</SelectItem>
-                        ))}
+                        {Array.isArray(momentoOptions) &&
+                          momentoOptions.map((option) => (
+                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                            ))}
                         <SelectItem value="__manage__">
                           <div className="flex items-center gap-2">
                             <Settings className="h-4 w-4" />
@@ -521,9 +526,10 @@ const handleClose = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {importanciaOptions.map((option) => (
-                          <SelectItem key={option} value={option}>{option}</SelectItem>
-                        ))}
+                        {Array.isArray(momentoOptions) &&
+                          momentoOptions.map((option) => (
+                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                            ))}
                         <SelectItem value="__manage__">
                           <div className="flex items-center gap-2">
                             <Settings className="h-4 w-4" />
@@ -559,9 +565,10 @@ const handleClose = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {desfalquesOptions.map((option) => (
-                          <SelectItem key={option} value={option}>{option}</SelectItem>
-                        ))}
+                        {Array.isArray(momentoOptions) &&
+                          momentoOptions.map((option) => (
+                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                            ))}
                         <SelectItem value="__manage__">
                           <div className="flex items-center gap-2">
                             <Settings className="h-4 w-4" />
@@ -593,9 +600,10 @@ const handleClose = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {desfalquesOptions.map((option) => (
-                          <SelectItem key={option} value={option}>{option}</SelectItem>
-                        ))}
+                        {Array.isArray(momentoOptions) &&
+                          momentoOptions.map((option) => (
+                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                            ))}
                         <SelectItem value="__manage__">
                           <div className="flex items-center gap-2">
                             <Settings className="h-4 w-4" />
@@ -627,9 +635,10 @@ const handleClose = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {valorOptions.map((option) => (
-                          <SelectItem key={option} value={option}>{option}</SelectItem>
-                        ))}
+                        {Array.isArray(momentoOptions) &&
+                          momentoOptions.map((option) => (
+                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                            ))}
                         <SelectItem value="__manage__">
                           <div className="flex items-center gap-2">
                             <Settings className="h-4 w-4" />
@@ -665,9 +674,10 @@ const handleClose = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {tendenciaOptions.map((option) => (
-                          <SelectItem key={option} value={option}>{option}</SelectItem>
-                        ))}
+                        {Array.isArray(momentoOptions) &&
+                          momentoOptions.map((option) => (
+                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                            ))}
                         <SelectItem value="__manage__">
                           <div className="flex items-center gap-2">
                             <Settings className="h-4 w-4" />
@@ -699,9 +709,10 @@ const handleClose = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {desempenhoOptions.map((option) => (
-                          <SelectItem key={option} value={option}>{option}</SelectItem>
-                        ))}
+                        {Array.isArray(momentoOptions) &&
+                          momentoOptions.map((option) => (
+                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                            ))}
                         <SelectItem value="__manage__">
                           <div className="flex items-center gap-2">
                             <Settings className="h-4 w-4" />
@@ -733,9 +744,10 @@ const handleClose = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {desempenhoOptions.map((option) => (
-                          <SelectItem key={option} value={option}>{option}</SelectItem>
-                        ))}
+                        {Array.isArray(momentoOptions) &&
+                          momentoOptions.map((option) => (
+                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                            ))}
                         <SelectItem value="__manage__">
                           <div className="flex items-center gap-2">
                             <Settings className="h-4 w-4" />
