@@ -824,19 +824,29 @@ const handleClose = () => {
 </div>
 
             {/* Destaques Importantes */}
-            <FormField
-              control={form.control}
-              name="destaqueEssencial"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Destaques Importantes</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} maxLength={300} rows={2} data-testid="textarea-destaque" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+<FormField
+  control={form.control}
+  name="destaqueEssencial"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Destaques Importantes</FormLabel>
+      <FormControl>
+        <div className="relative">
+          <Textarea
+            {...field}
+            maxLength={400}
+            rows={2}
+            data-testid="textarea-destaque"
+          />
+          <div className="absolute bottom-1 right-2 text-xs text-muted-foreground">
+            {field.value?.length || 0}/400
+          </div>
+        </div>
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
 
             <div className="flex justify-end gap-2 pt-1">
               <Button type="button" variant="outline" onClick={handleClose} data-testid="button-cancelar" size="sm">
