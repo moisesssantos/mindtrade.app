@@ -220,6 +220,14 @@ const handleAddOption = () => {
   }
 };
 
+  const handleEditOption = (index: number) => {
+  // Obtém a lista de opções atual do campo que está sendo gerenciado
+  const options = getOptionsForField(managingField);
+  setEditingIndex(index);
+  setEditingValue(options[index] ?? "");
+};
+
+
 const handleSaveEdit = () => {
   if (editingIndex === null) return;
 
