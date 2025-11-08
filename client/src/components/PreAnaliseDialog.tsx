@@ -49,45 +49,13 @@ interface PreAnaliseDialogProps {
   isLoading: boolean;
 }
 
-const MOMENTO_OPTIONS_DEFAULT = ["Boa Fase", "Má Fase", "Regular"];
-const MUST_WIN_OPTIONS_DEFAULT = [
-  "Título",
-  "Rebaixamento",
-  "Classificação competições importantes",
-  "Clássico",
-  "Quebra de Tabus",
-  "Classificação próxima fase",
-  "Irrelevante",
-];
-const IMPORTANCIA_OPTIONS_DEFAULT = [
-  "Mais importante",
-  "Menos importante",
-  "Mesma importância",
-  "Sem importância",
-];
-const DESFALQUES_OPTIONS_DEFAULT = [
-  "Goleador",
-  "Capitão",
-  "Técnico",
-  "Jogador Importante",
-  "Jogador Decisivo",
-  "Sem desfalques importantes",
-];
-const TENDENCIA_OPTIONS_DEFAULT = [
-  "M Dominante",
-  "V Dominante",
-  "Trocação",
-  "Jogo Truncado",
-  "Jogo Complexo",
-  "Jogo Morno",
-];
-const DESEMPENHO_OPTIONS_DEFAULT = ["Ótimo", "Bom", "Regular", "Ruim", "Péssimo"];
-const VALOR_OPTIONS_DEFAULT = [
-  "Odds Justas",
-  "Odds Esmagadas",
-  "Odds sem Valor",
-  "Odds Boas",
-];
+const MOMENTO_OPTIONS_DEFAULT = [];
+const MUST_WIN_OPTIONS_DEFAULT = [];
+const IMPORTANCIA_OPTIONS_DEFAULT = [];
+const DESFALQUES_OPTIONS_DEFAULT = [];
+const TENDENCIA_OPTIONS_DEFAULT = [];
+const DESEMPENHO_OPTIONS_DEFAULT = [];
+const VALOR_OPTIONS_DEFAULT = [];
 
 export function PreAnaliseDialog({
   open,
