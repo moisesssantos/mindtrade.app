@@ -97,13 +97,13 @@ export function PreAnaliseDialog({
   initialData,
   isLoading,
 }: PreAnaliseDialogProps) {
-  const { opcoes: momentoOptions, addOpcao: addMomento, deleteOpcao: deleteMomento } = useOpcoes("momento", MOMENTO_OPTIONS_DEFAULT);
-  const { opcoes: mustWinOptions, addOpcao: addMustWin, deleteOpcao: deleteMustWin } = useOpcoes("mustWin", MUST_WIN_OPTIONS_DEFAULT);
-  const { opcoes: importanciaOptions, addOpcao: addImportancia, deleteOpcao: deleteImportancia } = useOpcoes("importancia", IMPORTANCIA_OPTIONS_DEFAULT);
-  const { opcoes: desfalquesOptions, addOpcao: addDesfalques, deleteOpcao: deleteDesfalques } = useOpcoes("desfalques", DESFALQUES_OPTIONS_DEFAULT);
-  const { opcoes: tendenciaOptions, addOpcao: addTendencia, deleteOpcao: deleteTendencia } = useOpcoes("tendencia", TENDENCIA_OPTIONS_DEFAULT);
-  const { opcoes: desempenhoOptions, addOpcao: addDesempenho, deleteOpcao: deleteDesempenho } = useOpcoes("desempenho", DESEMPENHO_OPTIONS_DEFAULT);
-  const { opcoes: valorOptions, addOpcao: addValor, deleteOpcao: deleteValor } = useOpcoes("valor", VALOR_OPTIONS_DEFAULT);
+  const { opcoes: momentoOptions, addOpcao: addMomento, deleteOpcao: deleteMomento, updateOpcao: updateMomento } = useOpcoes("momento", MOMENTO_OPTIONS_DEFAULT);
+  const { opcoes: mustWinOptions, addOpcao: addMustWin, deleteOpcao: deleteMustWin, updateOpcao: updateMustWin } = useOpcoes("mustWin", MUST_WIN_OPTIONS_DEFAULT);
+  const { opcoes: importanciaOptions, addOpcao: addImportancia, deleteOpcao: deleteImportancia, updateOpcao: updateImportancia } = useOpcoes("importancia", IMPORTANCIA_OPTIONS_DEFAULT);
+  const { opcoes: desfalquesOptions, addOpcao: addDesfalques, deleteOpcao: deleteDesfalques, updateOpcao: updateDesfalques } = useOpcoes("desfalques", DESFALQUES_OPTIONS_DEFAULT);
+  const { opcoes: tendenciaOptions, addOpcao: addTendencia, deleteOpcao: deleteTendencia, updateOpcao: updateTendencia } = useOpcoes("tendencia", TENDENCIA_OPTIONS_DEFAULT);
+  const { opcoes: desempenhoOptions, addOpcao: addDesempenho, deleteOpcao: deleteDesempenho, updateOpcao: updateDesempenho } = useOpcoes("desempenho", DESEMPENHO_OPTIONS_DEFAULT);
+  const { opcoes: valorOptions, addOpcao: addValor, deleteOpcao: deleteValor, updateOpcao: updateValor } = useOpcoes("valor", VALOR_OPTIONS_DEFAULT);
 
   // Estados para gerenciamento de opções
   const [manageDialogOpen, setManageDialogOpen] = useState(false);
