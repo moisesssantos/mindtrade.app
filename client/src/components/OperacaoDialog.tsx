@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -27,7 +27,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { format } from "date-fns";
@@ -37,8 +37,8 @@ import OperacaoItemDialog from "@/components/OperacaoItemDialog";
 // ================== Tipos ==================
 type Partida = {
   id: number;
-  data: string;
-  hora: string;
+  data: string;   // ISO ou 'YYYY-MM-DD'
+  hora: string;   // 'HH:mm'
   competicaoId: number;
   mandanteId: number;
   visitanteId: number;
@@ -118,21 +118,30 @@ export default function OperacaoDialog({
     },
   });
 
-  // ================== Função para corrigir data ==================
-  // Remove o deslocamento UTC e mantém a data exata cadastrada
+  // ================== Data sem deslocamento ==================
   const corrigirDataLocal = (dataString: string) => {
-    if (!dataString) return "";
+    if (!dataString) return new Date();
+    // Mantém a data cadastrada (YYYY-MM-DD) sem deslocar por fuso.
     const d = new Date(dataString);
     d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
     return d;
+    // Se sua API já devolve 'YYYY-MM-DD', você também pode:
+    // return new Date(`${dataString}T00:00:00`);
   };
 
   // ================== Query: Itens da operação ==================
-  const { data: itens = [], isLoading: isLoadingItens } = useQuery<OperacaoItem[]>({
-    queryKey: ["/api/operacoes", operacao?.id, "itens"],
-    enabled: isEdit,
+  const operacaoId = operacao?.id;
+  const {
+    data: itens = [],
+    isLoading: isLoadingItens,
+  } = useQuery<OperacaoItem[]>({
+    queryKey: ["/api/operacoes", operacaoId, "itens"],
+    enabled: isEdit && !!operacaoId,
+    queryFn: () =>
+      apiRequest(`/api/operacoes/${operacaoId}/itens`, "GET"),
   });
 
+  // ================== Effects ==================
   useEffect(() => {
     if (open && operacao) {
       form.reset({ partidaId: operacao.partidaId });
@@ -167,8 +176,10 @@ export default function OperacaoDialog({
       apiRequest(`/api/operacoes/itens/${itemId}`, "DELETE"),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["/api/operacoes", operacao?.id, "itens"],
+        queryKey: ["/api/operacoes", operacaoId, "itens"],
       });
+      queryClient.invalidateQueries({ queryKey: ["/api/operacoes"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/partidas"] });
       toast({
         title: "Item excluído",
         description: "O item foi excluído com sucesso.",
@@ -183,6 +194,32 @@ export default function OperacaoDialog({
     },
   });
 
+  const concluirMutation = useMutation({
+    mutationFn: async () =>
+      apiRequest(`/api/operacoes/${operacaoId}/concluir`, "PATCH"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/operacoes"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/partidas"] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/operacoes", operacaoId, "itens"],
+      });
+      toast({
+        title: "Operação concluída",
+        description: "A operação foi concluída com sucesso.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Não foi possível concluir",
+        description:
+          error?.message ||
+          "Todos os itens precisam ter Resultado Financeiro preenchido.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // ================== Handlers ==================
   const handleSubmit = (data: any) => {
     createMutation.mutate(data);
   };
@@ -198,7 +235,29 @@ export default function OperacaoDialog({
     setItemDialogOpen(true);
   };
 
-  // ================== Funções auxiliares ==================
+  const podeConcluir = useMemo(() => {
+    if (!isEdit || isCompleted) return false;
+    if (!itens || itens.length === 0) return false;
+    // todos os itens com resultadoFinanceiro preenchido
+    return itens.every(
+      (i) =>
+        i.resultadoFinanceiro !== null &&
+        i.resultadoFinanceiro !== "" &&
+        !Number.isNaN(parseFloat(i.resultadoFinanceiro as any))
+    );
+  }, [isEdit, isCompleted, itens]);
+
+  const itensPendentes = useMemo(() => {
+    if (!itens || itens.length === 0) return 0;
+    return itens.filter(
+      (i) =>
+        i.resultadoFinanceiro === null ||
+        i.resultadoFinanceiro === "" ||
+        Number.isNaN(parseFloat(i.resultadoFinanceiro as any))
+    ).length;
+  }, [itens]);
+
+  // ================== Auxiliares ==================
   const getPartidaInfo = (partidaId: number) => {
     const partida = partidas.find((p) => p.id === partidaId);
     if (!partida)
@@ -253,7 +312,7 @@ export default function OperacaoDialog({
     <>
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent
-          className="max-w-4xl max-h-[90vh] overflow-y-auto"
+          className="max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl border shadow-lg"
           data-testid="dialog-operacao"
         >
           <DialogHeader>
@@ -308,10 +367,27 @@ export default function OperacaoDialog({
               {isEdit && operacao && (
                 <div className="space-y-4">
                   <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base">
-                        Informações da Partida
-                      </CardTitle>
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-base">
+                          Informações da Partida
+                        </CardTitle>
+                        {!isCompleted && (
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={() => concluirMutation.mutate()}
+                            disabled={!podeConcluir || concluirMutation.isPending}
+                            data-testid="button-concluir-operacao"
+                            className="gap-2"
+                          >
+                            <CheckCircle2 className="w-4 h-4" />
+                            {concluirMutation.isPending
+                              ? "Concluindo..."
+                              : "Concluir Operação"}
+                          </Button>
+                        )}
+                      </div>
                     </CardHeader>
                     <CardContent className="space-y-2">
                       {(() => {
@@ -361,6 +437,12 @@ export default function OperacaoDialog({
                                   : "Pendente"}
                               </Badge>
                             </div>
+
+                            {!isCompleted && itensPendentes > 0 && (
+                              <div className="mt-2 text-xs text-amber-600">
+                                {itensPendentes} item(ns) sem Resultado Financeiro — preencha para concluir.
+                              </div>
+                            )}
                           </>
                         );
                       })()}
@@ -392,20 +474,15 @@ export default function OperacaoDialog({
                                 : "text-red-600"
                             }`}
                           >
-                            R${" "}
-                            {stats.resultadoTotal >= 0 ? "+" : ""}
-                            {stats.resultadoTotal
-                              .toFixed(2)
-                              .replace(".", ",")}
+                            R$ {stats.resultadoTotal >= 0 ? "+" : ""}
+                            {stats.resultadoTotal.toFixed(2).replace(".", ",")}
                           </div>
                         </div>
                         <div>
                           <div className="text-sm text-muted-foreground">ROI</div>
                           <div
                             className={`text-lg font-bold font-mono ${
-                              stats.roi >= 0
-                                ? "text-green-600"
-                                : "text-red-600"
+                              stats.roi >= 0 ? "text-green-600" : "text-red-600"
                             }`}
                           >
                             {stats.roi >= 0 ? "+" : ""}
@@ -441,8 +518,7 @@ export default function OperacaoDialog({
                     ) : itens.length === 0 ? (
                       <Card>
                         <CardContent className="py-8 text-center text-muted-foreground">
-                          Nenhum item adicionado. Clique em "Adicionar Item" para
-                          começar.
+                          Nenhum item adicionado. Clique em "Adicionar Item" para começar.
                         </CardContent>
                       </Card>
                     ) : (
@@ -458,42 +534,27 @@ export default function OperacaoDialog({
                                   </div>
                                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
                                     <div>
-                                      <span className="text-muted-foreground">
-                                        Stake:
-                                      </span>{" "}
+                                      <span className="text-muted-foreground">Stake:</span>{" "}
                                       <span className="font-mono">
-                                        R${" "}
-                                        {parseFloat(item.stake)
-                                          .toFixed(2)
-                                          .replace(".", ",")}
+                                        R$ {parseFloat(item.stake).toFixed(2).replace(".", ",")}
                                       </span>
                                     </div>
                                     <div>
-                                      <span className="text-muted-foreground">
-                                        Odd Entrada:
-                                      </span>{" "}
+                                      <span className="text-muted-foreground">Odd Entrada:</span>{" "}
                                       <span className="font-mono">
-                                        {parseFloat(item.oddEntrada)
-                                          .toFixed(2)
-                                          .replace(".", ",")}
+                                        {parseFloat(item.oddEntrada).toFixed(2).replace(".", ",")}
                                       </span>
                                     </div>
                                     <div>
-                                      <span className="text-muted-foreground">
-                                        Odd Saída:
-                                      </span>{" "}
+                                      <span className="text-muted-foreground">Odd Saída:</span>{" "}
                                       <span className="font-mono">
                                         {item.oddSaida
-                                          ? parseFloat(item.oddSaida)
-                                              .toFixed(2)
-                                              .replace(".", ",")
+                                          ? parseFloat(item.oddSaida).toFixed(2).replace(".", ",")
                                           : "-"}
                                       </span>
                                     </div>
                                     <div>
-                                      <span className="text-muted-foreground">
-                                        Resultado:
-                                      </span>{" "}
+                                      <span className="text-muted-foreground">Resultado:</span>{" "}
                                       <span
                                         className={`font-mono ${
                                           item.resultadoFinanceiro &&
@@ -503,9 +564,7 @@ export default function OperacaoDialog({
                                         }`}
                                       >
                                         {item.resultadoFinanceiro
-                                          ? `R$ ${parseFloat(
-                                              item.resultadoFinanceiro
-                                            )
+                                          ? `R$ ${parseFloat(item.resultadoFinanceiro)
                                               .toFixed(2)
                                               .replace(".", ",")}`
                                           : "-"}
@@ -513,6 +572,7 @@ export default function OperacaoDialog({
                                     </div>
                                   </div>
                                 </div>
+
                                 {!isCompleted && (
                                   <div className="flex gap-2 ml-4">
                                     <Button
