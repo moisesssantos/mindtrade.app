@@ -318,12 +318,12 @@ export default function Relatorios() {
       </div>
 
       <div className="space-y-6">
-        {/* 🔹 Filtros */}
+        {/* Filtros */}
         <Card
           className="
             p-6 transition-all
             bg-white border border-gray-200 shadow-sm
-            dark:bg-[rgba(10,10,15,0.85)]
+            dark:bg-[rgba(10,10,15,0.85)] dark:to-[rgba(17,17,34,0.7)]
             dark:border-primary/20 dark:shadow-[0_0_15px_rgba(80,80,120,0.25)]
           "
         >
@@ -337,6 +337,7 @@ export default function Relatorios() {
                 onChange={(e) =>
                   setFiltros({ ...filtros, dataInicio: e.target.value })
                 }
+                data-testid="input-data-inicio"
               />
             </div>
             <div className="space-y-2">
@@ -347,6 +348,7 @@ export default function Relatorios() {
                 onChange={(e) =>
                   setFiltros({ ...filtros, dataFim: e.target.value })
                 }
+                data-testid="input-data-fim"
               />
             </div>
             <div className="space-y-2">
@@ -357,14 +359,14 @@ export default function Relatorios() {
                   setFiltros({ ...filtros, competicaoId: value })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger data-testid="select-competicao">
                   <SelectValue placeholder="Todas" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todas</SelectItem>
-                  {competicoes.map((c) => (
-                    <SelectItem key={c.id} value={c.id.toString()}>
-                      {c.nome}
+                  {competicoes.map((comp) => (
+                    <SelectItem key={comp.id} value={comp.id.toString()}>
+                      {comp.nome}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -378,14 +380,14 @@ export default function Relatorios() {
                   setFiltros({ ...filtros, equipeId: value })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger data-testid="select-equipe">
                   <SelectValue placeholder="Todas" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todas</SelectItem>
-                  {equipes.map((e) => (
-                    <SelectItem key={e.id} value={e.id.toString()}>
-                      {e.nome}
+                  {equipes.map((equipe) => (
+                    <SelectItem key={equipe.id} value={equipe.id.toString()}>
+                      {equipe.nome}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -399,14 +401,14 @@ export default function Relatorios() {
                   setFiltros({ ...filtros, mercadoId: value })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger data-testid="select-mercado">
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
-                  {mercados.map((m) => (
-                    <SelectItem key={m.id} value={m.id.toString()}>
-                      {m.nome}
+                  {mercados.map((mercado) => (
+                    <SelectItem key={mercado.id} value={mercado.id.toString()}>
+                      {mercado.nome}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -420,14 +422,17 @@ export default function Relatorios() {
                   setFiltros({ ...filtros, estrategiaId: value })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger data-testid="select-estrategia">
                   <SelectValue placeholder="Todas" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todas</SelectItem>
-                  {estrategias.map((e) => (
-                    <SelectItem key={e.id} value={e.id.toString()}>
-                      {e.nome}
+                  {estrategias.map((estrategia) => (
+                    <SelectItem
+                      key={estrategia.id}
+                      value={estrategia.id.toString()}
+                    >
+                      {estrategia.nome}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -435,28 +440,52 @@ export default function Relatorios() {
             </div>
           </div>
           <div className="mt-4">
-            <Button variant="outline" onClick={limparFiltros}>
+            <Button variant="outline" onClick={limparFiltros} data-testid="button-limpar-filtros">
               Limpar Filtros
             </Button>
           </div>
         </Card>
 
-        {/* 🔹 Tabs de Relatórios */}
+        {/* Métricas principais */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <MetricCard
+            title="Lucro Total"
+            value={`R$ ${lucroTotal.toFixed(2).replace(".", ",")}`}
+            icon={TrendingUp}
+          />
+          <MetricCard
+            title="ROI"
+            value={`${roi.toFixed(1).replace(".", ",")}%`}
+            icon={Target}
+          />
+          <MetricCard
+            title="Taxa de Acerto"
+            value={`${taxaAcerto.toFixed(0)}%`}
+            icon={Award}
+          />
+          <MetricCard
+            title="Média por Operação"
+            value={`R$ ${mediaPorOperacao.toFixed(2).replace(".", ",")}`}
+            icon={BarChart3}
+          />
+        </div>
+
+        {/* Tabs */}
         <Tabs defaultValue="geral" className="space-y-4">
-          <TabsList>
+          <TabsList data-testid="tabs-report">
             <TabsTrigger value="geral">Geral</TabsTrigger>
             <TabsTrigger value="mercado">Por Mercado</TabsTrigger>
             <TabsTrigger value="estrategia">Por Estratégia</TabsTrigger>
             <TabsTrigger value="comportamental">Comportamental</TabsTrigger>
           </TabsList>
 
-          {/* === ABA GERAL === */}
+          {/* Geral */}
           <TabsContent value="geral">
             <Card
               className="
                 p-6 transition-all
                 bg-white border border-gray-200 shadow-sm
-                dark:bg-[rgba(10,10,15,0.85)]
+                dark:bg-[rgba(10,10,15,0.85)] dark:to-[rgba(17,17,34,0.7)]
                 dark:border-primary/20 dark:shadow-[0_0_15px_rgba(80,80,120,0.25)]
               "
             >
@@ -500,13 +529,13 @@ export default function Relatorios() {
             </Card>
           </TabsContent>
 
-          {/* === ABA POR MERCADO === */}
+          {/* Por Mercado */}
           <TabsContent value="mercado">
             <Card
               className="
                 p-6 transition-all
                 bg-white border border-gray-200 shadow-sm
-                dark:bg-[rgba(10,10,15,0.85)]
+                dark:bg-[rgba(10,10,15,0.85)] dark:to-[rgba(17,17,34,0.7)]
                 dark:border-primary/20 dark:shadow-[0_0_15px_rgba(80,80,120,0.25)]
               "
             >
@@ -558,13 +587,13 @@ export default function Relatorios() {
             </Card>
           </TabsContent>
 
-          {/* === ABA POR ESTRATÉGIA === */}
+          {/* Por Estratégia */}
           <TabsContent value="estrategia">
             <Card
               className="
                 p-6 transition-all
                 bg-white border border-gray-200 shadow-sm
-                dark:bg-[rgba(10,10,15,0.85)]
+                dark:bg-[rgba(10,10,15,0.85)] dark:to-[rgba(17,17,34,0.7)]
                 dark:border-primary/20 dark:shadow-[0_0_15px_rgba(80,80,120,0.25)]
               "
             >
@@ -588,8 +617,8 @@ export default function Relatorios() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {porEstrategia.map((row, i) => (
-                        <TableRow key={i}>
+                      {porEstrategia.map((row, index) => (
+                        <TableRow key={index}>
                           <TableCell className="font-medium">
                             {row.estrategia}
                           </TableCell>
@@ -620,13 +649,13 @@ export default function Relatorios() {
             </Card>
           </TabsContent>
 
-          {/* === ABA COMPORTAMENTAL === */}
+          {/* Comportamental */}
           <TabsContent value="comportamental">
             <Card
               className="
                 p-6 transition-all
                 bg-white border border-gray-200 shadow-sm
-                dark:bg-[rgba(10,10,15,0.85)]
+                dark:bg-[rgba(10,10,15,0.85)] dark:to-[rgba(17,17,34,0.7)]
                 dark:border-primary/20 dark:shadow-[0_0_15px_rgba(80,80,120,0.25)]
               "
             >
@@ -650,7 +679,9 @@ export default function Relatorios() {
                             : "text-red-600"
                         }`}
                       >
-                        R$ {lucroSeguiuSim.toFixed(2).replace(".", ",")}
+                        {lucroSeguiuSim >= 0 ? "+" : ""}R$ {lucroSeguiuSim
+                          .toFixed(2)
+                          .replace(".", ",")}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
                         ROI: {roiSeguiuSim.toFixed(1).replace(".", ",")}%
@@ -667,7 +698,9 @@ export default function Relatorios() {
                             : "text-red-600"
                         }`}
                       >
-                        R$ {lucroSeguiuNao.toFixed(2).replace(".", ",")}
+                        {lucroSeguiuNao >= 0 ? "+" : ""}R$ {lucroSeguiuNao
+                          .toFixed(2)
+                          .replace(".", ",")}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
                         ROI: {roiSeguiuNao.toFixed(1).replace(".", ",")}%
@@ -675,6 +708,50 @@ export default function Relatorios() {
                     </div>
                   </div>
                 </div>
+
+                {porEstadoEmocional.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-medium mb-3">
+                      Performance por Estado Emocional
+                    </h4>
+                    <div className="rounded-lg border dark:border-border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Estado</TableHead>
+                            <TableHead className="text-right">Lucro</TableHead>
+                            <TableHead className="text-right">ROI</TableHead>
+                            <TableHead className="text-right">Itens</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {porEstadoEmocional.map((row) => (
+                            <TableRow key={row.estado}>
+                              <TableCell className="font-medium">
+                                {row.estado}
+                              </TableCell>
+                              <TableCell
+                                className={`text-right font-mono ${
+                                  row.lucro >= 0
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                }`}
+                              >
+                                R$ {row.lucro.toFixed(2).replace(".", ",")}
+                              </TableCell>
+                              <TableCell className="text-right font-mono">
+                                {row.roi.toFixed(1).replace(".", ",")}%
+                              </TableCell>
+                              <TableCell className="text-right font-mono">
+                                {row.operacoes}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                )}
               </div>
             </Card>
           </TabsContent>
