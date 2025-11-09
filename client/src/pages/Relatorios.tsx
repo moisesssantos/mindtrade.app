@@ -319,14 +319,7 @@ export default function Relatorios() {
 
       <div className="space-y-6">
         {/* Filtros */}
-        <Card
-          className="
-            p-6 transition-all
-            bg-white border border-gray-200 shadow-sm
-            dark:bg-[rgba(10,10,15,0.85)] dark:to-[rgba(17,17,34,0.7)]
-            dark:border-primary/20 dark:shadow-[0_0_15px_rgba(80,80,120,0.25)]
-          "
-        >
+        <Card className="p-6 border border-gray-200 shadow-sm bg-white dark:bg-muted dark:border-border">
           <h3 className="text-lg font-semibold mb-4">Filtros</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
@@ -481,14 +474,7 @@ export default function Relatorios() {
 
           {/* Geral */}
           <TabsContent value="geral">
-            <Card
-              className="
-                p-6 transition-all
-                bg-white border border-gray-200 shadow-sm
-                dark:bg-[rgba(10,10,15,0.85)] dark:to-[rgba(17,17,34,0.7)]
-                dark:border-primary/20 dark:shadow-[0_0_15px_rgba(80,80,120,0.25)]
-              "
-            >
+            <Card className="p-6 border border-gray-200 shadow-sm bg-white dark:bg-muted dark:border-border">
               <h3 className="text-lg font-semibold mb-4">Resumo Geral</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
