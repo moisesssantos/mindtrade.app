@@ -815,50 +815,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ===== OPÇÕES CUSTOMIZADAS =====
-  app.get("/api/opcoes/:campo", async (req, res) => {
-    try {
-      const opcoes = await storage.getOpcoesPorCampo(req.params.campo);
-      res.json(opcoes);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
-    }
-  });
+app.get("/api/opcoes/:campo", async (req, res) => {
+  try {
+    const opcoes = await storage.getOpcoesPorCampo(req.params.campo);
+    res.json(opcoes);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
-  app.post("/api/opcoes", async (req, res) => {
-    try {
-      const data = insertOpcaoCustomizadaSchema.parse(req.body);
-      const opcao = await storage.createOpcaoCustomizada(data);
-      res.status(201).json(opcao);
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
-    }
-  });
+app.post("/api/opcoes", async (req, res) => {
+  try {
+    const data = insertOpcaoCustomizadaSchema.parse(req.body);
 
-  app.put("/api/opcoes/:id", async (req, res) => {
-    try {
-      const data = insertOpcaoCustomizadaSchema.partial().parse(req.body);
-      const opcao = await storage.updateOpcaoCustomizada(parseInt(req.params.id), data);
-      if (!opcao) {
-        return res.status(404).json({ error: "Opção não encontrada" });
-      }
-      res.json(opcao);
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
-    }
-  });
+    // ✅ Verifica se já existe opção igual para o mesmo campo
+    const existentes = await storage.getOpcoesPorCampo(data.campo);
+    const jaExiste = existentes.some(
+      (op) => op.opcao.trim().toLowerCase() === data.opcao.trim().toLowerCase()
+    );
 
-  app.delete("/api/opcoes/:id", async (req, res) => {
-    try {
-      const deleted = await storage.deleteOpcaoCustomizada(parseInt(req.params.id));
-      if (!deleted) {
-        return res.status(404).json({ error: "Opção não encontrada" });
-      }
-      res.status(204).send();
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    if (jaExiste) {
+      return res
+        .status(400)
+        .json({ error: "Essa opção já existe para este campo" });
     }
-  });
 
-  const httpServer = createServer(app);
-  return httpServer;
+    const opcao = await storage.createOpcaoCustomizada(data);
+    res.status(201).json(opcao);
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.put("/api/opcoes/:id", async (req, res) => {
+  try {
+    const data = insertOpcaoCustomizadaSchema.partial().parse(req.body);
+    const opcao = await storage.updateOpcaoCustomizada(
+      parseInt(req.params.id),
+      data
+    );
+    if (!opcao) {
+      return res.status(404).json({ error: "Opção não encontrada" });
+    }
+    res.json(opcao);
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.delete("/api/opcoes/:id", async (req, res) => {
+  try {
+    const deleted = await storage.deleteOpcaoCustomizada(
+      parseInt(req.params.id)
+    );
+    if (!deleted) {
+      return res.status(404).json({ error: "Opção não encontrada" });
+    }
+    res.status(204).send();
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+const httpServer = createServer(app);
+return httpServer;
 }
