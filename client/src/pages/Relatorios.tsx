@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import MetricCard from "@/components/MetricCard";
 import { Card } from "@/components/ui/card";
@@ -68,6 +68,22 @@ export default function Relatorios() {
     mercadoId: "all",
     estrategiaId: "all",
   });
+
+  // ✅ Detectar modo escuro (igual à tela de Resumo)
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(
+    document.documentElement.classList.contains("dark")
+  );
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    return () => observer.disconnect();
+  }, []);
 
   // === Consultas principais ===
   const { data: relatoriosData, isLoading } = useQuery<{
@@ -260,7 +276,8 @@ export default function Relatorios() {
     (acc, item) => acc + parseFloat(item.resultadoFinanceiro || "0"),
     0
   );
-  const roiSeguiuSim = stakeSeguiuSim > 0 ? (lucroSeguiuSim / stakeSeguiuSim) * 100 : 0;
+  const roiSeguiuSim =
+    stakeSeguiuSim > 0 ? (lucroSeguiuSim / stakeSeguiuSim) * 100 : 0;
 
   const stakeSeguiuNao = seguiuPlanoNao.reduce(
     (acc, item) => acc + parseFloat(item.stake || "0"),
@@ -270,7 +287,8 @@ export default function Relatorios() {
     (acc, item) => acc + parseFloat(item.resultadoFinanceiro || "0"),
     0
   );
-  const roiSeguiuNao = stakeSeguiuNao > 0 ? (lucroSeguiuNao / stakeSeguiuNao) * 100 : 0;
+  const roiSeguiuNao =
+    stakeSeguiuNao > 0 ? (lucroSeguiuNao / stakeSeguiuNao) * 100 : 0;
 
   // === Por estado emocional ===
   const estadosSet = new Set(
@@ -318,431 +336,433 @@ export default function Relatorios() {
       </div>
 
       <div className="space-y-6">
+
         {/* Filtros */}
-        <Card className="p-6 border border-gray-200 shadow-sm bg-white dark:bg-muted dark:border-border">
-          <h3 className="text-lg font-semibold mb-4">Filtros</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label>Data Início</Label>
-              <Input
-                type="date"
-                value={filtros.dataInicio}
-                onChange={(e) =>
-                  setFiltros({ ...filtros, dataInicio: e.target.value })
-                }
-                data-testid="input-data-inicio"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Data Fim</Label>
-              <Input
-                type="date"
-                value={filtros.dataFim}
-                onChange={(e) =>
-                  setFiltros({ ...filtros, dataFim: e.target.value })
-                }
-                data-testid="input-data-fim"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Competição</Label>
-              <Select
-                value={filtros.competicaoId}
-                onValueChange={(value) =>
-                  setFiltros({ ...filtros, competicaoId: value })
-                }
-              >
-                <SelectTrigger data-testid="select-competicao">
-                  <SelectValue placeholder="Todas" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas</SelectItem>
-                  {competicoes.map((comp) => (
-                    <SelectItem key={comp.id} value={comp.id.toString()}>
-                      {comp.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Equipe</Label>
-              <Select
-                value={filtros.equipeId}
-                onValueChange={(value) =>
-                  setFiltros({ ...filtros, equipeId: value })
-                }
-              >
-                <SelectTrigger data-testid="select-equipe">
-                  <SelectValue placeholder="Todas" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas</SelectItem>
-                  {equipes.map((equipe) => (
-                    <SelectItem key={equipe.id} value={equipe.id.toString()}>
-                      {equipe.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Mercado</Label>
-              <Select
-                value={filtros.mercadoId}
-                onValueChange={(value) =>
-                  setFiltros({ ...filtros, mercadoId: value })
-                }
-              >
-                <SelectTrigger data-testid="select-mercado">
-                  <SelectValue placeholder="Todos" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  {mercados.map((mercado) => (
-                    <SelectItem key={mercado.id} value={mercado.id.toString()}>
-                      {mercado.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Estratégia</Label>
-              <Select
-                value={filtros.estrategiaId}
-                onValueChange={(value) =>
-                  setFiltros({ ...filtros, estrategiaId: value })
-                }
-              >
-                <SelectTrigger data-testid="select-estrategia">
-                  <SelectValue placeholder="Todas" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas</SelectItem>
-                  {estrategias.map((estrategia) => (
-                    <SelectItem
-                      key={estrategia.id}
-                      value={estrategia.id.toString()}
-                    >
-                      {estrategia.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div className="mt-4">
-            <Button variant="outline" onClick={limparFiltros} data-testid="button-limpar-filtros">
-              Limpar Filtros
-            </Button>
-          </div>
-        </Card>
+<Card
+  className={
+    isDarkMode
+      ? "p-6 bg-[#2a2b2e] border border-[#44494d]"
+      : "p-6 bg-white border border-gray-200 shadow-sm"
+  }
+>
+  <h3 className="text-lg font-semibold mb-4">Filtros</h3>
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="space-y-2">
+      <Label>Data Início</Label>
+      <Input
+        type="date"
+        value={filtros.dataInicio}
+        onChange={(e) =>
+          setFiltros({ ...filtros, dataInicio: e.target.value })
+        }
+        data-testid="input-data-inicio"
+      />
+    </div>
+    <div className="space-y-2">
+      <Label>Data Fim</Label>
+      <Input
+        type="date"
+        value={filtros.dataFim}
+        onChange={(e) =>
+          setFiltros({ ...filtros, dataFim: e.target.value })
+        }
+        data-testid="input-data-fim"
+      />
+    </div>
+    <div className="space-y-2">
+      <Label>Competição</Label>
+      <Select
+        value={filtros.competicaoId}
+        onValueChange={(value) =>
+          setFiltros({ ...filtros, competicaoId: value })
+        }
+      >
+        <SelectTrigger data-testid="select-competicao">
+          <SelectValue placeholder="Todas" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Todas</SelectItem>
+          {competicoes.map((comp) => (
+            <SelectItem key={comp.id} value={comp.id.toString()}>
+              {comp.nome}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+    <div className="space-y-2">
+      <Label>Equipe</Label>
+      <Select
+        value={filtros.equipeId}
+        onValueChange={(value) =>
+          setFiltros({ ...filtros, equipeId: value })
+        }
+      >
+        <SelectTrigger data-testid="select-equipe">
+          <SelectValue placeholder="Todas" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Todas</SelectItem>
+          {equipes.map((equipe) => (
+            <SelectItem key={equipe.id} value={equipe.id.toString()}>
+              {equipe.nome}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+    <div className="space-y-2">
+      <Label>Mercado</Label>
+      <Select
+        value={filtros.mercadoId}
+        onValueChange={(value) =>
+          setFiltros({ ...filtros, mercadoId: value })
+        }
+      >
+        <SelectTrigger data-testid="select-mercado">
+          <SelectValue placeholder="Todos" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Todos</SelectItem>
+          {mercados.map((mercado) => (
+            <SelectItem key={mercado.id} value={mercado.id.toString()}>
+              {mercado.nome}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+    <div className="space-y-2">
+      <Label>Estratégia</Label>
+      <Select
+        value={filtros.estrategiaId}
+        onValueChange={(value) =>
+          setFiltros({ ...filtros, estrategiaId: value })
+        }
+      >
+        <SelectTrigger data-testid="select-estrategia">
+          <SelectValue placeholder="Todas" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Todas</SelectItem>
+          {estrategias.map((estrategia) => (
+            <SelectItem key={estrategia.id} value={estrategia.id.toString()}>
+              {estrategia.nome}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  </div>
+  <div className="mt-4">
+    <Button
+      variant="outline"
+      onClick={limparFiltros}
+      data-testid="button-limpar-filtros"
+    >
+      Limpar Filtros
+    </Button>
+  </div>
+</Card>
 
-        {/* Métricas principais */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <MetricCard
-            title="Lucro Total"
-            value={`R$ ${lucroTotal.toFixed(2).replace(".", ",")}`}
-            icon={TrendingUp}
-          />
-          <MetricCard
-            title="ROI"
-            value={`${roi.toFixed(1).replace(".", ",")}%`}
-            icon={Target}
-          />
-          <MetricCard
-            title="Taxa de Acerto"
-            value={`${taxaAcerto.toFixed(0)}%`}
-            icon={Award}
-          />
-          <MetricCard
-            title="Média por Operação"
-            value={`R$ ${mediaPorOperacao.toFixed(2).replace(".", ",")}`}
-            icon={BarChart3}
-          />
+{/* Métricas principais */}
+<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+  <MetricCard
+    title="Lucro Total"
+    value={`R$ ${lucroTotal.toFixed(2).replace(".", ",")}`}
+    icon={TrendingUp}
+  />
+  <MetricCard
+    title="ROI"
+    value={`${roi.toFixed(1).replace(".", ",")}%`}
+    icon={Target}
+  />
+  <MetricCard
+    title="Taxa de Acerto"
+    value={`${taxaAcerto.toFixed(0)}%`}
+    icon={Award}
+  />
+  <MetricCard
+    title="Média por Operação"
+    value={`R$ ${mediaPorOperacao.toFixed(2).replace(".", ",")}`}
+    icon={BarChart3}
+  />
+</div>
+
+{/* Tabs */}
+<Tabs defaultValue="geral" className="space-y-4">
+  <TabsList data-testid="tabs-report">
+    <TabsTrigger value="geral">Geral</TabsTrigger>
+    <TabsTrigger value="mercado">Por Mercado</TabsTrigger>
+    <TabsTrigger value="estrategia">Por Estratégia</TabsTrigger>
+    <TabsTrigger value="comportamental">Comportamental</TabsTrigger>
+  </TabsList>
+
+  {/* Geral */}
+  <TabsContent value="geral">
+    <Card
+      className={
+        isDarkMode
+          ? "p-6 bg-[#2a2b2e] border border-[#44494d]"
+          : "p-6 bg-white border border-gray-200 shadow-sm"
+      }
+    >
+      <h3 className="text-lg font-semibold mb-4">Resumo Geral</h3>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <p className="text-sm text-muted-foreground">Total de Operações</p>
+          <p className="text-2xl font-bold font-mono">{totalOperacoes}</p>
         </div>
+        <div>
+          <p className="text-sm text-muted-foreground">Itens Lucrativos</p>
+          <p className="text-2xl font-bold font-mono">{operacoesLucrativas}</p>
+        </div>
+        <div>
+          <p className="text-sm text-muted-foreground">Total Investido</p>
+          <p className="text-2xl font-bold font-mono">
+            R$ {totalStake.toFixed(2).replace(".", ",")}
+          </p>
+        </div>
+        <div>
+          <p className="text-sm text-muted-foreground">Maior Ganho</p>
+          <p
+            className={`text-2xl font-bold font-mono ${
+              maiorGanho >= 0
+                ? "text-green-600 dark:text-green-400"
+                : "text-red-600 dark:text-red-400"
+            }`}
+          >
+            R$ {maiorGanho.toFixed(2).replace(".", ",")}
+          </p>
+        </div>
+      </div>
+    </Card>
+  </TabsContent>
 
-        {/* Tabs */}
-        <Tabs defaultValue="geral" className="space-y-4">
-          <TabsList data-testid="tabs-report">
-            <TabsTrigger value="geral">Geral</TabsTrigger>
-            <TabsTrigger value="mercado">Por Mercado</TabsTrigger>
-            <TabsTrigger value="estrategia">Por Estratégia</TabsTrigger>
-            <TabsTrigger value="comportamental">Comportamental</TabsTrigger>
-          </TabsList>
-
-          {/* Geral */}
-          <TabsContent value="geral">
-            <Card className="p-6 border border-gray-200 shadow-sm bg-white dark:bg-muted dark:border-border">
-              <h3 className="text-lg font-semibold mb-4">Resumo Geral</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Total de Operações
-                  </p>
-                  <p className="text-2xl font-bold font-mono">
-                    {totalOperacoes}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Itens Lucrativos
-                  </p>
-                  <p className="text-2xl font-bold font-mono">
-                    {operacoesLucrativas}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Total Investido
-                  </p>
-                  <p className="text-2xl font-bold font-mono">
-                    R$ {totalStake.toFixed(2).replace(".", ",")}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Maior Ganho</p>
-                  <p
-                    className={`text-2xl font-bold font-mono ${
-                      maiorGanho >= 0 ? "text-green-600" : "text-red-600"
+  {/* Por Mercado */}
+  <TabsContent value="mercado">
+    <Card
+      className={
+        isDarkMode
+          ? "p-6 bg-[#2a2b2e] border border-[#44494d]"
+          : "p-6 bg-white border border-gray-200 shadow-sm"
+      }
+    >
+      <h3 className="text-lg font-semibold mb-4">
+        Performance por Mercado
+      </h3>
+      {porMercado.length === 0 ? (
+        <p className="text-center text-muted-foreground py-4">
+          Nenhum dado disponível
+        </p>
+      ) : (
+        <div className="rounded-lg border dark:border-border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Mercado</TableHead>
+                <TableHead className="text-right">Lucro</TableHead>
+                <TableHead className="text-right">ROI</TableHead>
+                <TableHead className="text-right">Itens</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {porMercado.map((row) => (
+                <TableRow key={row.mercado}>
+                  <TableCell className="font-medium">{row.mercado}</TableCell>
+                  <TableCell
+                    className={`text-right font-mono ${
+                      row.lucro >= 0
+                        ? "text-green-600 dark:text-green-400"
+                        : "text-red-600 dark:text-red-400"
                     }`}
                   >
-                    R$ {maiorGanho.toFixed(2).replace(".", ",")}
-                  </p>
-                </div>
-              </div>
-            </Card>
-          </TabsContent>
+                    R$ {row.lucro.toFixed(2).replace(".", ",")}
+                  </TableCell>
+                  <TableCell className="text-right font-mono">
+                    {row.roi.toFixed(1).replace(".", ",")}%
+                  </TableCell>
+                  <TableCell className="text-right font-mono">
+                    {row.operacoes}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+    </Card>
+  </TabsContent>
 
-          {/* Por Mercado */}
-          <TabsContent value="mercado">
-            <Card
-              className="
-                p-6 transition-all
-                bg-white border border-gray-200 shadow-sm
-                dark:bg-[rgba(10,10,15,0.85)] dark:to-[rgba(17,17,34,0.7)]
-                dark:border-primary/20 dark:shadow-[0_0_15px_rgba(80,80,120,0.25)]
-              "
-            >
-              <h3 className="text-lg font-semibold mb-4">
-                Performance por Mercado
-              </h3>
-              {porMercado.length === 0 ? (
-                <p className="text-center text-muted-foreground py-4">
-                  Nenhum dado disponível
-                </p>
-              ) : (
-                <div className="rounded-lg border dark:border-border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Mercado</TableHead>
-                        <TableHead className="text-right">Lucro</TableHead>
-                        <TableHead className="text-right">ROI</TableHead>
-                        <TableHead className="text-right">Itens</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {porMercado.map((row) => (
-                        <TableRow key={row.mercado}>
-                          <TableCell className="font-medium">
-                            {row.mercado}
-                          </TableCell>
-                          <TableCell
-                            className={`text-right font-mono ${
-                              row.lucro >= 0
-                                ? "text-green-600"
-                                : "text-red-600"
-                            }`}
-                          >
-                            R$ {row.lucro.toFixed(2).replace(".", ",")}
-                          </TableCell>
-                          <TableCell className="text-right font-mono">
-                            {row.roi.toFixed(1).replace(".", ",")}%
-                          </TableCell>
-                          <TableCell className="text-right font-mono">
-                            {row.operacoes}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </Card>
-          </TabsContent>
+  {/* Por Estratégia */}
+  <TabsContent value="estrategia">
+    <Card
+      className={
+        isDarkMode
+          ? "p-6 bg-[#2a2b2e] border border-[#44494d]"
+          : "p-6 bg-white border border-gray-200 shadow-sm"
+      }
+    >
+      <h3 className="text-lg font-semibold mb-4">
+        Performance por Estratégia
+      </h3>
+      {porEstrategia.length === 0 ? (
+        <p className="text-center text-muted-foreground py-4">
+          Nenhum dado disponível
+        </p>
+      ) : (
+        <div className="rounded-lg border dark:border-border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Estratégia</TableHead>
+                <TableHead>Mercado</TableHead>
+                <TableHead className="text-right">Lucro</TableHead>
+                <TableHead className="text-right">ROI</TableHead>
+                <TableHead className="text-right">Itens</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {porEstrategia.map((row, index) => (
+                <TableRow key={index}>
+                  <TableCell className="font-medium">
+                    {row.estrategia}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {row.mercado}
+                  </TableCell>
+                  <TableCell
+                    className={`text-right font-mono ${
+                      row.lucro >= 0
+                        ? "text-green-600 dark:text-green-400"
+                        : "text-red-600 dark:text-red-400"
+                    }`}
+                  >
+                    R$ {row.lucro.toFixed(2).replace(".", ",")}
+                  </TableCell>
+                  <TableCell className="text-right font-mono">
+                    {row.roi.toFixed(1).replace(".", ",")}%
+                  </TableCell>
+                  <TableCell className="text-right font-mono">
+                    {row.operacoes}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+    </Card>
+  </TabsContent>
 
-          {/* Por Estratégia */}
-          <TabsContent value="estrategia">
-            <Card
-              className="
-                p-6 transition-all
-                bg-white border border-gray-200 shadow-sm
-                dark:bg-[rgba(10,10,15,0.85)] dark:to-[rgba(17,17,34,0.7)]
-                dark:border-primary/20 dark:shadow-[0_0_15px_rgba(80,80,120,0.25)]
-              "
-            >
-              <h3 className="text-lg font-semibold mb-4">
-                Performance por Estratégia
-              </h3>
-              {porEstrategia.length === 0 ? (
-                <p className="text-center text-muted-foreground py-4">
-                  Nenhum dado disponível
-                </p>
-              ) : (
-                <div className="rounded-lg border dark:border-border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Estratégia</TableHead>
-                        <TableHead>Mercado</TableHead>
-                        <TableHead className="text-right">Lucro</TableHead>
-                        <TableHead className="text-right">ROI</TableHead>
-                        <TableHead className="text-right">Itens</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {porEstrategia.map((row, index) => (
-                        <TableRow key={index}>
-                          <TableCell className="font-medium">
-                            {row.estrategia}
-                          </TableCell>
-                          <TableCell className="text-muted-foreground">
-                            {row.mercado}
-                          </TableCell>
-                          <TableCell
-                            className={`text-right font-mono ${
-                              row.lucro >= 0
-                                ? "text-green-600"
-                                : "text-red-600"
-                            }`}
-                          >
-                            R$ {row.lucro.toFixed(2).replace(".", ",")}
-                          </TableCell>
-                          <TableCell className="text-right font-mono">
-                            {row.roi.toFixed(1).replace(".", ",")}%
-                          </TableCell>
-                          <TableCell className="text-right font-mono">
-                            {row.operacoes}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </Card>
-          </TabsContent>
+  {/* Comportamental */}
+  <TabsContent value="comportamental">
+    <Card
+      className={
+        isDarkMode
+          ? "p-6 bg-[#2a2b2e] border border-[#44494d]"
+          : "p-6 bg-white border border-gray-200 shadow-sm"
+      }
+    >
+      <h3 className="text-lg font-semibold mb-4">
+        Análise Comportamental
+      </h3>
+      <div className="space-y-6">
+        <div>
+          <h4 className="text-sm font-medium mb-3">
+            Performance: Seguiu o Método
+          </h4>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="p-4 rounded-lg border dark:border-border">
+              <p className="text-sm text-muted-foreground mb-1">
+                Sim ({seguiuPlanoSim.length} itens)
+              </p>
+              <p
+                className={`text-xl font-bold font-mono ${
+                  lucroSeguiuSim >= 0
+                    ? "text-green-600 dark:text-green-400"
+                    : "text-red-600 dark:text-red-400"
+                }`}
+              >
+                {lucroSeguiuSim >= 0 ? "+" : ""}R$ {lucroSeguiuSim
+                  .toFixed(2)
+                  .replace(".", ",")}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                ROI: {roiSeguiuSim.toFixed(1).replace(".", ",")}%
+              </p>
+            </div>
+            <div className="p-4 rounded-lg border dark:border-border">
+              <p className="text-sm text-muted-foreground mb-1">
+                Não ({seguiuPlanoNao.length} itens)
+              </p>
+              <p
+                className={`text-xl font-bold font-mono ${
+                  lucroSeguiuNao >= 0
+                    ? "text-green-600 dark:text-green-400"
+                    : "text-red-600 dark:text-red-400"
+                }`}
+              >
+                {lucroSeguiuNao >= 0 ? "+" : ""}R$ {lucroSeguiuNao
+                  .toFixed(2)
+                  .replace(".", ",")}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                ROI: {roiSeguiuNao.toFixed(1).replace(".", ",")}%
+              </p>
+            </div>
+          </div>
+        </div>
 
-          {/* Comportamental */}
-          <TabsContent value="comportamental">
-            <Card
-              className="
-                p-6 transition-all
-                bg-white border border-gray-200 shadow-sm
-                dark:bg-[rgba(10,10,15,0.85)] dark:to-[rgba(17,17,34,0.7)]
-                dark:border-primary/20 dark:shadow-[0_0_15px_rgba(80,80,120,0.25)]
-              "
-            >
-              <h3 className="text-lg font-semibold mb-4">
-                Análise Comportamental
-              </h3>
-              <div className="space-y-6">
-                <div>
-                  <h4 className="text-sm font-medium mb-3">
-                    Performance: Seguiu o Método
-                  </h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 rounded-lg border dark:border-border">
-                      <p className="text-sm text-muted-foreground mb-1">
-                        Sim ({seguiuPlanoSim.length} itens)
-                      </p>
-                      <p
-                        className={`text-xl font-bold font-mono ${
-                          lucroSeguiuSim >= 0
-                            ? "text-green-600"
-                            : "text-red-600"
+        {porEstadoEmocional.length > 0 && (
+          <div>
+            <h4 className="text-sm font-medium mb-3">
+              Performance por Estado Emocional
+            </h4>
+            <div className="rounded-lg border dark:border-border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Estado</TableHead>
+                    <TableHead className="text-right">Lucro</TableHead>
+                    <TableHead className="text-right">ROI</TableHead>
+                    <TableHead className="text-right">Itens</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {porEstadoEmocional.map((row) => (
+                    <TableRow key={row.estado}>
+                      <TableCell className="font-medium">
+                        {row.estado}
+                      </TableCell>
+                      <TableCell
+                        className={`text-right font-mono ${
+                          row.lucro >= 0
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-red-600 dark:text-red-400"
                         }`}
                       >
-                        {lucroSeguiuSim >= 0 ? "+" : ""}R$ {lucroSeguiuSim
-                          .toFixed(2)
-                          .replace(".", ",")}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        ROI: {roiSeguiuSim.toFixed(1).replace(".", ",")}%
-                      </p>
-                    </div>
-                    <div className="p-4 rounded-lg border dark:border-border">
-                      <p className="text-sm text-muted-foreground mb-1">
-                        Não ({seguiuPlanoNao.length} itens)
-                      </p>
-                      <p
-                        className={`text-xl font-bold font-mono ${
-                          lucroSeguiuNao >= 0
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        {lucroSeguiuNao >= 0 ? "+" : ""}R$ {lucroSeguiuNao
-                          .toFixed(2)
-                          .replace(".", ",")}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        ROI: {roiSeguiuNao.toFixed(1).replace(".", ",")}%
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {porEstadoEmocional.length > 0 && (
-                  <div>
-                    <h4 className="text-sm font-medium mb-3">
-                      Performance por Estado Emocional
-                    </h4>
-                    <div className="rounded-lg border dark:border-border">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Estado</TableHead>
-                            <TableHead className="text-right">Lucro</TableHead>
-                            <TableHead className="text-right">ROI</TableHead>
-                            <TableHead className="text-right">Itens</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {porEstadoEmocional.map((row) => (
-                            <TableRow key={row.estado}>
-                              <TableCell className="font-medium">
-                                {row.estado}
-                              </TableCell>
-                              <TableCell
-                                className={`text-right font-mono ${
-                                  row.lucro >= 0
-                                    ? "text-green-600"
-                                    : "text-red-600"
-                                }`}
-                              >
-                                R$ {row.lucro.toFixed(2).replace(".", ",")}
-                              </TableCell>
-                              <TableCell className="text-right font-mono">
-                                {row.roi.toFixed(1).replace(".", ",")}%
-                              </TableCell>
-                              <TableCell className="text-right font-mono">
-                                {row.operacoes}
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                        R$ {row.lucro.toFixed(2).replace(".", ",")}
+                      </TableCell>
+                      <TableCell className="text-right font-mono">
+                        {row.roi.toFixed(1).replace(".", ",")}%
+                      </TableCell>
+                      <TableCell className="text-right font-mono">
+                        {row.operacoes}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
-  );
+    </Card>
+  </TabsContent>
+</Tabs>
+</div>
+</div>
+);
 }
+
