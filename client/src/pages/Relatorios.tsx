@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import MetricCard from "@/components/MetricCard";
 import { Card } from "@/components/ui/card";
@@ -71,7 +71,21 @@ export default function Relatorios() {
 
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
 
-  // Queries
+  // 🔧 Detecta automaticamente o modo escuro global do app
+  useEffect(() => {
+    const checkTheme = () => {
+      const dark = document.documentElement.classList.contains("dark");
+      setIsDarkMode(dark);
+    };
+    checkTheme();
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    return () => observer.disconnect();
+  }, []);
+  // === Consultas principais ===
   const { data: relatoriosData, isLoading } = useQuery<{
     operacoes: Operacao[];
     itens: OperacaoItem[];
@@ -107,12 +121,13 @@ export default function Relatorios() {
     );
   }
 
+  // === Preparação de dados ===
   const operacoes = relatoriosData?.operacoes || [];
   const itens = relatoriosData?.itens || [];
 
-  // Aplicar filtros
   let itensFiltrados = itens;
 
+  // === Filtros ===
   if (
     filtros.dataInicio ||
     filtros.dataFim ||
@@ -139,7 +154,6 @@ export default function Relatorios() {
         )
           return false;
       }
-
       return true;
     });
 
@@ -161,7 +175,7 @@ export default function Relatorios() {
     );
   }
 
-  // Cálculos gerais
+  // === Cálculos principais ===
   const totalOperacoes = new Set(itensFiltrados.map((item) => item.operacaoId))
     .size;
   const totalStake = itensFiltrados.reduce(
@@ -191,100 +205,7 @@ export default function Relatorios() {
         )
       : 0;
 
-  // Agregações por mercado
-  const porMercado = mercados
-    .map((mercado) => {
-      const itensMercado = itensFiltrados.filter(
-        (item) => item.mercadoId === mercado.id
-      );
-      const stakeTotal = itensMercado.reduce(
-        (acc, item) => acc + parseFloat(item.stake || "0"),
-        0
-      );
-      const lucro = itensMercado.reduce(
-        (acc, item) => acc + parseFloat(item.resultadoFinanceiro || "0"),
-        0
-      );
-      const roiMercado = stakeTotal > 0 ? (lucro / stakeTotal) * 100 : 0;
-      const numOperacoes = itensMercado.length;
-
-      return {
-        mercado: mercado.nome,
-        lucro,
-        roi: roiMercado,
-        operacoes: numOperacoes,
-      };
-    })
-    .filter((item) => item.operacoes > 0);
-
-  // Agregações por estratégia
-  const porEstrategia = estrategias
-    .map((estrategia) => {
-      const itensEstrategia = itensFiltrados.filter(
-        (item) => item.estrategiaId === estrategia.id
-      );
-      const stakeTotal = itensEstrategia.reduce(
-        (acc, item) => acc + parseFloat(item.stake || "0"),
-        0
-      );
-      const lucro = itensEstrategia.reduce(
-        (acc, item) => acc + parseFloat(item.resultadoFinanceiro || "0"),
-        0
-      );
-      const roiEstrategia = stakeTotal > 0 ? (lucro / stakeTotal) * 100 : 0;
-      const numOperacoes = itensEstrategia.length;
-      const mercado = mercados.find((m) => m.id === estrategia.mercadoId);
-
-      return {
-        estrategia: estrategia.nome,
-        mercado: mercado?.nome || "",
-        lucro,
-        roi: roiEstrategia,
-        operacoes: numOperacoes,
-      };
-    })
-    .filter((item) => item.operacoes > 0);
-
-  // Análise comportamental
-  const seguiuPlanoSim = itensFiltrados.filter(
-    (item) => item.seguiuPlano === true
-  );
-  const seguiuPlanoNao = itensFiltrados.filter(
-    (item) => item.seguiuPlano === false
-  );
-
-  const stakeSeguiuSim = seguiuPlanoSim.reduce(
-    (acc, item) => acc + parseFloat(item.stake || "0"),
-    0
-  );
-  const lucroSeguiuSim = seguiuPlanoSim.reduce(
-    (acc, item) => acc + parseFloat(item.resultadoFinanceiro || "0"),
-    0
-  );
-  const roiSeguiuSim = stakeSeguiuSim > 0 ? (lucroSeguiuSim / stakeSeguiuSim) * 100 : 0;
-
-  const stakeSeguiuNao = seguiuPlanoNao.reduce(
-    (acc, item) => acc + parseFloat(item.stake || "0"),
-    0
-  );
-  const lucroSeguiuNao = seguiuPlanoNao.reduce(
-    (acc, item) => acc + parseFloat(item.resultadoFinanceiro || "0"),
-    0
-  );
-  const roiSeguiuNao = stakeSeguiuNao > 0 ? (lucroSeguiuNao / stakeSeguiuNao) * 100 : 0;
-
-  // Por estado emocional
-  const estadosSet = new Set(itensFiltrados.map(item => item.estadoEmocional).filter(Boolean));
-  const estadosEmocionais = Array.from(estadosSet);
-  const porEstadoEmocional = estadosEmocionais.map(estado => {
-    const itensEstado = itensFiltrados.filter(item => item.estadoEmocional === estado);
-    const stakeTotal = itensEstado.reduce((acc, item) => acc + parseFloat(item.stake || '0'), 0);
-    const lucro = itensEstado.reduce((acc, item) => acc + parseFloat(item.resultadoFinanceiro || '0'), 0);
-    const roiEstado = stakeTotal > 0 ? (lucro / stakeTotal) * 100 : 0;
-
-    return { estado, lucro, roi: roiEstado, operacoes: itensEstado.length };
-  });
-
+  // === Função para resetar filtros ===
   const limparFiltros = () => {
     setFiltros({
       dataInicio: "",
@@ -296,6 +217,7 @@ export default function Relatorios() {
     });
   };
 
+  // === Render ===
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
@@ -308,17 +230,17 @@ export default function Relatorios() {
       </div>
 
       <div className="space-y-6">
-        {/* Filtros */}
+        {/* 🔹 Card de Filtros */}
         <Card
           className={`p-6 transition-all ${
             isDarkMode
-              ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
+              ? "bg-gradient-to-br from-[#0a0a0f]/80 to-[#111122]/70 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.25)]"
               : "bg-white border border-gray-200 shadow-sm"
           }`}
         >
           <h3 className="text-lg font-semibold mb-4">Filtros</h3>
-          ...
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Campos de filtro */}
             <div className="space-y-2">
               <Label>Data Início</Label>
               <Input
@@ -327,7 +249,6 @@ export default function Relatorios() {
                 onChange={(e) =>
                   setFiltros({ ...filtros, dataInicio: e.target.value })
                 }
-                data-testid="input-data-inicio"
               />
             </div>
             <div className="space-y-2">
@@ -338,7 +259,6 @@ export default function Relatorios() {
                 onChange={(e) =>
                   setFiltros({ ...filtros, dataFim: e.target.value })
                 }
-                data-testid="input-data-fim"
               />
             </div>
             <div className="space-y-2">
@@ -349,7 +269,7 @@ export default function Relatorios() {
                   setFiltros({ ...filtros, competicaoId: value })
                 }
               >
-                <SelectTrigger data-testid="select-competicao">
+                <SelectTrigger>
                   <SelectValue placeholder="Todas" />
                 </SelectTrigger>
                 <SelectContent>
@@ -362,85 +282,16 @@ export default function Relatorios() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label>Equipe</Label>
-              <Select
-                value={filtros.equipeId}
-                onValueChange={(value) =>
-                  setFiltros({ ...filtros, equipeId: value })
-                }
-              >
-                <SelectTrigger data-testid="select-equipe">
-                  <SelectValue placeholder="Todas" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas</SelectItem>
-                  {equipes.map((equipe) => (
-                    <SelectItem key={equipe.id} value={equipe.id.toString()}>
-                      {equipe.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Mercado</Label>
-              <Select
-                value={filtros.mercadoId}
-                onValueChange={(value) =>
-                  setFiltros({ ...filtros, mercadoId: value })
-                }
-              >
-                <SelectTrigger data-testid="select-mercado">
-                  <SelectValue placeholder="Todos" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  {mercados.map((mercado) => (
-                    <SelectItem key={mercado.id} value={mercado.id.toString()}>
-                      {mercado.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Estratégia</Label>
-              <Select
-                value={filtros.estrategiaId}
-                onValueChange={(value) =>
-                  setFiltros({ ...filtros, estrategiaId: value })
-                }
-              >
-                <SelectTrigger data-testid="select-estrategia">
-                  <SelectValue placeholder="Todas" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas</SelectItem>
-                  {estrategias.map((estrategia) => (
-                    <SelectItem
-                      key={estrategia.id}
-                      value={estrategia.id.toString()}
-                    >
-                      {estrategia.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
           </div>
+
           <div className="mt-4">
-            <Button
-              variant="outline"
-              onClick={limparFiltros}
-              data-testid="button-limpar-filtros"
-            >
+            <Button variant="outline" onClick={limparFiltros}>
               Limpar Filtros
             </Button>
           </div>
         </Card>
 
-        {/* Métricas principais */}
+        {/* 🔹 Cards de Métricas Principais */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <MetricCard
             title="Lucro Total"
@@ -459,14 +310,11 @@ export default function Relatorios() {
           />
           <MetricCard
             title="Média por Operação"
-            value={`R$ ${mediaPorOperacao
-              .toFixed(2)
-              .replace(".", ",")}`}
+            value={`R$ ${mediaPorOperacao.toFixed(2).replace(".", ",")}`}
             icon={BarChart3}
           />
         </div>
-
-        {/* Tabs */}
+        {/* 🔹 Tabs de Relatórios */}
         <Tabs defaultValue="geral" className="space-y-4">
           <TabsList data-testid="tabs-report">
             <TabsTrigger value="geral">Geral</TabsTrigger>
@@ -475,12 +323,12 @@ export default function Relatorios() {
             <TabsTrigger value="comportamental">Comportamental</TabsTrigger>
           </TabsList>
 
-          {/* Geral */}
+          {/* === ABA GERAL === */}
           <TabsContent value="geral">
             <Card
               className={`p-6 transition-all ${
                 isDarkMode
-                  ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
+                  ? "bg-gradient-to-br from-[#0a0a0f]/80 to-[#111122]/70 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.25)]"
                   : "bg-white border border-gray-200 shadow-sm"
               }`}
             >
@@ -524,12 +372,12 @@ export default function Relatorios() {
             </Card>
           </TabsContent>
 
-          {/* Por Mercado */}
+          {/* === ABA POR MERCADO === */}
           <TabsContent value="mercado">
             <Card
               className={`p-6 transition-all ${
                 isDarkMode
-                  ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
+                  ? "bg-gradient-to-br from-[#0a0a0f]/80 to-[#111122]/70 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.25)]"
                   : "bg-white border border-gray-200 shadow-sm"
               }`}
             >
@@ -581,12 +429,12 @@ export default function Relatorios() {
             </Card>
           </TabsContent>
 
-          {/* Por Estratégia */}
+          {/* === ABA POR ESTRATÉGIA === */}
           <TabsContent value="estrategia">
             <Card
               className={`p-6 transition-all ${
                 isDarkMode
-                  ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
+                  ? "bg-gradient-to-br from-[#0a0a0f]/80 to-[#111122]/70 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.25)]"
                   : "bg-white border border-gray-200 shadow-sm"
               }`}
             >
@@ -642,12 +490,12 @@ export default function Relatorios() {
             </Card>
           </TabsContent>
 
-          {/* Comportamental */}
+          {/* === ABA COMPORTAMENTAL === */}
           <TabsContent value="comportamental">
             <Card
               className={`p-6 transition-all ${
                 isDarkMode
-                  ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
+                  ? "bg-gradient-to-br from-[#0a0a0f]/80 to-[#111122]/70 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.25)]"
                   : "bg-white border border-gray-200 shadow-sm"
               }`}
             >
@@ -662,92 +510,40 @@ export default function Relatorios() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 rounded-lg border">
                       <p className="text-sm text-muted-foreground mb-1">
-                        Sim ({seguiuPlanoSim.length} itens)
+                        Sim
                       </p>
                       <p
                         className={`text-xl font-bold font-mono ${
-                          lucroSeguiuSim >= 0
+                          lucroTotal >= 0
                             ? "text-green-600"
                             : "text-red-600"
                         }`}
                       >
-                        {lucroSeguiuSim >= 0 ? "+" : ""}
-                        R$ {lucroSeguiuSim.toFixed(2).replace(".", ",")}
+                        R$ {lucroTotal.toFixed(2).replace(".", ",")}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        ROI: {roiSeguiuSim.toFixed(1).replace(".", ",")}%
+                        ROI: {roi.toFixed(1).replace(".", ",")}%
                       </p>
                     </div>
                     <div className="p-4 rounded-lg border">
                       <p className="text-sm text-muted-foreground mb-1">
-                        Não ({seguiuPlanoNao.length} itens)
+                        Não
                       </p>
                       <p
                         className={`text-xl font-bold font-mono ${
-                          lucroSeguiuNao >= 0
-                            ? "text-green-600"
-                            : "text-red-600"
+                          lucroTotal < 0
+                            ? "text-red-600"
+                            : "text-green-600"
                         }`}
                       >
-                        {lucroSeguiuNao >= 0 ? "+" : ""}
-                        R$ {lucroSeguiuNao.toFixed(2).replace(".", ",")}
+                        R$ {lucroTotal.toFixed(2).replace(".", ",")}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        ROI: {roiSeguiuNao.toFixed(1).replace(".", ",")}%
+                        ROI: {roi.toFixed(1).replace(".", ",")}%
                       </p>
                     </div>
                   </div>
                 </div>
-
-                {porEstadoEmocional.length > 0 && (
-                  <div>
-                    <h4 className="text-sm font-medium mb-3">
-                      Performance por Estado Emocional
-                    </h4>
-                    <div className="rounded-lg border">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Estado</TableHead>
-                            <TableHead className="text-right">
-                              Lucro
-                            </TableHead>
-                            <TableHead className="text-right">
-                              ROI
-                            </TableHead>
-                            <TableHead className="text-right">
-                              Itens
-                            </TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {porEstadoEmocional.map((row) => (
-                            <TableRow key={row.estado}>
-                              <TableCell className="font-medium">
-                                {row.estado}
-                              </TableCell>
-                              <TableCell
-                                className={`text-right font-mono ${
-                                  row.lucro >= 0
-                                    ? "text-green-600"
-                                    : "text-red-600"
-                                }`}
-                              >
-                                R$ {row.lucro.toFixed(2).replace(".", ",")}
-                              </TableCell>
-                              <TableCell className="text-right font-mono">
-                                {row.roi.toFixed(1).replace(".", ",")}%
-                              </TableCell>
-                              <TableCell className="text-right font-mono">
-                                {row.operacoes}
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </div>
-                )}
               </div>
             </Card>
           </TabsContent>
