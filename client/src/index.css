@@ -12,6 +12,7 @@
   --mind-wine: 324 52% 35%; /* Vinho #5A1B43 */
   --mind-gray: 210 6% 28%;  /* Cinza #44494D */
   --mind-gold: 50 100% 50%; /* Dourado #FFD700 */
+  --mind-purple: 287 38% 43%; /* Roxo MindTrade #5F2C82 */
 
   /* 🌞 Fundo e texto */
   --background: 213 14% 89%; /* #d9e0e6 — fundo MindTrade */
@@ -59,7 +60,7 @@
 
 /* 🎨 Corrigir cor dos títulos (modo claro) */
 :not(.dark) h3 {
-  color: #5F2C82; /* Roxo MindTrade */
+  color: hsl(var(--mind-purple)); /* Roxo MindTrade */
 }
 
 /* ======================================================
@@ -101,17 +102,18 @@
   --shadow-md: 0 2px 4px rgba(255, 255, 255, 0.08);
   --shadow-lg: 0 4px 8px rgba(255, 255, 255, 0.1);
 }
+
 /* ======================================================
    🎨 CORREÇÃO VISUAL DOS SELECTS (modo claro e escuro)
    ====================================================== */
 
-/* 🌞 Modo claro — texto em Roxo MindTrade (#5F2C82) */
+/* 🌞 Modo claro — texto em Roxo MindTrade */
 :not(.dark) .select-trigger,
 :not(.dark) [data-radix-select-trigger],
 :not(.dark) .select-value,
 :not(.dark) [data-placeholder],
 :not(.dark) .select-item {
-  color: #5F2C82 !important;
+  color: hsl(var(--mind-purple)) !important;
 }
 
 /* 🌑 Modo escuro — mantém texto claro */
@@ -122,7 +124,6 @@
 .dark .select-item {
   color: hsl(var(--foreground)) !important;
 }
-
 
 /* ======================================================
    ⚙️ BASE E FUNDAMENTOS
