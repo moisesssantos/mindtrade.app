@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueries } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Card } from "@/components/ui/card";
@@ -22,7 +22,7 @@ interface Partida {
   oddMandante: string | null;
   oddVisitante: string | null;
   oddEmpate: string | null;
-  status: 'PRE_ANALISE' | 'OPERACAO_PENDENTE' | 'OPERACAO_CONCLUIDA' | 'NAO_OPERADA';
+  status: "PRE_ANALISE" | "OPERACAO_PENDENTE" | "OPERACAO_CONCLUIDA" | "NAO_OPERADA";
 }
 
 interface Equipe {
@@ -37,11 +37,9 @@ interface Competicao {
 
 // Helper function to validate if a date string is valid
 function isValidDate(dateString: string): boolean {
-  // Check if it's in yyyy-MM-dd format and is a valid date
   const regex = /^\d{4}-\d{2}-\d{2}$/;
   if (!regex.test(dateString)) return false;
-  
-  const date = new Date(dateString + 'T00:00:00');
+  const date = new Date(dateString + "T00:00:00");
   return !isNaN(date.getTime());
 }
 
@@ -53,6 +51,22 @@ export default function Partidas() {
   const [preAnaliseData, setPreAnaliseData] = useState<any>(null);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+
+  // ✅ Detectar modo escuro/claro (idêntico ao menu Pré-Análises)
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(
+    document.documentElement.classList.contains("dark")
+  );
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    return () => observer.disconnect();
+  }, []);
 
   // Queries
   const { data: partidas = [], isLoading: isLoadingPartidas } = useQuery<Partida[]>({
@@ -418,14 +432,15 @@ export default function Partidas() {
             
             return (
               <Card
-                key={partida.id}
-                className={`p-4 transition-colors ${
-                  document.documentElement.classList.contains("dark")
-                        ? "bg-[#2a2b2e] border border-[#44494d]"
-                        : "bg-white border border-gray-200 shadow-sm"
-                  }`}
-                  data-testid={`card-partida-${partida.id}`}
-                >
+  key={partida.id}
+  className={`p-4 transition-colors duration-300 ${
+    isDarkMode
+      ? "bg-[#2a2b2e] border border-[#44494d]"
+      : "bg-white border border-gray-200 shadow-sm"
+  }`}
+  data-testid={`card-partida-${partida.id}`}
+>
+
                 <div className="space-y-2">
                   {/* Linha 1: Status, Data/Hora e Botões inline */}
                   <div className="flex items-center justify-between gap-3">
@@ -439,6 +454,7 @@ export default function Partidas() {
                           : partida.data} às {partida.hora}
                       </span>
                     </div>
+                    
                     {/* Botões inline */}
                     <div className="flex items-center gap-2">
                       {!isConcluida && (
