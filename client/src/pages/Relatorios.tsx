@@ -346,8 +346,11 @@ export default function Relatorios() {
   }
 >
   <h3 className="text-lg font-semibold mb-4">Filtros</h3>
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <div className="space-y-2">
+
+  {/* Linha única com rolagem horizontal se necessário */}
+  <div className="flex flex-wrap md:flex-nowrap gap-4 overflow-x-auto pb-2">
+    {/* Data Início */}
+    <div className="space-y-2 min-w-[160px] flex-1">
       <Label>Data Início</Label>
       <Input
         type="date"
@@ -358,7 +361,9 @@ export default function Relatorios() {
         data-testid="input-data-inicio"
       />
     </div>
-    <div className="space-y-2">
+
+    {/* Data Fim */}
+    <div className="space-y-2 min-w-[160px] flex-1">
       <Label>Data Fim</Label>
       <Input
         type="date"
@@ -369,7 +374,9 @@ export default function Relatorios() {
         data-testid="input-data-fim"
       />
     </div>
-    <div className="space-y-2">
+
+    {/* Competição */}
+    <div className="space-y-2 min-w-[180px] flex-1">
       <Label>Competição</Label>
       <Select
         value={filtros.competicaoId}
@@ -390,7 +397,9 @@ export default function Relatorios() {
         </SelectContent>
       </Select>
     </div>
-    <div className="space-y-2">
+
+    {/* Equipe */}
+    <div className="space-y-2 min-w-[180px] flex-1">
       <Label>Equipe</Label>
       <Select
         value={filtros.equipeId}
@@ -411,7 +420,9 @@ export default function Relatorios() {
         </SelectContent>
       </Select>
     </div>
-    <div className="space-y-2">
+
+    {/* Mercado */}
+    <div className="space-y-2 min-w-[180px] flex-1">
       <Label>Mercado</Label>
       <Select
         value={filtros.mercadoId}
@@ -432,7 +443,9 @@ export default function Relatorios() {
         </SelectContent>
       </Select>
     </div>
-    <div className="space-y-2">
+
+    {/* Estratégia */}
+    <div className="space-y-2 min-w-[180px] flex-1">
       <Label>Estratégia</Label>
       <Select
         value={filtros.estrategiaId}
@@ -453,15 +466,18 @@ export default function Relatorios() {
         </SelectContent>
       </Select>
     </div>
-  </div>
-  <div className="mt-4">
-    <Button
-      variant="outline"
-      onClick={limparFiltros}
-      data-testid="button-limpar-filtros"
-    >
-      Limpar Filtros
-    </Button>
+
+    {/* Botão Limpar */}
+    <div className="flex items-end min-w-[140px]">
+      <Button
+        variant="outline"
+        onClick={limparFiltros}
+        data-testid="button-limpar-filtros"
+        className="w-full"
+      >
+        Limpar
+      </Button>
+    </div>
   </div>
 </Card>
 
