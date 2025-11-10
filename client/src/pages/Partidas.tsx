@@ -403,16 +403,31 @@ export default function Partidas() {
       )}
 
       <PartidaDialog
-        open={partidaDialogOpen}
-        onClose={() => {
-          setPartidaDialogOpen(false);
-          setSelectedPartida(null);
-        }}
-        onSubmit={() => {}}
-        equipes={equipes}
-        competicoes={competicoes}
-      />
-
+  open={partidaDialogOpen}
+  onClose={() => {
+    setPartidaDialogOpen(false);
+    setSelectedPartida(null);
+  }}
+  onSubmit={(data) => {
+    if (selectedPartida) {
+      // Se já existe partida selecionada, atualiza
+      updatePartidaMutation.mutate({
+        id: selectedPartida.id,
+        data,
+      });
+    } else {
+      // Caso contrário, cria uma nova
+      createPartidaMutation.mutate(data);
+    }
+  }}
+  initialData={selectedPartida || undefined}
+  equipes={equipes}
+  competicoes={competicoes}
+  isLoading={
+    createPartidaMutation.isPending || updatePartidaMutation.isPending
+  }
+/>
+      
       <PreAnaliseDialog
         open={preAnaliseDialogOpen}
         onClose={() => {
