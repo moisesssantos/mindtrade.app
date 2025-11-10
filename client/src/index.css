@@ -107,13 +107,15 @@
    🎨 CORREÇÃO VISUAL DOS SELECTS (modo claro e escuro)
    ====================================================== */
 
-/* 🌞 Modo claro — texto em Roxo MindTrade */
+/* 🌞 Modo claro — texto roxo MindTrade (#5F2C82) */
 :not(.dark) .select-trigger,
 :not(.dark) [data-radix-select-trigger],
 :not(.dark) .select-value,
 :not(.dark) [data-placeholder],
-:not(.dark) .select-item {
+:not(.dark) .select-item,
+:not(.dark) .select-content [data-state="checked"] {
   color: hsl(var(--mind-purple)) !important;
+  background-color: white !important;
 }
 
 /* 🌑 Modo escuro — mantém texto claro */
@@ -121,8 +123,10 @@
 .dark [data-radix-select-trigger],
 .dark .select-value,
 .dark [data-placeholder],
-.dark .select-item {
+.dark .select-item,
+.dark .select-content [data-state="checked"] {
   color: hsl(var(--foreground)) !important;
+  background-color: hsl(var(--input)) !important;
 }
 
 /* ======================================================
