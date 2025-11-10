@@ -101,6 +101,28 @@
   --shadow-md: 0 2px 4px rgba(255, 255, 255, 0.08);
   --shadow-lg: 0 4px 8px rgba(255, 255, 255, 0.1);
 }
+/* ======================================================
+   🎨 CORREÇÃO VISUAL DOS SELECTS (modo claro e escuro)
+   ====================================================== */
+
+/* 🌞 Modo claro — texto em Roxo MindTrade (#5F2C82) */
+:not(.dark) .select-trigger,
+:not(.dark) [data-radix-select-trigger],
+:not(.dark) .select-value,
+:not(.dark) [data-placeholder],
+:not(.dark) .select-item {
+  color: #5F2C82 !important;
+}
+
+/* 🌑 Modo escuro — mantém texto claro */
+.dark .select-trigger,
+.dark [data-radix-select-trigger],
+.dark .select-value,
+.dark [data-placeholder],
+.dark .select-item {
+  color: hsl(var(--foreground)) !important;
+}
+
 
 /* ======================================================
    ⚙️ BASE E FUNDAMENTOS
