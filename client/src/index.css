@@ -12,13 +12,6 @@
   --mind-wine: 324 52% 35%; /* Vinho #5A1B43 */
   --mind-gray: 210 6% 28%;  /* Cinza #44494D */
   --mind-gold: 50 100% 50%; /* Dourado #FFD700 */
-  /* ...demais variáveis... */
-}
-
-/* 🎨 Corrigir cor dos títulos (modo claro) */
-:not(.dark) h3 {
-  color: #5F2C82; /* Roxo MindTrade */
-}
 
   /* 🌞 Fundo e texto */
   --background: 213 14% 89%; /* #d9e0e6 — fundo MindTrade */
@@ -50,10 +43,8 @@
   /* 📊 Cores para gráficos */
   --chart-1: var(--mind-blue);
   --chart-2: var(--mind-wine);
-  --chart-3: 42 92% 56%;
-  /* Amarelo suave */
-  --chart-4: 159 100% 36%;
-  /* Verde esmeralda */
+  --chart-3: 42 92% 56%; /* Amarelo suave */
+  --chart-4: 159 100% 36%; /* Verde esmeralda */
   --chart-5: var(--mind-gold);
 
   /* ⚙️ Tipografia e formas */
@@ -64,6 +55,11 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.10);
+}
+
+/* 🎨 Corrigir cor dos títulos (modo claro) */
+:not(.dark) h3 {
+  color: #5F2C82; /* Roxo MindTrade */
 }
 
 /* ======================================================
