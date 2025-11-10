@@ -268,24 +268,26 @@ export default function Operacoes() {
                   </div>
 
                   {itens.length > 0 && (
-                    <div>
-                      <h3 className="text-sm font-semibold mb-2">Itens da Operação</h3>
-                      <div className="space-y-1.5">
-                        {itens.map((item) => {
+                  <div>
+                    <h3 className="text-sm font-semibold mb-2">Itens da Operação</h3>
+                    <div className="space-y-1.5">
+                    {itens.map((item) => {
                           const estrategiaInfo = getEstrategiaInfo(item.estrategiaId);
                           const resultado = item.resultadoFinanceiro
                             ? parseFloat(item.resultadoFinanceiro)
                             : 0;
-
+                  
                           return (
                             <div
                               key={item.id}
-                              className="bg-muted/20 px-3 py-2 rounded-md text-sm flex items-center justify-between gap-4"
+                              className={`px-3 py-2 rounded-md text-sm flex items-center justify-between gap-4 transition-colors duration-300 ${
+                                isDarkMode
+                                  ? "bg-[#2a2b2e] border border-[#44494d]"
+                                  : "bg-white border border-gray-200 shadow-sm"
+                              }`}
                             >
                               <div className="flex items-center gap-2 flex-wrap">
-                                <Badge variant="outline">
-                                  {estrategiaInfo.mercadoNome}
-                                </Badge>
+                                <Badge variant="outline">{estrategiaInfo.mercadoNome}</Badge>
                                 <Badge>{estrategiaInfo.nome}</Badge>
                                 <span className="text-xs text-muted-foreground">
                                   Stake: R$ {parseFloat(item.stake).toFixed(2).replace(".", ",")}
