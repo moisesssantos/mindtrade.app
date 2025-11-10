@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Plus, Pencil, Trash2, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import OperacaoItemDialog from "@/components/OperacaoItemDialog";
 
@@ -206,7 +206,7 @@ export default function OperacaoDetalhes() {
             )}
           </div>
           <p className="text-sm text-muted-foreground">
-            {format(new Date(partida.data), "dd/MM/yyyy", { locale: ptBR })} às {partida.hora}
+            {format(parse(partida.data, "yyyy-MM-dd", new Date()), "dd/MM/yyyy", { locale: ptBR })} às {partida.hora}
           </p>
         </div>
 
