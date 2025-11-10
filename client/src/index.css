@@ -8,17 +8,13 @@
 
 :root {
   /* 🎨 Paleta principal (modo claro) */
-  --mind-blue: 200 100% 45%;
-  /* Azul #00A4E4 */
-  --mind-wine: 324 52% 35%;
-  /* Vinho #5A1B43 */
-  --mind-gray: 210 6% 28%;
-  /* Cinza #44494D */
-  --mind-gold: 50 100% 50%;
-  /* Dourado #FFD700 */
+  --mind-blue: 200 100% 45%; /* Azul #00A4E4 */
+  --mind-wine: 324 52% 35%; /* Vinho #5A1B43 */
+  --mind-gray: 210 6% 28%;  /* Cinza #44494D */
+  --mind-gold: 50 100% 50%; /* Dourado #FFD700 */
 
   /* 🌞 Fundo e texto */
-  --background: 0 0% 98%;
+  --background: 213 14% 89%; /* #d9e0e6 — fundo MindTrade */
   --foreground: var(--mind-gray);
 
   --card: 0 0% 100%;
