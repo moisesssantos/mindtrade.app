@@ -104,29 +104,25 @@
 }
 
 /* ======================================================
-   🎨 CORREÇÃO VISUAL DOS SELECTS (modo claro e escuro)
+   🎯 CORREÇÃO FINAL — COR DO TEXTO SELECIONADO NOS SELECTS
    ====================================================== */
 
-/* 🌞 Modo claro — texto roxo MindTrade (#5F2C82) */
+/* 🌞 Modo claro */
+:not(.dark) .select-trigger[data-state="open"],
 :not(.dark) .select-trigger,
-:not(.dark) [data-radix-select-trigger],
-:not(.dark) .select-value,
-:not(.dark) [data-placeholder],
-:not(.dark) .select-item,
-:not(.dark) .select-content [data-state="checked"] {
-  color: hsl(var(--mind-purple)) !important;
-  background-color: white !important;
+:not(.dark) .select-value span,
+:not(.dark) [data-radix-select-value-text],
+:not(.dark) .select-value [data-placeholder=false] {
+  color: #5F2C82 !important;
 }
 
-/* 🌑 Modo escuro — mantém texto claro */
+/* 🌑 Modo escuro */
+.dark .select-trigger[data-state="open"],
 .dark .select-trigger,
-.dark [data-radix-select-trigger],
-.dark .select-value,
-.dark [data-placeholder],
-.dark .select-item,
-.dark .select-content [data-state="checked"] {
+.dark .select-value span,
+.dark [data-radix-select-value-text],
+.dark .select-value [data-placeholder=false] {
   color: hsl(var(--foreground)) !important;
-  background-color: hsl(var(--input)) !important;
 }
 
 /* ======================================================
