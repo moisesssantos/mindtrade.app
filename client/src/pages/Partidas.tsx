@@ -417,7 +417,15 @@ export default function Partidas() {
           const podeArquivar = !!preAnalise && !(operacaoComItens?.itens?.length > 0);
             
             return (
-              <Card key={partida.id} className="p-4" data-testid={`card-partida-${partida.id}`}>
+              <Card
+                key={partida.id}
+                className={`p-4 transition-colors ${
+                  document.documentElement.classList.contains("dark")
+                        ? "bg-[#2a2b2e] border border-[#44494d]"
+                        : "bg-white border border-gray-200 shadow-sm"
+                  }`}
+                  data-testid={`card-partida-${partida.id}`}
+                >
                 <div className="space-y-2">
                   {/* Linha 1: Status, Data/Hora e Botões inline */}
                   <div className="flex items-center justify-between gap-3">
