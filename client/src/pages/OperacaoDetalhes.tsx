@@ -232,7 +232,14 @@ export default function OperacaoDetalhes() {
             { label: "Resultado", value: `R$ ${stats.res.toFixed(2).replace(".", ",")}`, color: stats.res > 0 ? "text-green-600" : stats.res < 0 ? "text-red-600" : "" },
             { label: "ROI", value: `${stats.roi.toFixed(2).replace(".", ",")}%`, color: stats.roi > 0 ? "text-green-600" : stats.roi < 0 ? "text-red-600" : "" },
           ].map((s, i) => (
-            <Card key={i}>
+            <Card
+              key={i}
+              className={`transition-colors duration-300 ${
+                isDarkMode
+                  ? "bg-[#2a2b2e] border border-[#44494d]"
+                  : "bg-white border border-gray-200 shadow-sm"
+              }`}
+            >
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm text-muted-foreground">{s.label}</CardTitle>
               </CardHeader>
