@@ -292,96 +292,113 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ===== PARTIDAS =====
-  app.get("/api/partidas/pendentes-verificacao", async (req, res) => {
-    try {
-      const partidas = await storage.getPartidasPendentesVerificacao();
-      res.json(partidas);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
-    }
-  });
+app.get("/api/partidas/pendentes-verificacao", async (req, res) => {
+  try {
+    const partidas = await storage.getPartidasPendentesVerificacao();
+    res.json(partidas);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
-  app.get("/api/partidas", async (req, res) => {
-    try {
-      const { dataInicio, dataFim, competicaoId } = req.query;
-      const partidas = await storage.getPartidas({
-        dataInicio: dataInicio as string,
-        dataFim: dataFim as string,
-        competicaoId: competicaoId ? parseInt(competicaoId as string) : undefined,
-      });
-      res.json(partidas);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
-    }
-  });
+app.get("/api/partidas", async (req, res) => {
+  try {
+    const { dataInicio, dataFim, competicaoId } = req.query;
+    const partidas = await storage.getPartidas({
+      dataInicio: dataInicio as string,
+      dataFim: dataFim as string,
+      competicaoId: competicaoId ? parseInt(competicaoId as string) : undefined,
+    });
+    res.json(partidas);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
-  app.get("/api/partidas/:id", async (req, res) => {
-    try {
-      const partida = await storage.getPartidaById(parseInt(req.params.id));
-      if (!partida) {
-        return res.status(404).json({ error: "Partida não encontrada" });
-      }
-      res.json(partida);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+app.get("/api/partidas/:id", async (req, res) => {
+  try {
+    const partida = await storage.getPartidaById(parseInt(req.params.id));
+    if (!partida) {
+      return res.status(404).json({ error: "Partida não encontrada" });
     }
-  });
+    res.json(partida);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
-  app.post("/api/partidas", async (req, res) => {
-    try {
-      const data = insertPartidaSchema.parse(req.body);
-      const partida = await storage.createPartida(data);
-      res.status(201).json(partida);
-    } catch (error: any) {
-      if (error.code === '23503') {
-        return res.status(400).json({ error: "Competição ou equipe não encontrada" });
-      }
-      res.status(400).json({ error: error.message });
-    }
-  });
+app.post("/api/partidas", async (req, res) => {
+  try {
+    const data = insertPartidaSchema.parse(req.body);
 
-  app.put("/api/partidas/:id", async (req, res) => {
-    try {
-      const data = insertPartidaSchema.partial().parse(req.body);
-      const partida = await storage.updatePartida(parseInt(req.params.id), data);
-      if (!partida) {
-        return res.status(404).json({ error: "Partida não encontrada" });
-      }
-      res.json(partida);
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
+    // Correção de fuso horário: força meio-dia UTC
+    if (data.data) {
+      const dataUtc = new Date(data.data);
+      dataUtc.setUTCHours(12, 0, 0, 0);
+      data.data = dataUtc.toISOString().split("T")[0];
     }
-  });
 
-  app.delete("/api/partidas/:id", async (req, res) => {
-    try {
-      const partidaId = parseInt(req.params.id);
-      
-      // Verificar se existem operações para essa partida
-      const operacoes = await storage.getOperacoesByPartidaId(partidaId);
-      
-      // Excluir operações vazias (sem itens)
-      for (const operacao of operacoes) {
-        const itens = await storage.getOperacaoItens(operacao.id);
-        if (itens.length === 0) {
-          // Operação vazia - pode excluir
-          await storage.deleteOperacao(operacao.id);
-        }
-      }
-      
-      // Tentar excluir a partida
-      const deleted = await storage.deletePartida(partidaId);
-      if (!deleted) {
-        return res.status(404).json({ error: "Partida não encontrada" });
-      }
-      res.status(204).send();
-    } catch (error: any) {
-      if (error.code === '23503') {
-        return res.status(400).json({ error: "Não é possível excluir esta partida pois possui pré-análise ou operações vinculadas" });
-      }
-      res.status(500).json({ error: error.message });
+    const partida = await storage.createPartida(data);
+    res.status(201).json(partida);
+  } catch (error: any) {
+    if (error.code === "23503") {
+      return res
+        .status(400)
+        .json({ error: "Competição ou equipe não encontrada" });
     }
-  });
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.put("/api/partidas/:id", async (req, res) => {
+  try {
+    const data = insertPartidaSchema.partial().parse(req.body);
+
+    // Mesmo ajuste no caso de edição de data
+    if (data.data) {
+      const dataUtc = new Date(data.data);
+      dataUtc.setUTCHours(12, 0, 0, 0);
+      data.data = dataUtc.toISOString().split("T")[0];
+    }
+
+    const partida = await storage.updatePartida(parseInt(req.params.id), data);
+    if (!partida) {
+      return res.status(404).json({ error: "Partida não encontrada" });
+    }
+    res.json(partida);
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.delete("/api/partidas/:id", async (req, res) => {
+  try {
+    const partidaId = parseInt(req.params.id);
+    
+    // Verificar se existem operações para essa partida
+    const operacoes = await storage.getOperacoesByPartidaId(partidaId);
+    
+    // Excluir operações vazias (sem itens)
+    for (const operacao of operacoes) {
+      const itens = await storage.getOperacaoItens(operacao.id);
+      if (itens.length === 0) {
+        await storage.deleteOperacao(operacao.id);
+      }
+    }
+    
+    // Tentar excluir a partida
+    const deleted = await storage.deletePartida(partidaId);
+    if (!deleted) {
+      return res.status(404).json({ error: "Partida não encontrada" });
+    }
+    res.status(204).send();
+  } catch (error: any) {
+    if (error.code === "23503") {
+      return res.status(400).json({ error: "Não é possível excluir esta partida pois possui pré-análise ou operações vinculadas" });
+    }
+    res.status(500).json({ error: error.message });
+  }
+});
 
   app.patch("/api/partidas/:id/marcar-nao-operada", async (req, res) => {
     try {
