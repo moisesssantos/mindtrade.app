@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { TrendingUp, Target, Award, BarChart3 } from "lucide-react";
+import { TrendingUp, Target, Award, BarChart3, XCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -337,21 +337,22 @@ export default function Relatorios() {
 
       <div className="space-y-6">
 
-        {/* Filtros */}
-<Card
+       {/* Filtros */}
+  <Card
   className={
     isDarkMode
       ? "p-6 bg-[#2a2b2e] border border-[#44494d]"
       : "p-6 bg-white border border-gray-200 shadow-sm"
   }
 >
-  <h3 className="text-lg font-semibold mb-4">Filtros</h3>
+  <div className="mb-4 pb-3 border-b border-border/40">
+    <h3 className="text-lg font-semibold">Filtros</h3>
+  </div>
 
-  {/* Linha única com rolagem horizontal se necessário */}
-  <div className="flex flex-wrap md:flex-nowrap gap-4 overflow-x-auto pb-2">
+  <div className="flex flex-wrap items-end gap-3">
     {/* Data Início */}
-    <div className="space-y-2 min-w-[160px] flex-1">
-      <Label>Data Início</Label>
+    <div className="flex flex-col w-[120px]">
+      <Label className="text-sm">Início</Label>
       <Input
         type="date"
         value={filtros.dataInicio}
@@ -359,12 +360,13 @@ export default function Relatorios() {
           setFiltros({ ...filtros, dataInicio: e.target.value })
         }
         data-testid="input-data-inicio"
+        className="h-9 text-sm"
       />
     </div>
 
     {/* Data Fim */}
-    <div className="space-y-2 min-w-[160px] flex-1">
-      <Label>Data Fim</Label>
+    <div className="flex flex-col w-[120px]">
+      <Label className="text-sm">Fim</Label>
       <Input
         type="date"
         value={filtros.dataFim}
@@ -372,19 +374,20 @@ export default function Relatorios() {
           setFiltros({ ...filtros, dataFim: e.target.value })
         }
         data-testid="input-data-fim"
+        className="h-9 text-sm"
       />
     </div>
 
     {/* Competição */}
-    <div className="space-y-2 min-w-[180px] flex-1">
-      <Label>Competição</Label>
+    <div className="flex flex-col flex-1 min-w-[140px]">
+      <Label className="text-sm">Competição</Label>
       <Select
         value={filtros.competicaoId}
         onValueChange={(value) =>
           setFiltros({ ...filtros, competicaoId: value })
         }
       >
-        <SelectTrigger data-testid="select-competicao">
+        <SelectTrigger className="h-9 text-sm" data-testid="select-competicao">
           <SelectValue placeholder="Todas" />
         </SelectTrigger>
         <SelectContent>
@@ -399,15 +402,15 @@ export default function Relatorios() {
     </div>
 
     {/* Equipe */}
-    <div className="space-y-2 min-w-[180px] flex-1">
-      <Label>Equipe</Label>
+    <div className="flex flex-col flex-1 min-w-[140px]">
+      <Label className="text-sm">Equipe</Label>
       <Select
         value={filtros.equipeId}
         onValueChange={(value) =>
           setFiltros({ ...filtros, equipeId: value })
         }
       >
-        <SelectTrigger data-testid="select-equipe">
+        <SelectTrigger className="h-9 text-sm" data-testid="select-equipe">
           <SelectValue placeholder="Todas" />
         </SelectTrigger>
         <SelectContent>
@@ -422,15 +425,15 @@ export default function Relatorios() {
     </div>
 
     {/* Mercado */}
-    <div className="space-y-2 min-w-[180px] flex-1">
-      <Label>Mercado</Label>
+    <div className="flex flex-col flex-1 min-w-[140px]">
+      <Label className="text-sm">Mercado</Label>
       <Select
         value={filtros.mercadoId}
         onValueChange={(value) =>
           setFiltros({ ...filtros, mercadoId: value })
         }
       >
-        <SelectTrigger data-testid="select-mercado">
+        <SelectTrigger className="h-9 text-sm" data-testid="select-mercado">
           <SelectValue placeholder="Todos" />
         </SelectTrigger>
         <SelectContent>
@@ -445,15 +448,15 @@ export default function Relatorios() {
     </div>
 
     {/* Estratégia */}
-    <div className="space-y-2 min-w-[180px] flex-1">
-      <Label>Estratégia</Label>
+    <div className="flex flex-col flex-1 min-w-[140px]">
+      <Label className="text-sm">Estratégia</Label>
       <Select
         value={filtros.estrategiaId}
         onValueChange={(value) =>
           setFiltros({ ...filtros, estrategiaId: value })
         }
       >
-        <SelectTrigger data-testid="select-estrategia">
+        <SelectTrigger className="h-9 text-sm" data-testid="select-estrategia">
           <SelectValue placeholder="Todas" />
         </SelectTrigger>
         <SelectContent>
@@ -468,18 +471,21 @@ export default function Relatorios() {
     </div>
 
     {/* Botão Limpar */}
-    <div className="flex items-end min-w-[140px]">
+    <div className="flex flex-col w-[90px]">
+      <Label className="text-sm opacity-0 select-none">.</Label>
       <Button
         variant="outline"
+        size="sm"
         onClick={limparFiltros}
         data-testid="button-limpar-filtros"
-        className="w-full"
+        className="h-9 text-sm flex items-center justify-center gap-1"
       >
+        <XCircle className="w-4 h-4" />
         Limpar
       </Button>
     </div>
   </div>
-</Card>
+</Card> 
 
 {/* Métricas principais */}
 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
