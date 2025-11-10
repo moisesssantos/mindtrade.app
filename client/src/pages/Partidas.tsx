@@ -413,8 +413,8 @@ export default function Partidas() {
             const operacaoComItens = operacoesComItens.find((o: any) => o.partidaId === partida.id);
             const temOperacao = operacaoComItens && operacaoComItens.itens && operacaoComItens.itens.length > 0;
             
-            // Verifica se deve mostrar botão de arquivar
-            const podeArquivar = preAnalise && !temOperacao && passou24Horas(partida);
+            // "Arquivar" aparece sempre que existe pré-análise e não há itens na operação
+          const podeArquivar = !!preAnalise && !(operacaoComItens?.itens?.length > 0);
             
             return (
               <Card key={partida.id} className="p-4" data-testid={`card-partida-${partida.id}`}>
