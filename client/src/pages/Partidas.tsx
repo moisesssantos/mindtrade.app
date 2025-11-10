@@ -412,7 +412,13 @@ export default function Partidas() {
           <p className="text-center text-muted-foreground">Carregando partidas...</p>
         </Card>
       ) : partidasAtivas.length === 0 ? (
-        <Card className="p-6">
+        <Card
+          className={`p-6 transition-colors duration-300 ${
+            isDarkMode
+              ? "bg-[#2a2b2e] border border-[#44494d]"
+              : "bg-white border border-gray-200 shadow-sm"
+          }`}
+        >
           <p className="text-center text-muted-foreground">
             Nenhuma partida ativa. As partidas concluídas estão disponíveis na tela de Operações.
           </p>
