@@ -455,8 +455,8 @@ export default function Partidas() {
                         {getStatusLabel(partida.status)}
                       </span>
                       <span className="text-sm text-muted-foreground">
-                        {partida.data && isValidDate(partida.data) 
-                          ? format(new Date(partida.data + 'T00:00:00'), 'dd/MM/yyyy', { locale: ptBR }) 
+                        {partida.data && isValidDate(partida.data)
+                          ? format(addHours(new Date(partida.data + 'T00:00:00'), 3), 'dd/MM/yyyy', { locale: ptBR })
                           : partida.data} às {partida.hora}
                       </span>
                     </div>
