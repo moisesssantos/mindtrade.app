@@ -225,22 +225,20 @@ export default function Partidas() {
     setPartidaDialogOpen(true);
   };
 
-  const handleAddPreAnalise = async (partida: Partida) => {
-    setSelectedPartida(partida);
-    // Tentar buscar pré-análise existente
-    try {
-      const response = await fetch(`/api/pre-analises/${partida.id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setPreAnaliseData(data);
-      } else {
-        setPreAnaliseData(null);
-      }
-    } catch {
-      setPreAnaliseData(null);
-    }
-    setPreAnaliseDialogOpen(true);
-  };
+  const handleAddPreAnalise = (partida: Partida) => {
+  setSelectedPartida(partida);
+
+  // Busca a pré-análise da partida já carregada via React Query
+  const existente = preAnalises.find((pa: any) => pa.partidaId === partida.id);
+
+  if (existente) {
+    setPreAnaliseData(existente);
+  } else {
+    setPreAnaliseData(null);
+  }
+
+  setPreAnaliseDialogOpen(true);
+};
 
   const handleOperacao = (partida: Partida) => {
     // Navega direto para a página de detalhes da operação dessa partida
