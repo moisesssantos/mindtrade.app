@@ -26,7 +26,7 @@ export default function DateNavigator({
   // 🧠 Formato reduzido e elegante
   const formattedDate = isToday(date)
     ? "hoje"
-    : format(date, "EEE dd 'de' MMM", { locale: ptBR })
+    : format(date, "EEE ',' dd 'de' MMM", { locale: ptBR })
         .replace("-feira", "")
         .replace(".", ".")
         .toLowerCase();
