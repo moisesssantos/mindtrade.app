@@ -13,8 +13,7 @@ export default function DateNavigator({
   const [date, setDate] = useState(new Date());
 
   const handleChange = (delta: number) => {
-    const newDate =
-      delta > 0 ? addDays(date, delta) : subDays(date, Math.abs(delta));
+    const newDate = delta > 0 ? addDays(date, delta) : subDays(date, Math.abs(delta));
     setDate(newDate);
     onChange?.(newDate);
   };
@@ -25,7 +24,6 @@ export default function DateNavigator({
     onChange?.(today);
   };
 
-  // 🧠 Formato reduzido e elegante
   const formattedDate = isToday(date)
     ? "hoje"
     : format(date, "EEE ',' dd 'de' MMM", { locale: ptBR })
@@ -46,17 +44,33 @@ export default function DateNavigator({
         <ChevronLeft size={18} color="#0099DD" />
       </button>
 
-      {/* Texto central (sem botão interno) */}
-      <span
-        onClick={handleToday}
-        className={`text-sm font-medium cursor-pointer select-none ${
-          isToday(date)
-            ? "text-[#0099DD] font-semibold"
-            : "text-[#44494D] dark:text-gray-200"
-        }`}
-      >
-        {formattedDate}
-      </span>
+      {/* Texto central com calendário */}
+      <Popover>
+        <PopoverTrigger asChild>
+          <span
+            className={`text-sm font-medium cursor-pointer select-none ${
+              isToday(date)
+                ? "text-[#0099DD] font-semibold"
+                : "text-[#44494D] dark:text-gray-200"
+            }`}
+          >
+            {formattedDate}
+          </span>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0">
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={(selectedDate) => {
+              if (selectedDate) {
+                setDate(selectedDate);
+                onChange?.(selectedDate);
+              }
+            }}
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
 
       {/* Botão próximo */}
       <button
