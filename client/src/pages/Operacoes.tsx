@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Eye, TrendingDown, TrendingUp, Edit } from "lucide-react";
 import { useLocation } from "wouter";
 import DateNavigator from "@/components/DateNavigator";
+import { apiRequest } from "@/lib/queryClient"; // ✅ mover para o topo
 
 type Partida = {
   id: number;
@@ -51,6 +52,14 @@ export default function Operacoes() {
   const [, setLocation] = useLocation();
   const [dataSelecionada, setDataSelecionada] = useState(new Date());
 
+  // 🔗 Buscar operações do dia selecionado
+  const dataISO = dataSelecionada.toISOString().split("T")[0];
+
+  const { data: operacoes = [], isLoading } = useQuery({
+    queryKey: ["/api/operacoes", dataISO],
+    queryFn: async () => apiRequest(`/api/operacoes?data=${dataISO}`),
+  });
+
   // ✅ Detectar modo escuro/claro
   const [isDarkMode, setIsDarkMode] = useState<boolean>(
     document.documentElement.classList.contains("dark")
@@ -67,15 +76,28 @@ export default function Operacoes() {
     return () => observer.disconnect();
   }, []);
 
-    return (
-        <div className="space-y-4">
-          <DateNavigator onChange={(novaData) => setDataSelecionada(novaData)} />
-    
-          {/* aqui você mostra apenas operações do dia selecionado */}
-          {/* <TabelaOperacoes data={dataSelecionada} /> */}
-        </div>
-      );
-    }
+  // 🧭 Renderização
+  return (
+    <div className="space-y-4">
+      <DateNavigator onChange={(novaData) => setDataSelecionada(novaData)} />
+
+      {/* Lista de operações filtradas */}
+      {isLoading ? (
+        <p>Carregando...</p>
+      ) : operacoes.length === 0 ? (
+        <p>Nenhuma operação encontrada neste dia.</p>
+      ) : (
+        <ul className="space-y-2">
+          {operacoes.map((op) => (
+            <li key={op.id} className="border rounded-md p-2">
+              Operação #{op.id} — {op.status}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
   
   // === Queries ===
   const { data: operacoes = [], isLoading: isLoadingOperacoes } = useQuery<Operacao[]>({
