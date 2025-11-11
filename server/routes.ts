@@ -503,14 +503,24 @@ app.delete("/api/partidas/:id", async (req, res) => {
   });
 
   // ===== OPERAÇÕES =====
-  app.get("/api/operacoes", async (req, res) => {
-    try {
-      const operacoes = await storage.getOperacoes();
-      res.json(operacoes);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+app.get("/api/operacoes", async (req, res) => {
+  try {
+    const { data } = req.query;
+
+    if (data) {
+      // Filtra operações pela data do registro
+      const operacoes = await storage.getOperacoesByData(data as string);
+      return res.json(operacoes);
     }
-  });
+
+    // Se não houver filtro, retorna todas
+    const operacoes = await storage.getOperacoes();
+    res.json(operacoes);
+  } catch (error: any) {
+    console.error("Erro ao buscar operações:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
   app.get("/api/operacoes/:id", async (req, res) => {
     try {
