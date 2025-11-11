@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Eye, TrendingDown, TrendingUp, Edit } from "lucide-react";
 import { useLocation } from "wouter";
 import DateNavigator from "@/components/DateNavigator";
-import { apiRequest } from "@/lib/queryClient"; // ✅ mover para o topo
+import { apiRequest } from "@/lib/queryClient";
 
 type Partida = {
   id: number;
@@ -52,54 +52,7 @@ export default function Operacoes() {
   const [, setLocation] = useLocation();
   const [dataSelecionada, setDataSelecionada] = useState(new Date());
 
-  // 🔗 Buscar operações do dia selecionado
-  const dataISO = dataSelecionada.toISOString().split("T")[0];
-
-  const { data: operacoes = [], isLoading } = useQuery({
-    queryKey: ["/api/operacoes", dataISO],
-    queryFn: async () => apiRequest(`/api/operacoes?data=${dataISO}`),
-  });
-
-  // ✅ Detectar modo escuro/claro
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(
-    document.documentElement.classList.contains("dark")
-  );
-
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setIsDarkMode(document.documentElement.classList.contains("dark"));
-    });
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-    return () => observer.disconnect();
-  }, []);
-
-  // 🧭 Renderização
-  return (
-    <div className="space-y-4">
-      <DateNavigator onChange={(novaData) => setDataSelecionada(novaData)} />
-
-      {/* Lista de operações filtradas */}
-      {isLoading ? (
-        <p>Carregando...</p>
-      ) : operacoes.length === 0 ? (
-        <p>Nenhuma operação encontrada neste dia.</p>
-      ) : (
-        <ul className="space-y-2">
-          {operacoes.map((op) => (
-            <li key={op.id} className="border rounded-md p-2">
-              Operação #{op.id} — {op.status}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-  
-  // === Queries ===
+  // === Queries principais ===
   const { data: operacoes = [], isLoading: isLoadingOperacoes } = useQuery<Operacao[]>({
     queryKey: ["/api/operacoes"],
   });
@@ -157,6 +110,22 @@ export default function Operacoes() {
     return { totalStake, resultadoTotal, roi, numItens: itens.length };
   };
 
+  // === Modo escuro ===
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(
+    document.documentElement.classList.contains("dark")
+  );
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    return () => observer.disconnect();
+  }, []);
+
   if (isLoadingOperacoes) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -165,28 +134,22 @@ export default function Operacoes() {
     );
   }
 
-  // === Render ===
+  // === Renderização ===
   return (
     <div className="container mx-auto px-4 py-8">
+      <DateNavigator onChange={(novaData) => setDataSelecionada(novaData)} />
+
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Operações Concluídas</h1>
         <p className="text-muted-foreground mt-1">
-          Histórico de operações finalizadas com resumos completos
+          Histórico de operações finalizadas com estatísticas detalhadas
         </p>
       </div>
 
       {operacoesConcluidas.length === 0 ? (
-        <Card
-          className={
-            isDarkMode
-              ? "bg-[#2a2b2e] border border-[#44494d] shadow-sm"
-              : "bg-white border border-gray-200 shadow-sm"
-          }
-        >
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">
-              Nenhuma operação concluída. As operações aparecem aqui após serem finalizadas na tela de Partidas.
-            </p>
+        <Card className={isDarkMode ? "bg-[#2a2b2e] border border-[#44494d]" : "bg-white border border-gray-200"}>
+          <CardContent className="py-12 text-center text-muted-foreground">
+            Nenhuma operação concluída até o momento.
           </CardContent>
         </Card>
       ) : (
@@ -199,55 +162,23 @@ export default function Operacoes() {
             return (
               <Card
                 key={operacao.id}
-                data-testid={`card-operacao-${operacao.id}`}
-                className={
-                  isDarkMode
-                    ? "bg-[#2a2b2e] border border-[#44494d] shadow-sm"
-                    : "bg-white border border-gray-200 shadow-sm"
-                }
+                className={isDarkMode ? "bg-[#2a2b2e] border border-[#44494d]" : "bg-white border border-gray-200"}
               >
                 <CardHeader>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-lg mb-2">
-                        {info.competicao} {info.mandante} vs {info.visitante}
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-lg mb-1">
+                        {info.competicao} - {info.mandante} vs {info.visitante}
                       </CardTitle>
-                      <div className="text-sm text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1">
-                        <div className="flex items-center gap-2">
-                          <span>Partida: {info.dataFormatada} às {info.hora}</span>
-                          <Badge variant="default" className="ml-1">Concluída</Badge>
-                        </div>
-                        {operacao.dataConclusao && (
-                          <div>
-                            em{" "}
-                            {(() => {
-                              const d = new Date(operacao.dataConclusao);
-                              const dia = String(d.getDate()).padStart(2, "0");
-                              const mes = String(d.getMonth() + 1).padStart(2, "0");
-                              const ano = d.getFullYear();
-                              const hora = String(d.getHours()).padStart(2, "0");
-                              const min = String(d.getMinutes()).padStart(2, "0");
-                              return `${dia}/${mes}/${ano} às ${hora}:${min}`;
-                            })()}
-                          </div>
-                        )}
-                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {info.dataFormatada} às {info.hora} — <Badge>Concluída</Badge>
+                      </p>
                     </div>
-
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setLocation(`/operacoes/${operacao.partidaId}`)}
-                      >
-                        <Eye className="w-4 h-4 mr-2" />
-                        Ver Detalhes
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => setLocation(`/operacoes/${operacao.partidaId}`)}>
+                        <Eye className="w-4 h-4 mr-1" /> Ver
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setLocation(`/operacoes/${operacao.partidaId}`)}
-                      >
+                      <Button variant="outline" size="sm" onClick={() => setLocation(`/operacoes/${operacao.partidaId}`)}>
                         <Edit className="w-4 h-4" />
                       </Button>
                     </div>
@@ -262,65 +193,48 @@ export default function Operacoes() {
                     </div>
                     <div className="bg-muted/30 p-3 rounded-md">
                       <div className="text-xs text-muted-foreground mb-1">Total Investido</div>
-                      <div className="text-lg font-mono font-bold">
-                        R$ {stats.totalStake.toFixed(2).replace(".", ",")}
-                      </div>
+                      <div className="text-lg font-mono font-bold">R$ {stats.totalStake.toFixed(2).replace(".", ",")}</div>
                     </div>
                     <div className="bg-muted/30 p-3 rounded-md">
                       <div className="text-xs text-muted-foreground mb-1">Resultado</div>
-                      <div
-                        className={`text-lg font-mono font-bold flex items-center gap-1 ${
-                          stats.resultadoTotal > 0
-                            ? "text-green-600 dark:text-green-400"
-                            : stats.resultadoTotal < 0
-                            ? "text-red-600 dark:text-red-400"
-                            : ""
-                        }`}
-                      >
-                        {stats.resultadoTotal > 0 ? (
-                          <TrendingUp className="w-4 h-4" />
-                        ) : stats.resultadoTotal < 0 ? (
-                          <TrendingDown className="w-4 h-4" />
-                        ) : null}
+                      <div className={`text-lg font-mono font-bold flex items-center gap-1 ${
+                          stats.resultadoTotal > 0 ? "text-green-600 dark:text-green-400" :
+                          stats.resultadoTotal < 0 ? "text-red-600 dark:text-red-400" : ""}`}>
+                        {stats.resultadoTotal > 0 ? <TrendingUp className="w-4 h-4" /> :
+                         stats.resultadoTotal < 0 ? <TrendingDown className="w-4 h-4" /> : null}
                         R$ {stats.resultadoTotal.toFixed(2).replace(".", ",")}
                       </div>
                     </div>
                     <div className="bg-muted/30 p-3 rounded-md">
                       <div className="text-xs text-muted-foreground mb-1">ROI</div>
-                      <div
-                        className={`text-lg font-mono font-bold ${
-                          stats.roi > 0
-                            ? "text-green-600 dark:text-green-400"
-                            : stats.roi < 0
-                            ? "text-red-600 dark:text-red-400"
-                            : ""
-                        }`}
-                      >
+                      <div className={`text-lg font-mono font-bold ${
+                          stats.roi > 0 ? "text-green-600 dark:text-green-400" :
+                          stats.roi < 0 ? "text-red-600 dark:text-red-400" : ""}`}>
                         {stats.roi.toFixed(2).replace(".", ",")}%
                       </div>
                     </div>
                   </div>
 
                   {itens.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-semibold mb-2">Itens da Operação</h3>
-                    <div className="space-y-1.5">
-                    {itens.map((item) => {
+                    <div>
+                      <h3 className="text-sm font-semibold mb-2">Itens da Operação</h3>
+                      <div className="space-y-1.5">
+                        {itens.map((item) => {
                           const estrategiaInfo = getEstrategiaInfo(item.estrategiaId);
                           const resultado = item.resultadoFinanceiro
                             ? parseFloat(item.resultadoFinanceiro)
                             : 0;
-                  
+
                           return (
                             <div
                               key={item.id}
-                              className={`px-3 py-2 rounded-md text-sm flex items-center justify-between gap-4 transition-colors duration-300 ${
+                              className={`px-3 py-2 rounded-md flex justify-between ${
                                 isDarkMode
                                   ? "bg-[#2a2b2e] border border-[#44494d]"
-                                  : "bg-white border border-gray-200 shadow-sm"
+                                  : "bg-white border border-gray-200"
                               }`}
                             >
-                              <div className="flex items-center gap-2 flex-wrap">
+                              <div className="flex flex-wrap items-center gap-2">
                                 <Badge variant="outline">{estrategiaInfo.mercadoNome}</Badge>
                                 <Badge>{estrategiaInfo.nome}</Badge>
                                 <span className="text-xs text-muted-foreground">
@@ -336,7 +250,7 @@ export default function Operacoes() {
                                 )}
                               </div>
                               <div
-                                className={`font-mono font-semibold flex-shrink-0 ${
+                                className={`font-mono font-semibold ${
                                   resultado > 0
                                     ? "text-green-600 dark:text-green-400"
                                     : resultado < 0
