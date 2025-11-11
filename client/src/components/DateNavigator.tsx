@@ -1,21 +1,18 @@
 import { useState } from "react";
-import { addDays, subDays, format, isSameDay } from "date-fns";
+import { addDays, subDays, format, startOfDay, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 
-/**
- * 📅 DateNavigator — componente de navegação de datas com calendário popup
- * MindTrade Design: bordas arredondadas, tema azul-ciano (#0099DD)
- */
 export default function DateNavigator({
   onChange,
 }: {
   onChange?: (date: Date) => void;
 }) {
   const [date, setDate] = useState(new Date());
-  const hoje = new Date();
+  const hoje = startOfDay(new Date()); // ⬅️ força horário 00:00
+  const dataAtual = startOfDay(date); // ⬅️ força horário 00:00
 
   const handleChange = (delta: number) => {
     const newDate = delta > 0 ? addDays(date, delta) : subDays(date, Math.abs(delta));
@@ -29,7 +26,7 @@ export default function DateNavigator({
     onChange?.(today);
   };
 
-  const formattedDate = format(date, "eee. dd 'de' LLL.", { locale: ptBR }); // abreviações
+  const formattedDate = format(date, "eee. dd 'de' LLL.", { locale: ptBR });
 
   return (
     <div
@@ -51,7 +48,7 @@ export default function DateNavigator({
       <button
         onClick={handleToday}
         className={`px-3 py-1 rounded-full text-sm font-medium border ${
-          isSameDay(date, hoje)
+          isSameDay(dataAtual, hoje)
             ? "bg-[#0099DD] text-white border-[#0099DD]"
             : "text-[#0099DD] border-[#0099DD]/40 hover:bg-[#0099DD]/10"
         } transition`}
@@ -60,7 +57,7 @@ export default function DateNavigator({
       </button>
 
       {/* Data formatada + calendário (só aparece se não for hoje) */}
-      {!isSameDay(date, hoje) && (
+      {!isSameDay(dataAtual, hoje) && (
         <Popover>
           <PopoverTrigger asChild>
             <button
