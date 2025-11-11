@@ -564,15 +564,5 @@ async deleteOpcaoCustomizada(id: number): Promise<boolean> {
   return result.length > 0;
 }
 
-// 🔍 Adicione aqui dentro da classe:
-async getOperacoesByData(data: string): Promise<Operacao[]> {
-  return await db
-    .select()
-    .from(operacoes)
-    .where(sql`DATE(${operacoes.dataHoraRegistro}) = ${data}`)
-    .orderBy(desc(operacoes.dataHoraRegistro));
-}
-}
-
 // ✅ exportação correta
 export const storage = new DatabaseStorage();
