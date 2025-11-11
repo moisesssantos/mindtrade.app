@@ -137,8 +137,6 @@ export default function Operacoes() {
   // === Renderização ===
   return (
     <div className="container mx-auto px-4 py-8">
-      <DateNavigator onChange={(novaData) => setDataSelecionada(novaData)} />
-
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
           <h1 className="text-3xl font-bold">Operações Concluídas</h1>
