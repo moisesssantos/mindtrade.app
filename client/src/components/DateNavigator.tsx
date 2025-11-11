@@ -11,7 +11,8 @@ export default function DateNavigator({
   const [date, setDate] = useState(new Date());
 
   const handleChange = (delta: number) => {
-    const newDate = delta > 0 ? addDays(date, delta) : subDays(date, Math.abs(delta));
+    const newDate =
+      delta > 0 ? addDays(date, delta) : subDays(date, Math.abs(delta));
     setDate(newDate);
     onChange?.(newDate);
   };
@@ -22,9 +23,13 @@ export default function DateNavigator({
     onChange?.(today);
   };
 
+  // 🧠 Formato reduzido e elegante
   const formattedDate = isToday(date)
-    ? "Hoje"
-    : format(date, "EEEE, d 'de' MMMM", { locale: ptBR });
+    ? "hoje"
+    : format(date, "EEE. dd 'de' MMM.", { locale: ptBR })
+        .replace("-feira", "")
+        .replace(".", ".")
+        .toLowerCase();
 
   return (
     <div
@@ -42,28 +47,18 @@ export default function DateNavigator({
         <ChevronLeft size={18} color="#0099DD" />
       </button>
 
-      {/* Botão HOJE */}
+      {/* Texto central — dinâmico */}
       <button
         onClick={handleToday}
-        className={`px-3 py-1 rounded-full text-sm font-medium border ${
+        className={`px-4 py-1 rounded-full text-sm font-medium border transition ${
           isToday(date)
             ? "bg-[#0099DD] text-white border-[#0099DD]"
             : "text-[#0099DD] border-[#0099DD]/40 hover:bg-[#0099DD]/10"
-        } transition`}
+        }`}
       >
-        Hoje
+        {formattedDate}
       </button>
 
-      {/* Data formatada */}
-      {!isToday(date) && (
-        <div
-          className="px-4 text-sm font-medium select-none min-w-[140px] text-center"
-          style={{ color: "#0099DD" }}
-        >
-          {formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1)}
-        </div>
-      )}
-      
       {/* Botão direito */}
       <button
         onClick={() => handleChange(1)}
