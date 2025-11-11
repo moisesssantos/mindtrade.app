@@ -522,24 +522,56 @@ export class DatabaseStorage implements IStorage {
     return result.length > 0;
   }
 
-  // Opções Customizadas
+    // Opções Customizadas
   async getOpcoesPorCampo(campo: string): Promise<OpcaoCustomizada[]> {
-    return await db.select().from(opcoesCustomizadas).where(eq(opcoesCustomizadas.campo, campo)).orderBy(opcoesCustomizadas.ordem, opcoesCustomizadas.opcao);
+    return await db
+      .select()
+      .from(opcoesCustomizadas)
+      .where(eq(opcoesCustomizadas.campo, campo))
+      .orderBy(opcoesCustomizadas.ordem, opcoesCustomizadas.opcao);
   }
 
-  async createOpcaoCustomizada(data: InsertOpcaoCustomizada): Promise<OpcaoCustomizada> {
-    const result = await db.insert(opcoesCustomizadas).values(data).returning();
+  async createOpcaoCustomizada(
+    data: InsertOpcaoCustomizada
+  ): Promise<OpcaoCustomizada> {
+    const result = await db
+      .insert(opcoesCustomizadas)
+      .values(data)
+      .returning();
     return result[0];
   }
 
-  async updateOpcaoCustomizada(id: number, data: Partial<InsertOpcaoCustomizada>): Promise<OpcaoCustomizada | undefined> {
-    const result = await db.update(opcoesCustomizadas).set({ ...data, updatedAt: new Date() }).where(eq(opcoesCustomizadas.id, id)).returning();
+  async updateOpcaoCustomizada(
+    id: number,
+    data: Partial<InsertOpcaoCustomizada>
+  ): Promise<OpcaoCustomizada | undefined> {
+    const result = await db
+      .update(opcoesCustomizadas)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(opcoesCustomizadas.id, id))
+      .returning();
     return result[0];
   }
 
   async deleteOpcaoCustomizada(id: number): Promise<boolean> {
-    const result = await db.delete(opcoesCustomizadas).where(eq(opcoesCustomizadas.id, id)).returning();
+    const result = await db
+      .delete(opcoesCustomizadas)
+      .where(eq(opcoesCustomizadas.id, id))
+      .returning();
     return result.length > 0;
+  }
+
+  // ✅ Buscar operações por data da partida
+  async getOperacoesByPartidaData(data: string): Promise<Operacao[]> {
+    const result = await db
+      .select()
+      .from(operacoes)
+      .leftJoin(partidas, eq(operacoes.partidaId, partidas.id))
+      .where(eq(partidas.data, data))
+      .orderBy(desc(operacoes.dataHoraRegistro));
+
+    // Retorna apenas os dados da tabela "operacoes"
+    return result.map((r: any) => r.operacoes);
   }
 }
 
