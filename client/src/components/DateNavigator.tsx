@@ -23,13 +23,10 @@ export default function DateNavigator({
     setDate(today);
     onChange?.(today);
   };
-
+  
   const formattedDate = isToday(date)
   ? "hoje"
-  : format(date, "EEE',' dd 'de' MMM", { locale: ptBR })
-      .replace("-feira", "") // remove sufixo desnecessário
-      .replace(/^(\w{3})/, (match) => match + ".") // garante ponto final
-      .toLowerCase();
+  : `${format(date, "eee", { locale: ptBR })}. ${format(date, "dd 'de' MMM", { locale: ptBR })}`;
 
   return (
     <div
