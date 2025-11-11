@@ -25,11 +25,11 @@ export default function DateNavigator({
   };
 
   const formattedDate = isToday(date)
-    ? "hoje"
-    : format(date, "EEE ',' dd 'de' MMM", { locale: ptBR })
-        .replace("-feira", "")
-        .replace(".", ".")
-        .toLowerCase();
+  ? "hoje"
+  : format(date, "EEE',' dd 'de' MMM", { locale: ptBR })
+      .replace("-feira", "") // remove sufixo desnecessário
+      .replace(/^(\w{3})/, (match) => match + ".") // garante ponto final
+      .toLowerCase();
 
   return (
     <div
