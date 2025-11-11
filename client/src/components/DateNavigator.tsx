@@ -11,6 +11,7 @@ export default function DateNavigator({
   onChange?: (date: Date) => void;
 }) {
   const [date, setDate] = useState(new Date());
+  const [open, setOpen] = useState(false); // controla o popover
 
   const handleChange = (delta: number) => {
     const newDate = delta > 0 ? addDays(date, delta) : subDays(date, Math.abs(delta));
@@ -26,10 +27,7 @@ export default function DateNavigator({
 
   const formattedDate = isToday(date)
     ? "hoje"
-    : format(date, "EEE ',' dd 'de' MMM", { locale: ptBR })
-        .replace("-feira", "")
-        .replace(".", ".")
-        .toLowerCase();
+    : `${format(date, "eee", { locale: ptBR })}. ${format(date, "dd 'de' MMM", { locale: ptBR })}`;
 
   return (
     <div
@@ -44,8 +42,8 @@ export default function DateNavigator({
         <ChevronLeft size={18} color="#0099DD" />
       </button>
 
-      {/* Texto central com calendário */}
-      <Popover>
+      {/* Texto central com popover de calendário */}
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <span
             className={`text-sm font-medium cursor-pointer select-none ${
@@ -65,6 +63,7 @@ export default function DateNavigator({
               if (selectedDate) {
                 setDate(selectedDate);
                 onChange?.(selectedDate);
+                setOpen(false); // fecha o popover após seleção
               }
             }}
             initialFocus
