@@ -303,7 +303,7 @@ export default function Cadastros() {
             <TabsTrigger value="transacoes">Transações</TabsTrigger>
           </TabsList>
 
-          {/* ====== EQUIPES (GRADE 4 COLUNAS) ====== */}
+          {/* ====== EQUIPES (LISTA EM 4 COLUNAS) ====== */}
           <TabsContent value="equipes">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -313,55 +313,39 @@ export default function Cadastros() {
                   Adicionar
                 </Button>
               </div>
-
+          
               {isLoadingEquipes ? (
                 <div className="text-sm text-muted-foreground">Carregando...</div>
-              ) : (equipesOrdenadas?.length ?? 0) === 0 ? (
+              ) : (equipes?.length ?? 0) === 0 ? (
                 <div className="text-sm text-muted-foreground">Nenhuma equipe encontrada.</div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                  {equipesOrdenadas.map((equipe) => (
-                    <div
-                      key={equipe.id}
-                      className="group rounded-xl border p-3 bg-white/60 dark:bg-primary/5 hover:shadow-sm hover:border-primary/40 transition"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="font-medium truncate">{equipe.nome}</div>
-                        </div>
-                        <div className="flex items-center gap-1 shrink-0">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setDialogState({ type: 'equipe', mode: 'edit', data: equipe })}
-                            aria-label="Editar"
-                            className="h-8 w-8"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              if (confirm(`Tem certeza que deseja excluir ${equipe.nome}?`)) {
-                                deleteEquipeMutation.mutate(equipe.id);
-                              }
-                            }}
-                            aria-label="Excluir"
-                            className="h-8 w-8 text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <table className="min-w-full border-collapse">
+                  <tbody>
+                    {(() => {
+                      const sorted = [...equipes].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+                      const linhas = [];
+                      for (let i = 0; i < sorted.length; i += 4) {
+                        linhas.push(sorted.slice(i, i + 4));
+                      }
+                      return linhas.map((linha, idx) => (
+                        <tr key={idx}>
+                          {linha.map((eq, i) => (
+                            <td key={i} className="border px-3 py-2 text-sm">{eq.nome}</td>
+                          ))}
+                          {linha.length < 4 &&
+                            Array.from({ length: 4 - linha.length }).map((_, j) => (
+                              <td key={`vazio-${j}`} className="border px-3 py-2"></td>
+                            ))}
+                        </tr>
+                      ));
+                    })()}
+                  </tbody>
+                </table>
               )}
             </div>
           </TabsContent>
-
-          {/* ====== COMPETIÇÕES (GRADE 2 COLUNAS) ====== */}
+          
+          {/* ====== COMPETIÇÕES (LISTA EM 2 COLUNAS) ====== */}
           <TabsContent value="competicoes">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -371,50 +355,34 @@ export default function Cadastros() {
                   Adicionar
                 </Button>
               </div>
-
+          
               {isLoadingCompeticoes ? (
                 <div className="text-sm text-muted-foreground">Carregando...</div>
-              ) : (competicoesOrdenadas?.length ?? 0) === 0 ? (
+              ) : (competicoes?.length ?? 0) === 0 ? (
                 <div className="text-sm text-muted-foreground">Nenhuma competição encontrada.</div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {competicoesOrdenadas.map((comp) => (
-                    <div
-                      key={comp.id}
-                      className="group rounded-xl border p-3 bg-white/60 dark:bg-primary/5 hover:shadow-sm hover:border-primary/40 transition"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="font-medium truncate">{comp.nome}</div>
-                        </div>
-                        <div className="flex items-center gap-1 shrink-0">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setDialogState({ type: 'competicao', mode: 'edit', data: comp })}
-                            aria-label="Editar"
-                            className="h-8 w-8"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              if (confirm(`Tem certeza que deseja excluir ${comp.nome}?`)) {
-                                deleteCompeticaoMutation.mutate(comp.id);
-                              }
-                            }}
-                            aria-label="Excluir"
-                            className="h-8 w-8 text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <table className="min-w-full border-collapse">
+                  <tbody>
+                    {(() => {
+                      const sorted = [...competicoes].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+                      const linhas = [];
+                      for (let i = 0; i < sorted.length; i += 2) {
+                        linhas.push(sorted.slice(i, i + 2));
+                      }
+                      return linhas.map((linha, idx) => (
+                        <tr key={idx}>
+                          {linha.map((comp, i) => (
+                            <td key={i} className="border px-3 py-2 text-sm">{comp.nome}</td>
+                          ))}
+                          {linha.length < 2 &&
+                            Array.from({ length: 2 - linha.length }).map((_, j) => (
+                              <td key={`vazio-${j}`} className="border px-3 py-2"></td>
+                            ))}
+                        </tr>
+                      ));
+                    })()}
+                  </tbody>
+                </table>
               )}
             </div>
           </TabsContent>
