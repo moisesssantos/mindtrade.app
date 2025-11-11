@@ -26,20 +26,17 @@ export default function DateNavigator({
   // 🧠 Formato reduzido e elegante
   const formattedDate = isToday(date)
     ? "hoje"
-    : format(date, "EEE. dd 'de' MMM.", { locale: ptBR })
+    : format(date, "EEE dd 'de' MMM", { locale: ptBR })
         .replace("-feira", "")
         .replace(".", ".")
         .toLowerCase();
 
   return (
     <div
-      className="flex items-center justify-center gap-3 rounded-full border border-[#0099DD]/40 bg-white/80 dark:bg-[#1C1C1C]/90 px-4 py-2 shadow-sm"
-      style={{
-        fontFamily: "Inter, sans-serif",
-        color: "#44494D",
-      }}
+      className="flex items-center justify-center gap-3 rounded-2xl border border-[#44494D]/30 bg-white dark:bg-[#1C1C1C] shadow-sm px-4 py-2 transition-all"
+      style={{ fontFamily: "Inter, sans-serif" }}
     >
-      {/* Botão esquerdo */}
+      {/* Botão anterior */}
       <button
         onClick={() => handleChange(-1)}
         className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-[#0099DD]/10 transition"
@@ -47,19 +44,19 @@ export default function DateNavigator({
         <ChevronLeft size={18} color="#0099DD" />
       </button>
 
-      {/* Texto central — dinâmico */}
-      <button
+      {/* Texto central (sem botão interno) */}
+      <span
         onClick={handleToday}
-        className={`px-4 py-1 rounded-full text-sm font-medium border transition ${
+        className={`text-sm font-medium cursor-pointer select-none ${
           isToday(date)
-            ? "bg-[#0099DD] text-white border-[#0099DD]"
-            : "text-[#0099DD] border-[#0099DD]/40 hover:bg-[#0099DD]/10"
+            ? "text-[#0099DD] font-semibold"
+            : "text-[#44494D] dark:text-gray-200"
         }`}
       >
         {formattedDate}
-      </button>
+      </span>
 
-      {/* Botão direito */}
+      {/* Botão próximo */}
       <button
         onClick={() => handleChange(1)}
         className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-[#0099DD]/10 transition"
