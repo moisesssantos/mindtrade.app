@@ -297,20 +297,46 @@ export default function Cadastros() {
             <TabsTrigger value="transacoes">Transações</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="equipes">
-            <CadastroTable
-              title="Equipes"
-              items={equipes}
-              isLoading={isLoadingEquipes}
-              onAdd={() => setDialogState({ type: 'equipe', mode: 'add' })}
-              onEdit={(item) => setDialogState({ type: 'equipe', mode: 'edit', data: item })}
-              onDelete={(item) => {
-                if (confirm(`Tem certeza que deseja excluir ${item.nome}?`)) {
-                  deleteEquipeMutation.mutate(item.id);
-                }
-              }}
-            />
-          </TabsContent>
+            <TabsContent value="equipes">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold">Equipes</h2>
+                  <button
+                    className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition"
+                    onClick={() => setDialogState({ type: 'equipe', mode: 'add' })}
+                  >
+                    Adicionar Equipe
+                  </button>
+                </div>
+            
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {[...equipes]
+                    .sort((a, b) => a.nome.localeCompare(b.nome))
+                    .map((equipe) => (
+                      <div
+                        key={equipe.id}
+                        className="p-4 border rounded shadow-sm bg-white hover:bg-muted cursor-pointer transition"
+                        onClick={() => setDialogState({ type: 'equipe', mode: 'edit', data: equipe })}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">{equipe.nome}</span>
+                          <button
+                            className="text-sm text-red-600 hover:underline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (confirm(`Tem certeza que deseja excluir ${equipe.nome}?`)) {
+                                deleteEquipeMutation.mutate(equipe.id);
+                              }
+                            }}
+                          >
+                            Excluir
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </TabsContent>
 
           <TabsContent value="competicoes">
             <CadastroTable
