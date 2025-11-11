@@ -488,6 +488,14 @@ export class DatabaseStorage implements IStorage {
     const result = await db.delete(operacaoItens).where(eq(operacaoItens.id, id)).returning();
     return result.length > 0;
   }
+  // 🔍 Buscar operações por data (formato "YYYY-MM-DD")
+  async getOperacoesByData(data: string): Promise<Operacao[]> {
+    return await db
+      .select()
+      .from(operacoes)
+      .where(sql`DATE(${operacoes.dataHoraRegistro}) = ${data}`)
+      .orderBy(desc(operacoes.dataHoraRegistro));
+  }
 
   // Transações Financeiras
   async getTransacoesFinanceiras(): Promise<TransacaoFinanceira[]> {
@@ -523,24 +531,48 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Opções Customizadas
-  async getOpcoesPorCampo(campo: string): Promise<OpcaoCustomizada[]> {
-    return await db.select().from(opcoesCustomizadas).where(eq(opcoesCustomizadas.campo, campo)).orderBy(opcoesCustomizadas.ordem, opcoesCustomizadas.opcao);
-  }
-
-  async createOpcaoCustomizada(data: InsertOpcaoCustomizada): Promise<OpcaoCustomizada> {
-    const result = await db.insert(opcoesCustomizadas).values(data).returning();
-    return result[0];
-  }
-
-  async updateOpcaoCustomizada(id: number, data: Partial<InsertOpcaoCustomizada>): Promise<OpcaoCustomizada | undefined> {
-    const result = await db.update(opcoesCustomizadas).set({ ...data, updatedAt: new Date() }).where(eq(opcoesCustomizadas.id, id)).returning();
-    return result[0];
-  }
-
-  async deleteOpcaoCustomizada(id: number): Promise<boolean> {
-    const result = await db.delete(opcoesCustomizadas).where(eq(opcoesCustomizadas.id, id)).returning();
-    return result.length > 0;
-  }
+async getOpcoesPorCampo(campo: string): Promise<OpcaoCustomizada[]> {
+  return await db
+    .select()
+    .from(opcoesCustomizadas)
+    .where(eq(opcoesCustomizadas.campo, campo))
+    .orderBy(opcoesCustomizadas.ordem, opcoesCustomizadas.opcao);
 }
 
+async createOpcaoCustomizada(data: InsertOpcaoCustomizada): Promise<OpcaoCustomizada> {
+  const result = await db.insert(opcoesCustomizadas).values(data).returning();
+  return result[0];
+}
+
+async updateOpcaoCustomizada(
+  id: number,
+  data: Partial<InsertOpcaoCustomizada>
+): Promise<OpcaoCustomizada | undefined> {
+  const result = await db
+    .update(opcoesCustomizadas)
+    .set({ ...data, updatedAt: new Date() })
+    .where(eq(opcoesCustomizadas.id, id))
+    .returning();
+  return result[0];
+}
+
+async deleteOpcaoCustomizada(id: number): Promise<boolean> {
+  const result = await db
+    .delete(opcoesCustomizadas)
+    .where(eq(opcoesCustomizadas.id, id))
+    .returning();
+  return result.length > 0;
+}
+
+// 🔍 Adicione aqui dentro da classe:
+async getOperacoesByData(data: string): Promise<Operacao[]> {
+  return await db
+    .select()
+    .from(operacoes)
+    .where(sql`DATE(${operacoes.dataHoraRegistro}) = ${data}`)
+    .orderBy(desc(operacoes.dataHoraRegistro));
+}
+}
+
+// ✅ exportação correta
 export const storage = new DatabaseStorage();
