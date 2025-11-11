@@ -55,13 +55,15 @@ export default function DateNavigator({
       </button>
 
       {/* Data formatada */}
-      <div
-        className="px-4 text-sm font-medium select-none min-w-[140px] text-center"
-        style={{ color: "#0099DD" }}
-      >
-        {formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1)}
-      </div>
-
+      {!isToday(date) && (
+        <div
+          className="px-4 text-sm font-medium select-none min-w-[140px] text-center"
+          style={{ color: "#0099DD" }}
+        >
+          {formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1)}
+        </div>
+      )}
+      
       {/* Botão direito */}
       <button
         onClick={() => handleChange(1)}
