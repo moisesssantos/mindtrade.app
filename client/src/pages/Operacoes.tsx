@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Eye, TrendingDown, TrendingUp, Edit } from "lucide-react";
 import { useLocation } from "wouter";
+import DateNavigator from "@/components/DateNavigator";
 
 type Partida = {
   id: number;
@@ -48,6 +49,7 @@ type Estrategia = { id: number; nome: string; mercadoId: number };
 
 export default function Operacoes() {
   const [, setLocation] = useLocation();
+  const [dataSelecionada, setDataSelecionada] = useState(new Date());
 
   // ✅ Detectar modo escuro/claro
   const [isDarkMode, setIsDarkMode] = useState<boolean>(
@@ -65,6 +67,16 @@ export default function Operacoes() {
     return () => observer.disconnect();
   }, []);
 
+    return (
+        <div className="space-y-4">
+          <DateNavigator onChange={(novaData) => setDataSelecionada(novaData)} />
+    
+          {/* aqui você mostra apenas operações do dia selecionado */}
+          {/* <TabelaOperacoes data={dataSelecionada} /> */}
+        </div>
+      );
+    }
+  
   // === Queries ===
   const { data: operacoes = [], isLoading: isLoadingOperacoes } = useQuery<Operacao[]>({
     queryKey: ["/api/operacoes"],
