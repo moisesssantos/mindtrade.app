@@ -8,8 +8,6 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { Equipe, Competicao, Mercado, Estrategia, TransacaoFinanceira } from "@shared/schema";
 import { format, parseISO } from "date-fns";
-import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2 } from "lucide-react";
 
 type DialogState = {
   type: 'equipe' | 'competicao' | 'mercado' | 'estrategia' | 'transacao' | null;
@@ -280,10 +278,6 @@ export default function Cadastros() {
     return { ...estrategia, mercado: mercado?.nome || 'N/A' };
   });
 
-  // Helpers de ordenação
-  const equipesOrdenadas = [...(equipes ?? [])].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
-  const competicoesOrdenadas = [...(competicoes ?? [])].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
       <div className="max-w-6xl mx-auto px-6 py-8">
@@ -303,91 +297,36 @@ export default function Cadastros() {
             <TabsTrigger value="transacoes">Transações</TabsTrigger>
           </TabsList>
 
-          {/* ====== EQUIPES (LISTA EM 4 COLUNAS) ====== */}
           <TabsContent value="equipes">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Equipes</h2>
-                <Button onClick={() => setDialogState({ type: 'equipe', mode: 'add' })} size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Adicionar
-                </Button>
-              </div>
-          
-              {isLoadingEquipes ? (
-                <div className="text-sm text-muted-foreground">Carregando...</div>
-              ) : (equipes?.length ?? 0) === 0 ? (
-                <div className="text-sm text-muted-foreground">Nenhuma equipe encontrada.</div>
-              ) : (
-                <table className="min-w-full border-collapse">
-                  <tbody>
-                    {(() => {
-                      const sorted = [...equipes].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
-                      const linhas = [];
-                      for (let i = 0; i < sorted.length; i += 4) {
-                        linhas.push(sorted.slice(i, i + 4));
-                      }
-                      return linhas.map((linha, idx) => (
-                        <tr key={idx}>
-                          {linha.map((eq, i) => (
-                            <td key={i} className="border px-3 py-2 text-sm">{eq.nome}</td>
-                          ))}
-                          {linha.length < 4 &&
-                            Array.from({ length: 4 - linha.length }).map((_, j) => (
-                              <td key={`vazio-${j}`} className="border px-3 py-2"></td>
-                            ))}
-                        </tr>
-                      ));
-                    })()}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </TabsContent>
-          
-          {/* ====== COMPETIÇÕES (LISTA EM 2 COLUNAS) ====== */}
-          <TabsContent value="competicoes">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Competições</h2>
-                <Button onClick={() => setDialogState({ type: 'competicao', mode: 'add' })} size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Adicionar
-                </Button>
-              </div>
-          
-              {isLoadingCompeticoes ? (
-                <div className="text-sm text-muted-foreground">Carregando...</div>
-              ) : (competicoes?.length ?? 0) === 0 ? (
-                <div className="text-sm text-muted-foreground">Nenhuma competição encontrada.</div>
-              ) : (
-                <table className="min-w-full border-collapse">
-                  <tbody>
-                    {(() => {
-                      const sorted = [...competicoes].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
-                      const linhas = [];
-                      for (let i = 0; i < sorted.length; i += 2) {
-                        linhas.push(sorted.slice(i, i + 2));
-                      }
-                      return linhas.map((linha, idx) => (
-                        <tr key={idx}>
-                          {linha.map((comp, i) => (
-                            <td key={i} className="border px-3 py-2 text-sm">{comp.nome}</td>
-                          ))}
-                          {linha.length < 2 &&
-                            Array.from({ length: 2 - linha.length }).map((_, j) => (
-                              <td key={`vazio-${j}`} className="border px-3 py-2"></td>
-                            ))}
-                        </tr>
-                      ));
-                    })()}
-                  </tbody>
-                </table>
-              )}
-            </div>
+            <CadastroTable
+              title="Equipes"
+              items={equipes}
+              isLoading={isLoadingEquipes}
+              onAdd={() => setDialogState({ type: 'equipe', mode: 'add' })}
+              onEdit={(item) => setDialogState({ type: 'equipe', mode: 'edit', data: item })}
+              onDelete={(item) => {
+                if (confirm(`Tem certeza que deseja excluir ${item.nome}?`)) {
+                  deleteEquipeMutation.mutate(item.id);
+                }
+              }}
+            />
           </TabsContent>
 
-          {/* ====== MERCADOS (MODO TABELA ORIGINAL) ====== */}
+          <TabsContent value="competicoes">
+            <CadastroTable
+              title="Competições"
+              items={competicoes}
+              isLoading={isLoadingCompeticoes}
+              onAdd={() => setDialogState({ type: 'competicao', mode: 'add' })}
+              onEdit={(item) => setDialogState({ type: 'competicao', mode: 'edit', data: item })}
+              onDelete={(item) => {
+                if (confirm(`Tem certeza que deseja excluir ${item.nome}?`)) {
+                  deleteCompeticaoMutation.mutate(item.id);
+                }
+              }}
+            />
+          </TabsContent>
+
           <TabsContent value="mercados">
             <CadastroTable
               title="Mercados"
@@ -403,7 +342,6 @@ export default function Cadastros() {
             />
           </TabsContent>
 
-          {/* ====== ESTRATÉGIAS (MODO TABELA ORIGINAL) ====== */}
           <TabsContent value="estrategias">
             <CadastroTable
               title="Estratégias"
@@ -420,7 +358,6 @@ export default function Cadastros() {
             />
           </TabsContent>
 
-          {/* ====== TRANSAÇÕES (MODO TABELA ORIGINAL) ====== */}
           <TabsContent value="transacoes">
             <CadastroTable
               title="Transações Financeiras"
