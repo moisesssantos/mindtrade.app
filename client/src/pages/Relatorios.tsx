@@ -261,69 +261,76 @@ export default function Relatorios() {
     .filter((item) => item.operacoes > 0);
 
   // 🏆 Agrupar por Competição — mesma lógica de porMercado
-const porCompeticao = useMemo(() => {
-  const mapa = new Map<number, { lucro: number; stake: number; operacoes: number }>();
-
-  itensFiltrados.forEach((item) => {
-    const operacao = operacoes.find((op) => op.id === item.operacaoId);
-    const partida = partidas.find((p) => p.id === operacao?.partidaId);
-    if (!partida) return;
-
-    const compId = partida.competicaoId;
-    const atual = mapa.get(compId) || { lucro: 0, stake: 0, operacoes: 0 };
-
-    atual.lucro += parseFloat(item.resultadoFinanceiro || "0");
-    atual.stake += parseFloat(item.stake || "0");
-    atual.operacoes += 1;
-
-    mapa.set(compId, atual);
-  });
-
-  return Array.from(mapa.entries())
-    .map(([id, dados]) => {
-      const nome = competicoes.find((c) => c.id === id)?.nome || "Desconhecida";
-      return {
-        competicao: nome,
-        lucro: dados.lucro,
-        roi: dados.stake > 0 ? (dados.lucro / dados.stake) * 100 : 0,
-        operacoes: dados.operacoes,
-      };
-    })
-    .sort((a, b) => b.lucro - a.lucro);
-}, [itensFiltrados, operacoes, partidas, competicoes]);
-  
+    const [mostrarPioresCompeticoes, setMostrarPioresCompeticoes] = useState(false);
+    
+    const competicoesOrdenadas = useMemo(() => {
+      const mapa = new Map<number, { lucro: number; stake: number; operacoes: number }>();
+    
+      itensFiltrados.forEach((item) => {
+        const operacao = operacoes.find((op) => op.id === item.operacaoId);
+        const partida = partidas.find((p) => p.id === operacao?.partidaId);
+        if (!partida) return;
+    
+        const compId = partida.competicaoId;
+        const atual = mapa.get(compId) || { lucro: 0, stake: 0, operacoes: 0 };
+    
+        atual.lucro += parseFloat(item.resultadoFinanceiro || "0");
+        atual.stake += parseFloat(item.stake || "0");
+        atual.operacoes += 1;
+    
+        mapa.set(compId, atual);
+      });
+    
+      const lista = Array.from(mapa.entries()).map(([id, dados]) => {
+        const nome = competicoes.find((c) => c.id === id)?.nome || "Desconhecida";
+        return {
+          competicao: nome,
+          lucro: dados.lucro,
+          roi: dados.stake > 0 ? (dados.lucro / dados.stake) * 100 : 0,
+          operacoes: dados.operacoes,
+        };
+      });
+    
+      return mostrarPioresCompeticoes
+        ? lista.sort((a, b) => a.lucro - b.lucro)
+        : lista.sort((a, b) => b.lucro - a.lucro);
+    }, [itensFiltrados, operacoes, partidas, competicoes, mostrarPioresCompeticoes]);  
 
 // ⚽ Agrupar por Equipe — mesma lógica, considerando mandante e visitante
-const porEquipe = useMemo(() => {
-  const mapa = new Map<number, { lucro: number; stake: number; operacoes: number }>();
-
-  itensFiltrados.forEach((item) => {
-    const operacao = operacoes.find((op) => op.id === item.operacaoId);
-    const partida = partidas.find((p) => p.id === operacao?.partidaId);
-    if (!partida) return;
-
-    const equipesIds = [partida.mandanteId, partida.visitanteId];
-    equipesIds.forEach((id) => {
-      const atual = mapa.get(id) || { lucro: 0, stake: 0, operacoes: 0 };
-      atual.lucro += parseFloat(item.resultadoFinanceiro || "0");
-      atual.stake += parseFloat(item.stake || "0");
-      atual.operacoes += 1;
-      mapa.set(id, atual);
-    });
-  });
-
-  return Array.from(mapa.entries())
-    .map(([id, dados]) => {
-      const nome = equipes.find((e) => e.id === id)?.nome || "Desconhecida";
-      return {
-        equipe: nome,
-        lucro: dados.lucro,
-        roi: dados.stake > 0 ? (dados.lucro / dados.stake) * 100 : 0,
-        operacoes: dados.operacoes,
-      };
-    })
-    .sort((a, b) => b.lucro - a.lucro);
-}, [itensFiltrados, operacoes, partidas, equipes]);
+    const [mostrarPioresEquipes, setMostrarPioresEquipes] = useState(false);
+    
+    const equipesOrdenadas = useMemo(() => {
+      const mapa = new Map<number, { lucro: number; stake: number; operacoes: number }>();
+    
+      itensFiltrados.forEach((item) => {
+        const operacao = operacoes.find((op) => op.id === item.operacaoId);
+        const partida = partidas.find((p) => p.id === operacao?.partidaId);
+        if (!partida) return;
+    
+        const equipesIds = [partida.mandanteId, partida.visitanteId];
+        equipesIds.forEach((id) => {
+          const atual = mapa.get(id) || { lucro: 0, stake: 0, operacoes: 0 };
+          atual.lucro += parseFloat(item.resultadoFinanceiro || "0");
+          atual.stake += parseFloat(item.stake || "0");
+          atual.operacoes += 1;
+          mapa.set(id, atual);
+        });
+      });
+    
+      const lista = Array.from(mapa.entries()).map(([id, dados]) => {
+        const nome = equipes.find((e) => e.id === id)?.nome || "Desconhecida";
+        return {
+          equipe: nome,
+          lucro: dados.lucro,
+          roi: dados.stake > 0 ? (dados.lucro / dados.stake) * 100 : 0,
+          operacoes: dados.operacoes,
+        };
+      });
+    
+      return mostrarPioresEquipes
+        ? lista.sort((a, b) => a.lucro - b.lucro)
+        : lista.sort((a, b) => b.lucro - a.lucro);
+    }, [itensFiltrados, operacoes, partidas, equipes, mostrarPioresEquipes]);
 
   // === Comportamental ===
   const seguiuPlanoSim = itensFiltrados.filter(
@@ -745,57 +752,68 @@ const porEquipe = useMemo(() => {
   </TabsContent>
 
     {/* Por Competição */}
-      <TabsContent value="competicao">
-        <Card
-          className={
-            isDarkMode
-              ? "p-6 bg-[#2a2b2e] border border-[#44494d]"
-              : "p-6 bg-white border border-gray-200 shadow-sm"
-          }
-        >
-          <h3 className="text-lg font-semibold mb-4">Performance por Competição</h3>
-          {porCompeticao.length === 0 ? (
-            <p className="text-center text-muted-foreground py-4">
-              Nenhum dado disponível
-            </p>
-          ) : (
-            <div className="rounded-lg border dark:border-border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Competição</TableHead>
-                    <TableHead className="text-right">Lucro</TableHead>
-                    <TableHead className="text-right">ROI</TableHead>
-                    <TableHead className="text-right">Itens</TableHead>
+    <TabsContent value="competicao">
+      <Card
+        className={
+          isDarkMode
+            ? "p-6 bg-[#2a2b2e] border border-[#44494d]"
+            : "p-6 bg-white border border-gray-200 shadow-sm"
+        }
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold">Performance por Competição</h3>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setMostrarPioresCompeticoes((prev) => !prev)}
+            className="text-sm"
+          >
+            {mostrarPioresCompeticoes ? "Ver Melhores" : "Ver Piores"}
+          </Button>
+        </div>
+    
+        {competicoesOrdenadas.length === 0 ? (
+          <p className="text-center text-muted-foreground py-4">
+            Nenhum dado disponível
+          </p>
+        ) : (
+          <div className="rounded-lg border dark:border-border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Competição</TableHead>
+                  <TableHead className="text-right">Lucro</TableHead>
+                  <TableHead className="text-right">ROI</TableHead>
+                  <TableHead className="text-right">Itens</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {competicoesOrdenadas.slice(0, 10).map((row, index) => (
+                  <TableRow key={index}>
+                    <TableCell className="font-medium">{row.competicao}</TableCell>
+                    <TableCell
+                      className={`text-right font-mono ${
+                        row.lucro >= 0
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-red-600 dark:text-red-400"
+                      }`}
+                    >
+                      R$ {row.lucro.toFixed(2).replace(".", ",")}
+                    </TableCell>
+                    <TableCell className="text-right font-mono">
+                      {row.roi.toFixed(1).replace(".", ",")}%
+                    </TableCell>
+                    <TableCell className="text-right font-mono">
+                      {row.operacoes}
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {porCompeticao.slice(0, 10).map((row, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="font-medium">{row.competicao}</TableCell>
-                      <TableCell
-                        className={`text-right font-mono ${
-                          row.lucro >= 0
-                            ? "text-green-600 dark:text-green-400"
-                            : "text-red-600 dark:text-red-400"
-                        }`}
-                      >
-                        R$ {row.lucro.toFixed(2).replace(".", ",")}
-                      </TableCell>
-                      <TableCell className="text-right font-mono">
-                        {row.roi.toFixed(1).replace(".", ",")}%
-                      </TableCell>
-                      <TableCell className="text-right font-mono">
-                        {row.operacoes}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </Card>
-      </TabsContent>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </Card>
+    </TabsContent>
     
       {/* Por Equipe */}
       <TabsContent value="equipe">
@@ -806,8 +824,19 @@ const porEquipe = useMemo(() => {
               : "p-6 bg-white border border-gray-200 shadow-sm"
           }
         >
-          <h3 className="text-lg font-semibold mb-4">Performance por Equipe</h3>
-          {porEquipe.length === 0 ? (
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold">Performance por Equipe</h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setMostrarPioresEquipes((prev) => !prev)}
+              className="text-sm"
+            >
+              {mostrarPioresEquipes ? "Ver Melhores" : "Ver Piores"}
+            </Button>
+          </div>
+      
+          {equipesOrdenadas.length === 0 ? (
             <p className="text-center text-muted-foreground py-4">
               Nenhum dado disponível
             </p>
@@ -823,7 +852,7 @@ const porEquipe = useMemo(() => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {porEquipe.slice(0, 20).map((row, index) => (
+                  {equipesOrdenadas.slice(0, 20).map((row, index) => (
                     <TableRow key={index}>
                       <TableCell className="font-medium">{row.equipe}</TableCell>
                       <TableCell
@@ -850,64 +879,64 @@ const porEquipe = useMemo(() => {
         </Card>
       </TabsContent>
   
-  {/* Comportamental */}
-  <TabsContent value="comportamental">
-    <Card
-      className={
-        isDarkMode
-          ? "p-6 bg-[#2a2b2e] border border-[#44494d]"
-          : "p-6 bg-white border border-gray-200 shadow-sm"
-      }
-    >
-      <h3 className="text-lg font-semibold mb-4">
-        Análise Comportamental
-      </h3>
-      <div className="space-y-6">
-        <div>
-          <h4 className="text-sm font-medium mb-3">
-            Performance: Seguiu o Método
-          </h4>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 rounded-lg border dark:border-border">
-              <p className="text-sm text-muted-foreground mb-1">
-                Sim ({seguiuPlanoSim.length} itens)
-              </p>
-              <p
-                className={`text-xl font-bold font-mono ${
-                  lucroSeguiuSim >= 0
-                    ? "text-green-600 dark:text-green-400"
-                    : "text-red-600 dark:text-red-400"
-                }`}
-              >
-                {lucroSeguiuSim >= 0 ? "+" : ""}R$ {lucroSeguiuSim
-                  .toFixed(2)
-                  .replace(".", ",")}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                ROI: {roiSeguiuSim.toFixed(1).replace(".", ",")}%
-              </p>
-            </div>
-            <div className="p-4 rounded-lg border dark:border-border">
-              <p className="text-sm text-muted-foreground mb-1">
-                Não ({seguiuPlanoNao.length} itens)
-              </p>
-              <p
-                className={`text-xl font-bold font-mono ${
-                  lucroSeguiuNao >= 0
-                    ? "text-green-600 dark:text-green-400"
-                    : "text-red-600 dark:text-red-400"
-                }`}
-              >
-                {lucroSeguiuNao >= 0 ? "+" : ""}R$ {lucroSeguiuNao
-                  .toFixed(2)
-                  .replace(".", ",")}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                ROI: {roiSeguiuNao.toFixed(1).replace(".", ",")}%
-              </p>
+    {/* Comportamental */}
+    <TabsContent value="comportamental">
+      <Card
+        className={
+          isDarkMode
+            ? "p-6 bg-[#2a2b2e] border border-[#44494d]"
+            : "p-6 bg-white border border-gray-200 shadow-sm"
+        }
+      >
+        <h3 className="text-lg font-semibold mb-4">
+          Análise Comportamental
+        </h3>
+        <div className="space-y-6">
+          <div>
+            <h4 className="text-sm font-medium mb-3">
+              Performance: Seguiu o Método
+            </h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 rounded-lg border dark:border-border">
+                <p className="text-sm text-muted-foreground mb-1">
+                  Sim ({seguiuPlanoSim.length} itens)
+                </p>
+                <p
+                  className={`text-xl font-bold font-mono ${
+                    lucroSeguiuSim >= 0
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-red-600 dark:text-red-400"
+                  }`}
+                >
+                  {lucroSeguiuSim >= 0 ? "+" : ""}R$ {lucroSeguiuSim
+                    .toFixed(2)
+                    .replace(".", ",")}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  ROI: {roiSeguiuSim.toFixed(1).replace(".", ",")}%
+                </p>
+              </div>
+              <div className="p-4 rounded-lg border dark:border-border">
+                <p className="text-sm text-muted-foreground mb-1">
+                  Não ({seguiuPlanoNao.length} itens)
+                </p>
+                <p
+                  className={`text-xl font-bold font-mono ${
+                    lucroSeguiuNao >= 0
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-red-600 dark:text-red-400"
+                  }`}
+                >
+                  {lucroSeguiuNao >= 0 ? "+" : ""}R$ {lucroSeguiuNao
+                    .toFixed(2)
+                    .replace(".", ",")}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  ROI: {roiSeguiuNao.toFixed(1).replace(".", ",")}%
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
         {porEstadoEmocional.length > 0 && (
           <div>
