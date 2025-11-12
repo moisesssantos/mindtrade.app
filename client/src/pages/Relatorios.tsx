@@ -518,6 +518,8 @@ export default function Relatorios() {
     <TabsTrigger value="mercado">Por Mercado</TabsTrigger>
     <TabsTrigger value="estrategia">Por Estratégia</TabsTrigger>
     <TabsTrigger value="comportamental">Comportamental</TabsTrigger>
+    <TabsTrigger value="competicao">Por Competição</TabsTrigger>
+    <TabsTrigger value="equipe">Por Equipe</TabsTrigger>
   </TabsList>
 
   {/* Geral */}
@@ -677,6 +679,112 @@ export default function Relatorios() {
     </Card>
   </TabsContent>
 
+    {/* Por Competição */}
+      <TabsContent value="competicao">
+        <Card
+          className={
+            isDarkMode
+              ? "p-6 bg-[#2a2b2e] border border-[#44494d]"
+              : "p-6 bg-white border border-gray-200 shadow-sm"
+          }
+        >
+          <h3 className="text-lg font-semibold mb-4">Performance por Competição</h3>
+          {porCompeticao.length === 0 ? (
+            <p className="text-center text-muted-foreground py-4">
+              Nenhum dado disponível
+            </p>
+          ) : (
+            <div className="rounded-lg border dark:border-border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Competição</TableHead>
+                    <TableHead className="text-right">Lucro</TableHead>
+                    <TableHead className="text-right">ROI</TableHead>
+                    <TableHead className="text-right">Itens</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {porCompeticao.slice(0, 10).map((row, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="font-medium">{row.competicao}</TableCell>
+                      <TableCell
+                        className={`text-right font-mono ${
+                          row.lucro >= 0
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-red-600 dark:text-red-400"
+                        }`}
+                      >
+                        R$ {row.lucro.toFixed(2).replace(".", ",")}
+                      </TableCell>
+                      <TableCell className="text-right font-mono">
+                        {row.roi.toFixed(1).replace(".", ",")}%
+                      </TableCell>
+                      <TableCell className="text-right font-mono">
+                        {row.operacoes}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </Card>
+      </TabsContent>
+    
+      {/* Por Equipe */}
+      <TabsContent value="equipe">
+        <Card
+          className={
+            isDarkMode
+              ? "p-6 bg-[#2a2b2e] border border-[#44494d]"
+              : "p-6 bg-white border border-gray-200 shadow-sm"
+          }
+        >
+          <h3 className="text-lg font-semibold mb-4">Performance por Equipe</h3>
+          {porEquipe.length === 0 ? (
+            <p className="text-center text-muted-foreground py-4">
+              Nenhum dado disponível
+            </p>
+          ) : (
+            <div className="rounded-lg border dark:border-border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Equipe</TableHead>
+                    <TableHead className="text-right">Lucro</TableHead>
+                    <TableHead className="text-right">ROI</TableHead>
+                    <TableHead className="text-right">Itens</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {porEquipe.slice(0, 20).map((row, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="font-medium">{row.equipe}</TableCell>
+                      <TableCell
+                        className={`text-right font-mono ${
+                          row.lucro >= 0
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-red-600 dark:text-red-400"
+                        }`}
+                      >
+                        R$ {row.lucro.toFixed(2).replace(".", ",")}
+                      </TableCell>
+                      <TableCell className="text-right font-mono">
+                        {row.roi.toFixed(1).replace(".", ",")}%
+                      </TableCell>
+                      <TableCell className="text-right font-mono">
+                        {row.operacoes}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </Card>
+      </TabsContent>
+  
   {/* Comportamental */}
   <TabsContent value="comportamental">
     <Card
