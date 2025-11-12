@@ -260,56 +260,51 @@ export default function Relatorios() {
     })
     .filter((item) => item.operacoes > 0);
 
-  // 🏆 Agrupar por Competição
+  // 🏆 Agrupar por Competição — mesma lógica de porMercado
 const porCompeticao = useMemo(() => {
-  if (!operacoes?.length) return [];
+  if (!operacoes || operacoes.length === 0) return [];
 
-  const mapa = new Map();
-
-  operacoes.forEach((op) => {
+  const resultado = operacoes.reduce((acc, op) => {
     const key = op.competicao || "Sem competição";
-    const atual = mapa.get(key) || { lucro: 0, stake: 0, operacoes: 0 };
+    if (!acc[key]) {
+      acc[key] = { lucro: 0, stake: 0, operacoes: 0 };
+    }
+    acc[key].lucro += op.lucro || 0;
+    acc[key].stake += op.stake || 0;
+    acc[key].operacoes += 1;
+    return acc;
+  }, {});
 
-    atual.lucro += op.lucro || 0;
-    atual.stake += op.stake || 0;
-    atual.operacoes += 1;
-
-    mapa.set(key, atual);
-  });
-
-  // calcular ROI e ordenar
-  return Array.from(mapa.entries())
+  return Object.entries(resultado)
     .map(([competicao, dados]) => ({
       competicao,
       lucro: dados.lucro,
       roi: dados.stake > 0 ? (dados.lucro / dados.stake) * 100 : 0,
       operacoes: dados.operacoes,
     }))
-    .sort((a, b) => b.lucro - a.lucro); // mais lucrativas primeiro
+    .sort((a, b) => b.lucro - a.lucro);
 }, [operacoes]);
 
-// ⚽ Agrupar por Equipe
+// ⚽ Agrupar por Equipe — mesma lógica, considerando mandante e visitante
 const porEquipe = useMemo(() => {
-  if (!operacoes?.length) return [];
+  if (!operacoes || operacoes.length === 0) return [];
 
-  const mapa = new Map();
+  const resultado = {};
 
   operacoes.forEach((op) => {
-    // opcional: você pode considerar mandante e visitante separadamente
     const equipes = [op.mandante, op.visitante].filter(Boolean);
 
     equipes.forEach((nome) => {
-      const atual = mapa.get(nome) || { lucro: 0, stake: 0, operacoes: 0 };
-
-      atual.lucro += op.lucro || 0;
-      atual.stake += op.stake || 0;
-      atual.operacoes += 1;
-
-      mapa.set(nome, atual);
+      if (!resultado[nome]) {
+        resultado[nome] = { lucro: 0, stake: 0, operacoes: 0 };
+      }
+      resultado[nome].lucro += op.lucro || 0;
+      resultado[nome].stake += op.stake || 0;
+      resultado[nome].operacoes += 1;
     });
   });
 
-  return Array.from(mapa.entries())
+  return Object.entries(resultado)
     .map(([equipe, dados]) => ({
       equipe,
       lucro: dados.lucro,
