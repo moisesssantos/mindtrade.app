@@ -69,16 +69,16 @@ export default function Operacoes() {
   const { data: relatorios } = useQuery<any>({ queryKey: ["/api/relatorios"] });
 
   // === Funções auxiliares ===
-  const operacoesConcluidas = operacoes
-    .filter((op) => op.status === "CONCLUIDA")
-    .sort((a, b) => {
-      const partidaA = partidas.find((p) => p.id === a.partidaId);
-      const partidaB = partidas.find((p) => p.id === b.partidaId);
-      if (!partidaA || !partidaB) return 0;
-      const dataA = new Date(`${partidaA.data}T${partidaA.hora}`);
-      const dataB = new Date(`${partidaB.data}T${partidaB.hora}`);
-      return dataB.getTime() - dataA.getTime();
-    });
+const operacoesConcluidas = (operacoes || [])
+  .filter((op) => op.status === "CONCLUIDA")
+  .sort((a, b) => {
+    const partidaA = partidas.find((p) => p.id === a.partidaId);
+    const partidaB = partidas.find((p) => p.id === b.partidaId);
+    if (!partidaA || !partidaB) return 0;
+    const dataA = new Date(`${partidaA.data}T${partidaA.hora}`);
+    const dataB = new Date(`${partidaB.data}T${partidaB.hora}`);
+    return dataB.getTime() - dataA.getTime();
+  });
 
   const getPartidaInfo = (partidaId: number) => {
     const partida = partidas.find((p) => p.id === partidaId);
