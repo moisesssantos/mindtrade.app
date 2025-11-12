@@ -508,8 +508,8 @@ app.get("/api/operacoes", async (req, res) => {
     const { data } = req.query;
 
     if (data) {
-      // Filtra operações pela data do registro
-      const operacoes = await storage.getOperacoesByData(data as string);
+      // ✅ Filtra operações pela data da partida
+      const operacoes = await storage.getOperacoesByPartidaData(String(data));
       return res.json(operacoes);
     }
 
