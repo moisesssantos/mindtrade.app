@@ -164,20 +164,56 @@ export default function Operacoes() {
             </Button>
           )}
         </div>
-
-      {operacoesConcluidas.length === 0 ? (
-        <Card className={isDarkMode ? "bg-[#2a2b2e] border border-[#44494d]" : "bg-white border border-gray-200"}>
-          <CardContent className="py-12 text-center text-muted-foreground">
-            Nenhuma operação concluída até o momento.
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-6">
-          {operacoesConcluidas.map((operacao) => {
-            const info = getPartidaInfo(operacao.partidaId);
-            const itens = getItensOperacao(operacao.id);
-            const stats = calcularEstatisticas(itens);
-
+        
+        {operacoesConcluidas.length === 0 ? (
+          <Card className={isDarkMode ? "bg-[#2a2b2e] border border-[#44494d]" : "bg-white border border-gray-200"}>
+            <CardContent className="py-12 text-center text-muted-foreground">
+              Nenhuma operação concluída até o momento.
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-6">
+            {operacoesConcluidas.map((operacao) => {
+              const info = getPartidaInfo(operacao.partidaId);
+              const itens = getItensOperacao(operacao.id);
+              const stats = calcularEstatisticas(itens);
+        
+              return (
+                <Card
+                  key={operacao.id}
+                  className={isDarkMode ? "bg-[#2a2b2e] border border-[#44494d]" : "bg-white border border-gray-200"}
+                >
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-lg mb-1">
+                          {info.competicao} - {info.mandante} vs {info.visitante}
+                        </CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                          {info.dataFormatada} às {info.hora} — <Badge>Concluída</Badge>
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => setLocation(`/operacoes/${operacao.partidaId}`)}>
+                          <Eye className="w-4 h-4 mr-1" /> Ver
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => setLocation(`/operacoes/${operacao.partidaId}`)}>
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+        
+                  <CardContent>
+                    {/* Estatísticas e itens da operação aqui */}
+                    {/* ... (mantém o conteúdo que você já tinha) ... */}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+          
             return (
               <Card
                 key={operacao.id}
