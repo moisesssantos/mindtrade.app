@@ -51,7 +51,8 @@ type Estrategia = { id: number; nome: string; mercadoId: number };
 
 export default function Operacoes() {
   const [, setLocation] = useLocation();
-  const [dataSelecionada, setDataSelecionada] = useState(new Date());
+  //const [dataSelecionada, setDataSelecionada] = useState(new Date());
+  const [dataSelecionada, setDataSelecionada] = useState<Date | null>(new Date());
 
   // === Queries principais ===
   const { data: operacoes = [], isLoading: isLoadingOperacoes } = useQuery<Operacao[]>({
@@ -69,11 +70,13 @@ export default function Operacoes() {
   const operacoesConcluidas = operacoes
   .filter((op) => op.status === "CONCLUIDA")
   .filter((op) => {
+    if (!dataSelecionada) return true; // sem filtro, mostra tudo
+
     const partida = partidas.find((p) => p.id === op.partidaId);
     if (!partida) return false;
 
-    const dataPartida = parseISO(partida.data); // transforma "YYYY-MM-DD" em Date
-    return isSameDay(dataPartida, dataSelecionada); // compara com a data selecionada
+    const dataPartida = parseISO(partida.data);
+    return isSameDay(dataPartida, dataSelecionada);
   })
   .sort((a, b) => {
     const partidaA = partidas.find((p) => p.id === a.partidaId);
@@ -154,10 +157,14 @@ export default function Operacoes() {
         </div>
       
         {/* Calendário alinhado à direita */}
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 flex gap-2 items-center">
           <DateNavigator onChange={(novaData) => setDataSelecionada(novaData)} />
+          {dataSelecionada && (
+            <Button variant="ghost" size="sm" onClick={() => setDataSelecionada(null)}>
+              Limpar filtro
+            </Button>
+          )}
         </div>
-      </div>
 
       {operacoesConcluidas.length === 0 ? (
         <Card className={isDarkMode ? "bg-[#2a2b2e] border border-[#44494d]" : "bg-white border border-gray-200"}>
