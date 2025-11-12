@@ -260,6 +260,65 @@ export default function Relatorios() {
     })
     .filter((item) => item.operacoes > 0);
 
+  // 🏆 Agrupar por Competição
+const porCompeticao = useMemo(() => {
+  if (!operacoes?.length) return [];
+
+  const mapa = new Map();
+
+  operacoes.forEach((op) => {
+    const key = op.competicao || "Sem competição";
+    const atual = mapa.get(key) || { lucro: 0, stake: 0, operacoes: 0 };
+
+    atual.lucro += op.lucro || 0;
+    atual.stake += op.stake || 0;
+    atual.operacoes += 1;
+
+    mapa.set(key, atual);
+  });
+
+  // calcular ROI e ordenar
+  return Array.from(mapa.entries())
+    .map(([competicao, dados]) => ({
+      competicao,
+      lucro: dados.lucro,
+      roi: dados.stake > 0 ? (dados.lucro / dados.stake) * 100 : 0,
+      operacoes: dados.operacoes,
+    }))
+    .sort((a, b) => b.lucro - a.lucro); // mais lucrativas primeiro
+}, [operacoes]);
+
+// ⚽ Agrupar por Equipe
+const porEquipe = useMemo(() => {
+  if (!operacoes?.length) return [];
+
+  const mapa = new Map();
+
+  operacoes.forEach((op) => {
+    // opcional: você pode considerar mandante e visitante separadamente
+    const equipes = [op.mandante, op.visitante].filter(Boolean);
+
+    equipes.forEach((nome) => {
+      const atual = mapa.get(nome) || { lucro: 0, stake: 0, operacoes: 0 };
+
+      atual.lucro += op.lucro || 0;
+      atual.stake += op.stake || 0;
+      atual.operacoes += 1;
+
+      mapa.set(nome, atual);
+    });
+  });
+
+  return Array.from(mapa.entries())
+    .map(([equipe, dados]) => ({
+      equipe,
+      lucro: dados.lucro,
+      roi: dados.stake > 0 ? (dados.lucro / dados.stake) * 100 : 0,
+      operacoes: dados.operacoes,
+    }))
+    .sort((a, b) => b.lucro - a.lucro);
+}, [operacoes]);
+
   // === Comportamental ===
   const seguiuPlanoSim = itensFiltrados.filter(
     (item) => item.seguiuPlano === true
