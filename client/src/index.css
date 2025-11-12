@@ -232,7 +232,7 @@
 }
 
 /* ======================================================
-   🧠 FORMULÁRIOS MINDTRADE (Labels Cinza + Texto Azul)
+   🧠 FORMULÁRIOS MINDTRADE (v2.5 — Legenda cinza-claro, texto azul)
    ====================================================== */
 
 /* 🌞 Modo claro */
@@ -259,7 +259,7 @@
 /* 🌑 Modo escuro */
 .dark label,
 .dark .form-label {
-  color: #44494D; /* Legenda Cinza Chumbo */
+  color: #B0B3B8; /* ⚪ Cinza-claro para contraste com o fundo escuro */
 }
 
 .dark input,
@@ -281,7 +281,7 @@
 .dark input::placeholder,
 .dark select::placeholder,
 .dark textarea::placeholder {
-  color: #44494D;
+  color: #B0B3B8; /* Cinza-claro, mesma cor da legenda */
   opacity: 0.8;
 }
 
@@ -294,7 +294,7 @@
 .dark textarea {
   background-color: hsl(220 8% 10%) !important;
   border: 1px solid hsl(220 8% 18%) !important;
-  color: #0099DD !important;
+  color: #0099DD !important; /* Azul Ciano para texto digitado */
 }
 
 .dark input[type="text"]:focus,
@@ -305,13 +305,6 @@
 .dark textarea:focus {
   border-color: #0099DD !important;
   box-shadow: 0 0 6px rgba(0, 153, 221, 0.4);
-}
-
-/* Placeholders e labels */
-.dark input::placeholder,
-.dark textarea::placeholder {
-  color: #44494D !important;
-  opacity: 0.85;
 }
 
 /* Selects (Radix e nativos) */
