@@ -7,6 +7,7 @@ import { Eye, TrendingDown, TrendingUp, Edit } from "lucide-react";
 import { useLocation } from "wouter";
 import DateNavigator from "@/components/DateNavigator";
 import { apiRequest } from "@/lib/queryClient";
+import { isSameDay, parseISO } from "date-fns";
 
 type Partida = {
   id: number;
@@ -66,15 +67,22 @@ export default function Operacoes() {
 
   // === Funções auxiliares ===
   const operacoesConcluidas = operacoes
-    .filter((op) => op.status === "CONCLUIDA")
-    .sort((a, b) => {
-      const partidaA = partidas.find((p) => p.id === a.partidaId);
-      const partidaB = partidas.find((p) => p.id === b.partidaId);
-      if (!partidaA || !partidaB) return 0;
-      const dataA = new Date(`${partidaA.data}T${partidaA.hora}`);
-      const dataB = new Date(`${partidaB.data}T${partidaB.hora}`);
-      return dataB.getTime() - dataA.getTime();
-    });
+  .filter((op) => op.status === "CONCLUIDA")
+  .filter((op) => {
+    const partida = partidas.find((p) => p.id === op.partidaId);
+    if (!partida) return false;
+
+    const dataPartida = parseISO(partida.data); // transforma "YYYY-MM-DD" em Date
+    return isSameDay(dataPartida, dataSelecionada); // compara com a data selecionada
+  })
+  .sort((a, b) => {
+    const partidaA = partidas.find((p) => p.id === a.partidaId);
+    const partidaB = partidas.find((p) => p.id === b.partidaId);
+    if (!partidaA || !partidaB) return 0;
+    const dataA = new Date(`${partidaA.data}T${partidaA.hora}`);
+    const dataB = new Date(`${partidaB.data}T${partidaB.hora}`);
+    return dataB.getTime() - dataA.getTime();
+  });
 
   const getPartidaInfo = (partidaId: number) => {
     const partida = partidas.find((p) => p.id === partidaId);
