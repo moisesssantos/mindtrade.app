@@ -8,6 +8,7 @@ import { useLocation } from "wouter";
 import DateNavigator from "@/components/DateNavigator";
 import { apiRequest } from "@/lib/queryClient";
 import { isSameDay, parseISO } from "date-fns";
+import { ListFilter } from "lucide-react";
 
 type Partida = {
   id: number;
@@ -52,7 +53,7 @@ type Estrategia = { id: number; nome: string; mercadoId: number };
 export default function Operacoes() {
   const [, setLocation] = useLocation();
   const [dataSelecionada, setDataSelecionada] = useState(new Date());
-  const [mostrarTudo, setMostrarTudo] = useState(false);
+  const [mostrarTudo, setMostrarTudo] = useState(true);
 
   // === Queries principais ===
   const { data: operacoes = [], isLoading: isLoadingOperacoes } = useQuery<Operacao[]>({
@@ -162,8 +163,14 @@ export default function Operacoes() {
               setMostrarTudo(false); // volta ao modo filtrado
             }}
           />
-          <Button variant="outline" onClick={() => setMostrarTudo(true)}>
-            Mostrar tudo
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setMostrarTudo(true)}
+            className="flex items-center gap-1"
+          >
+            <ListFilter className="w-4 h-4" />
+            <span className="hidden sm:inline">Tudo</span>
           </Button>
         </div>
       </div>
