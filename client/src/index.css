@@ -253,34 +253,34 @@
   }
 }
 /* ======================================================
-   🧠 FORMULÁRIOS MINDTRADE (Inputs, Labels, Placeholders)
+   🧠 FORMULÁRIOS MINDTRADE (v2.2 — com Cinza Chumbo #44494D)
    ====================================================== */
 
 /* 🌞 Modo claro */
 :not(.dark) label,
 :not(.dark) .form-label {
-  color: hsl(var(--mind-purple)); /* Roxo MindTrade */
+  color: #44494D; /* Cinza Chumbo */
 }
 
 :not(.dark) input,
 :not(.dark) select,
 :not(.dark) textarea {
   background-color: #ffffff;
-  color: hsl(var(--mind-gray));
+  color: #44494D;
   border: 1px solid #d0d0d0;
 }
 
 :not(.dark) input::placeholder,
 :not(.dark) select::placeholder,
 :not(.dark) textarea::placeholder {
-  color: hsl(var(--mind-purple));
+  color: #44494D;
   opacity: 0.7;
 }
 
 /* 🌑 Modo escuro */
 .dark label,
 .dark .form-label {
-  color: hsl(var(--mind-blue)); /* Azul Ciano MindTrade */
+  color: #44494D; /* Cinza Chumbo MindTrade */
 }
 
 .dark input,
@@ -288,21 +288,21 @@
 .dark textarea {
   background-color: hsl(220 8% 14%);
   border: 1px solid hsl(220 8% 22%);
-  color: hsl(0 0% 96%);
+  color: #f1f1f1;
   transition: all 0.25s ease;
 }
 
 .dark input:focus,
 .dark select:focus,
 .dark textarea:focus {
-  border-color: hsl(var(--mind-blue));
+  border-color: hsl(var(--mind-blue)); /* Azul Ciano apenas no foco */
   box-shadow: 0 0 6px hsl(var(--mind-blue) / 0.4);
 }
 
 .dark input::placeholder,
 .dark select::placeholder,
 .dark textarea::placeholder {
-  color: hsl(var(--mind-blue));
+  color: #44494D;
   opacity: 0.8;
 }
 
@@ -313,7 +313,5 @@
 .dark [data-radix-select-value-text],
 .dark .SelectValue,
 .dark .select-value span {
-  color: hsl(var(--mind-blue)) !important;
+  color: #44494D !important;
 }
-
-
