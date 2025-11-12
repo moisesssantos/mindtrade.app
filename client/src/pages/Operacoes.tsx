@@ -52,9 +52,13 @@ export default function Operacoes() {
   const [, setLocation] = useLocation();
   const [dataSelecionada, setDataSelecionada] = useState(new Date());
 
+  // Formatar a data para "YYYY-MM-DD"
+  const dataISO = dataSelecionada.toISOString().split("T")[0]; 
+
   // === Queries principais ===
   const { data: operacoes = [], isLoading: isLoadingOperacoes } = useQuery<Operacao[]>({
-    queryKey: ["/api/operacoes"],
+    queryKey: ["/api/operacoes", dataISO], // Adicionando dataISO como parte da queryKey
+    queryFn: async () => apiRequest(`/api/operacoes?data=${dataISO}`), // Passando a data para o backend
   });
 
   const { data: partidas = [] } = useQuery<Partida[]>({ queryKey: ["/api/partidas"] });
@@ -110,30 +114,6 @@ export default function Operacoes() {
     return { totalStake, resultadoTotal, roi, numItens: itens.length };
   };
 
-  // === Modo escuro ===
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(
-    document.documentElement.classList.contains("dark")
-  );
-
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setIsDarkMode(document.documentElement.classList.contains("dark"));
-    });
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-    return () => observer.disconnect();
-  }, []);
-
-  if (isLoadingOperacoes) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center text-muted-foreground">Carregando operações...</div>
-      </div>
-    );
-  }
-
   // === Renderização ===
   return (
     <div className="container mx-auto px-4 py-8">
@@ -152,7 +132,7 @@ export default function Operacoes() {
       </div>
 
       {operacoesConcluidas.length === 0 ? (
-        <Card className={isDarkMode ? "bg-[#2a2b2e] border border-[#44494d]" : "bg-white border border-gray-200"}>
+        <Card className="bg-white border border-gray-200">
           <CardContent className="py-12 text-center text-muted-foreground">
             Nenhuma operação concluída até o momento.
           </CardContent>
@@ -165,10 +145,7 @@ export default function Operacoes() {
             const stats = calcularEstatisticas(itens);
 
             return (
-              <Card
-                key={operacao.id}
-                className={isDarkMode ? "bg-[#2a2b2e] border border-[#44494d]" : "bg-white border border-gray-200"}
-              >
+              <Card key={operacao.id} className="bg-white border border-gray-200">
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
