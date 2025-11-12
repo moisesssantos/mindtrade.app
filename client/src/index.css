@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* ======================================================
-   🎨 MINDTRADE OFFICIAL THEME v2.1 (LIGHT + DARK)
+   🎨 MINDTRADE OFFICIAL THEME v2.4 (LIGHT + DARK)
    ====================================================== */
 
 :root {
@@ -122,7 +122,7 @@
 .dark .SelectValue,
 .dark .select-value span,
 .dark [data-radix-select-value-text] {
-  color: #f5f5f5 !important;
+  color: #0099DD !important;
 }
 
 /* ======================================================
@@ -232,6 +232,100 @@
 }
 
 /* ======================================================
+   🧠 FORMULÁRIOS MINDTRADE (Labels Cinza + Texto Azul)
+   ====================================================== */
+
+/* 🌞 Modo claro */
+:not(.dark) label,
+:not(.dark) .form-label {
+  color: #44494D; /* Cinza Chumbo */
+}
+
+:not(.dark) input,
+:not(.dark) select,
+:not(.dark) textarea {
+  background-color: #ffffff;
+  border: 1px solid #d0d0d0;
+  color: #0099DD; /* Azul Ciano para texto */
+}
+
+:not(.dark) input::placeholder,
+:not(.dark) select::placeholder,
+:not(.dark) textarea::placeholder {
+  color: #44494D;
+  opacity: 0.7;
+}
+
+/* 🌑 Modo escuro */
+.dark label,
+.dark .form-label {
+  color: #44494D; /* Legenda Cinza Chumbo */
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: hsl(220 8% 10%);
+  border: 1px solid hsl(220 8% 18%);
+  color: #0099DD; /* Azul Ciano */
+  transition: all 0.25s ease;
+}
+
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+  border-color: #0099DD;
+  box-shadow: 0 0 6px rgba(0, 153, 221, 0.4);
+}
+
+.dark input::placeholder,
+.dark select::placeholder,
+.dark textarea::placeholder {
+  color: #44494D;
+  opacity: 0.8;
+}
+
+/* Inputs de texto livre */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="number"],
+.dark input[type="password"],
+.dark input[type="search"],
+.dark textarea {
+  background-color: hsl(220 8% 10%) !important;
+  border: 1px solid hsl(220 8% 18%) !important;
+  color: #0099DD !important;
+}
+
+.dark input[type="text"]:focus,
+.dark input[type="email"]:focus,
+.dark input[type="number"]:focus,
+.dark input[type="password"]:focus,
+.dark input[type="search"]:focus,
+.dark textarea:focus {
+  border-color: #0099DD !important;
+  box-shadow: 0 0 6px rgba(0, 153, 221, 0.4);
+}
+
+/* Placeholders e labels */
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #44494D !important;
+  opacity: 0.85;
+}
+
+/* Selects (Radix e nativos) */
+.dark select,
+.dark [role="combobox"],
+.dark .SelectValue,
+.dark [data-radix-select-value-text],
+.dark .select-value span {
+  color: #0099DD !important;
+  background-color: hsl(220 8% 10%) !important;
+  border: 1px solid hsl(220 8% 18%) !important;
+}
+
+/* ======================================================
    💫 UTILITÁRIOS EXTRAS
    ====================================================== */
 @layer utilities {
@@ -251,67 +345,4 @@
   .active-scale:active {
     transform: scale(0.97);
   }
-}
-/* ======================================================
-   🧩 FORMULÁRIOS MINDTRADE v2.3 — Label cinza, valor azul
-   ====================================================== */
-
-/* 🌞 Modo claro */
-:not(.dark) label,
-:not(.dark) .form-label {
-  color: #44494D; /* Cinza Chumbo para legenda */
-}
-
-:not(.dark) input,
-:not(.dark) select,
-:not(.dark) textarea {
-  background-color: #ffffff;
-  border: 1px solid #d0d0d0;
-  color: #0099DD; /* Azul Ciano para conteúdo */
-}
-
-:not(.dark) input::placeholder,
-:not(.dark) select::placeholder,
-:not(.dark) textarea::placeholder {
-  color: #44494D;
-  opacity: 0.7;
-}
-
-/* 🌑 Modo escuro */
-.dark label,
-.dark .form-label {
-  color: #44494D; /* Legenda cinza-chumbo */
-}
-
-.dark input,
-.dark select,
-.dark textarea {
-  background-color: hsl(220 8% 14%);
-  border: 1px solid hsl(220 8% 22%);
-  color: #0099DD; /* Azul ciano para texto do campo */
-  transition: all 0.25s ease;
-}
-
-.dark input:focus,
-.dark select:focus,
-.dark textarea:focus {
-  border-color: #0099DD;
-  box-shadow: 0 0 6px rgba(0, 153, 221, 0.4);
-}
-
-.dark input::placeholder,
-.dark select::placeholder,
-.dark textarea::placeholder {
-  color: #44494D; /* Placeholder cinza-chumbo */
-  opacity: 0.8;
-}
-
-/* 🧩 Corrigir select Radix UI (Trigger e Value) */
-.dark .SelectTrigger,
-.dark .select-trigger,
-.dark [role="combobox"],
-.dark [data-radix-select-value-text],
-.dark .SelectValue,
-.dark .select-value span {
-  color: #0099DD !important; /* Azul Ciano para o valor exibido */
 }
