@@ -52,9 +52,13 @@ export default function Operacoes() {
   const [, setLocation] = useLocation();
   const [dataSelecionada, setDataSelecionada] = useState(new Date());
 
+  // Formatar a data para "YYYY-MM-DD"
+  const dataISO = dataSelecionada.toISOString().split("T")[0]; 
+
   // === Queries principais ===
   const { data: operacoes = [], isLoading: isLoadingOperacoes } = useQuery<Operacao[]>({
-    queryKey: ["/api/operacoes"],
+    queryKey: ["/api/operacoes", dataISO], // Adicionando dataISO como parte da queryKey
+    queryFn: async () => apiRequest(`/api/operacoes?data=${dataISO}`), // Passando a data para o backend
   });
 
   const { data: partidas = [] } = useQuery<Partida[]>({ queryKey: ["/api/partidas"] });
@@ -63,6 +67,29 @@ export default function Operacoes() {
   const { data: mercados = [] } = useQuery<Mercado[]>({ queryKey: ["/api/mercados"] });
   const { data: estrategias = [] } = useQuery<Estrategia[]>({ queryKey: ["/api/estrategias"] });
   const { data: relatorios } = useQuery<any>({ queryKey: ["/api/relatorios"] });
+
+  return (
+    <div className="space-y-4">
+      {/* Calendário */}
+      <DateNavigator onChange={(novaData) => setDataSelecionada(novaData)} />
+
+      {/* Lista de operações filtradas */}
+      {isLoadingOperacoes ? (
+        <p>Carregando...</p>
+      ) : operacoes.length === 0 ? (
+        <p>Nenhuma operação encontrada para essa data.</p>
+      ) : (
+        <ul className="space-y-2">
+          {operacoes.map((op) => (
+            <li key={op.id} className="border rounded-md p-2">
+              Operação #{op.id} — {op.status}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
   // === Funções auxiliares ===
   const operacoesConcluidas = operacoes
