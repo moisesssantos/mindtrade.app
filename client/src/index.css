@@ -253,21 +253,21 @@
   }
 }
 /* ======================================================
-   🧠 FORMULÁRIOS MINDTRADE (v2.2 — com Cinza Chumbo #44494D)
+   🧩 FORMULÁRIOS MINDTRADE v2.3 — Label cinza, valor azul
    ====================================================== */
 
 /* 🌞 Modo claro */
 :not(.dark) label,
 :not(.dark) .form-label {
-  color: #44494D; /* Cinza Chumbo */
+  color: #44494D; /* Cinza Chumbo para legenda */
 }
 
 :not(.dark) input,
 :not(.dark) select,
 :not(.dark) textarea {
   background-color: #ffffff;
-  color: #44494D;
   border: 1px solid #d0d0d0;
+  color: #0099DD; /* Azul Ciano para conteúdo */
 }
 
 :not(.dark) input::placeholder,
@@ -280,7 +280,7 @@
 /* 🌑 Modo escuro */
 .dark label,
 .dark .form-label {
-  color: #44494D; /* Cinza Chumbo MindTrade */
+  color: #44494D; /* Legenda cinza-chumbo */
 }
 
 .dark input,
@@ -288,21 +288,21 @@
 .dark textarea {
   background-color: hsl(220 8% 14%);
   border: 1px solid hsl(220 8% 22%);
-  color: #f1f1f1;
+  color: #0099DD; /* Azul ciano para texto do campo */
   transition: all 0.25s ease;
 }
 
 .dark input:focus,
 .dark select:focus,
 .dark textarea:focus {
-  border-color: hsl(var(--mind-blue)); /* Azul Ciano apenas no foco */
-  box-shadow: 0 0 6px hsl(var(--mind-blue) / 0.4);
+  border-color: #0099DD;
+  box-shadow: 0 0 6px rgba(0, 153, 221, 0.4);
 }
 
 .dark input::placeholder,
 .dark select::placeholder,
 .dark textarea::placeholder {
-  color: #44494D;
+  color: #44494D; /* Placeholder cinza-chumbo */
   opacity: 0.8;
 }
 
@@ -313,5 +313,5 @@
 .dark [data-radix-select-value-text],
 .dark .SelectValue,
 .dark .select-value span {
-  color: #44494D !important;
+  color: #0099DD !important; /* Azul Ciano para o valor exibido */
 }
