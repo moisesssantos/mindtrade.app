@@ -1501,7 +1501,7 @@ export default function Dashboard() {
             }`}
           >
             <div className="mb-6">
-              <h3 className="text-lg font-semibold">Análise Comportamental</h3>
+              <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>Análise Comportamental</h3>
               <p className="text-sm text-muted-foreground">
                 Impacto de seguir o método de trading
               </p>
