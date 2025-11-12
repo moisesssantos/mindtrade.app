@@ -262,57 +262,68 @@ export default function Relatorios() {
 
   // 🏆 Agrupar por Competição — mesma lógica de porMercado
 const porCompeticao = useMemo(() => {
-  if (!operacoes || operacoes.length === 0) return [];
+  const mapa = new Map<number, { lucro: number; stake: number; operacoes: number }>();
 
-  const resultado = operacoes.reduce((acc, op) => {
-    const key = op.competicao || "Sem competição";
-    if (!acc[key]) {
-      acc[key] = { lucro: 0, stake: 0, operacoes: 0 };
-    }
-    acc[key].lucro += op.lucro || 0;
-    acc[key].stake += op.stake || 0;
-    acc[key].operacoes += 1;
-    return acc;
-  }, {});
+  itensFiltrados.forEach((item) => {
+    const operacao = operacoes.find((op) => op.id === item.operacaoId);
+    const partida = partidas.find((p) => p.id === operacao?.partidaId);
+    if (!partida) return;
 
-  return Object.entries(resultado)
-    .map(([competicao, dados]) => ({
-      competicao,
-      lucro: dados.lucro,
-      roi: dados.stake > 0 ? (dados.lucro / dados.stake) * 100 : 0,
-      operacoes: dados.operacoes,
-    }))
+    const compId = partida.competicaoId;
+    const atual = mapa.get(compId) || { lucro: 0, stake: 0, operacoes: 0 };
+
+    atual.lucro += parseFloat(item.resultadoFinanceiro || "0");
+    atual.stake += parseFloat(item.stake || "0");
+    atual.operacoes += 1;
+
+    mapa.set(compId, atual);
+  });
+
+  return Array.from(mapa.entries())
+    .map(([id, dados]) => {
+      const nome = competicoes.find((c) => c.id === id)?.nome || "Desconhecida";
+      return {
+        competicao: nome,
+        lucro: dados.lucro,
+        roi: dados.stake > 0 ? (dados.lucro / dados.stake) * 100 : 0,
+        operacoes: dados.operacoes,
+      };
+    })
     .sort((a, b) => b.lucro - a.lucro);
-}, [operacoes]);
+}, [itensFiltrados, operacoes, partidas, competicoes]);
+  
 
 // ⚽ Agrupar por Equipe — mesma lógica, considerando mandante e visitante
 const porEquipe = useMemo(() => {
-  if (!operacoes || operacoes.length === 0) return [];
+  const mapa = new Map<number, { lucro: number; stake: number; operacoes: number }>();
 
-  const resultado = {};
+  itensFiltrados.forEach((item) => {
+    const operacao = operacoes.find((op) => op.id === item.operacaoId);
+    const partida = partidas.find((p) => p.id === operacao?.partidaId);
+    if (!partida) return;
 
-  operacoes.forEach((op) => {
-    const equipes = [op.mandante, op.visitante].filter(Boolean);
-
-    equipes.forEach((nome) => {
-      if (!resultado[nome]) {
-        resultado[nome] = { lucro: 0, stake: 0, operacoes: 0 };
-      }
-      resultado[nome].lucro += op.lucro || 0;
-      resultado[nome].stake += op.stake || 0;
-      resultado[nome].operacoes += 1;
+    const equipesIds = [partida.mandanteId, partida.visitanteId];
+    equipesIds.forEach((id) => {
+      const atual = mapa.get(id) || { lucro: 0, stake: 0, operacoes: 0 };
+      atual.lucro += parseFloat(item.resultadoFinanceiro || "0");
+      atual.stake += parseFloat(item.stake || "0");
+      atual.operacoes += 1;
+      mapa.set(id, atual);
     });
   });
 
-  return Object.entries(resultado)
-    .map(([equipe, dados]) => ({
-      equipe,
-      lucro: dados.lucro,
-      roi: dados.stake > 0 ? (dados.lucro / dados.stake) * 100 : 0,
-      operacoes: dados.operacoes,
-    }))
+  return Array.from(mapa.entries())
+    .map(([id, dados]) => {
+      const nome = equipes.find((e) => e.id === id)?.nome || "Desconhecida";
+      return {
+        equipe: nome,
+        lucro: dados.lucro,
+        roi: dados.stake > 0 ? (dados.lucro / dados.stake) * 100 : 0,
+        operacoes: dados.operacoes,
+      };
+    })
     .sort((a, b) => b.lucro - a.lucro);
-}, [operacoes]);
+}, [itensFiltrados, operacoes, partidas, equipes]);
 
   // === Comportamental ===
   const seguiuPlanoSim = itensFiltrados.filter(
