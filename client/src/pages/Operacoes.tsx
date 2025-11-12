@@ -52,6 +52,7 @@ type Estrategia = { id: number; nome: string; mercadoId: number };
 export default function Operacoes() {
   const [, setLocation] = useLocation();
   const [dataSelecionada, setDataSelecionada] = useState(new Date());
+  const [mostrarTudo, setMostrarTudo] = useState(false);
 
   // === Queries principais ===
   const { data: operacoes = [], isLoading: isLoadingOperacoes } = useQuery<Operacao[]>({
@@ -69,11 +70,11 @@ export default function Operacoes() {
   const operacoesConcluidas = operacoes
   .filter((op) => op.status === "CONCLUIDA")
   .filter((op) => {
+    if (mostrarTudo) return true;
     const partida = partidas.find((p) => p.id === op.partidaId);
     if (!partida) return false;
-
-    const dataPartida = parseISO(partida.data); // transforma "YYYY-MM-DD" em Date
-    return isSameDay(dataPartida, dataSelecionada); // compara com a data selecionada
+    const dataPartida = parseISO(partida.data);
+    return isSameDay(dataPartida, dataSelecionada);
   })
   .sort((a, b) => {
     const partidaA = partidas.find((p) => p.id === a.partidaId);
@@ -153,9 +154,17 @@ export default function Operacoes() {
           </p>
         </div>
       
-        {/* Calendário alinhado à direita */}
-        <div className="flex-shrink-0">
-          <DateNavigator onChange={(novaData) => setDataSelecionada(novaData)} />
+        {/* Calendário + Botão "Mostrar tudo" */}
+        <div className="flex-shrink-0 flex gap-2 flex-wrap justify-end">
+          <DateNavigator
+            onChange={(novaData) => {
+              setDataSelecionada(novaData);
+              setMostrarTudo(false); // volta ao modo filtrado
+            }}
+          />
+          <Button variant="outline" onClick={() => setMostrarTudo(true)}>
+            Mostrar tudo
+          </Button>
         </div>
       </div>
 
