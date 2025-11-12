@@ -51,7 +51,6 @@ type Estrategia = { id: number; nome: string; mercadoId: number };
 
 export default function Operacoes() {
   const [, setLocation] = useLocation();
-  //const [dataSelecionada, setDataSelecionada] = useState(new Date());
   const [dataSelecionada, setDataSelecionada] = useState<Date | null>(new Date());
 
   // === Queries principais ===
