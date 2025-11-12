@@ -52,13 +52,9 @@ export default function Operacoes() {
   const [, setLocation] = useLocation();
   const [dataSelecionada, setDataSelecionada] = useState(new Date());
 
-  // Formatar a data para "YYYY-MM-DD"
-  const dataISO = dataSelecionada.toISOString().split("T")[0]; 
-
   // === Queries principais ===
   const { data: operacoes = [], isLoading: isLoadingOperacoes } = useQuery<Operacao[]>({
-    queryKey: ["/api/operacoes", dataISO], // Adicionando dataISO como parte da queryKey
-    queryFn: async () => apiRequest(`/api/operacoes?data=${dataISO}`), // Passando a data para o backend
+    queryKey: ["/api/operacoes"],
   });
 
   const { data: partidas = [] } = useQuery<Partida[]>({ queryKey: ["/api/partidas"] });
@@ -69,16 +65,16 @@ export default function Operacoes() {
   const { data: relatorios } = useQuery<any>({ queryKey: ["/api/relatorios"] });
 
   // === Funções auxiliares ===
-const operacoesConcluidas = (operacoes || [])
-  .filter((op) => op.status === "CONCLUIDA")
-  .sort((a, b) => {
-    const partidaA = partidas.find((p) => p.id === a.partidaId);
-    const partidaB = partidas.find((p) => p.id === b.partidaId);
-    if (!partidaA || !partidaB) return 0;
-    const dataA = new Date(`${partidaA.data}T${partidaA.hora}`);
-    const dataB = new Date(`${partidaB.data}T${partidaB.hora}`);
-    return dataB.getTime() - dataA.getTime();
-  });
+  const operacoesConcluidas = operacoes
+    .filter((op) => op.status === "CONCLUIDA")
+    .sort((a, b) => {
+      const partidaA = partidas.find((p) => p.id === a.partidaId);
+      const partidaB = partidas.find((p) => p.id === b.partidaId);
+      if (!partidaA || !partidaB) return 0;
+      const dataA = new Date(`${partidaA.data}T${partidaA.hora}`);
+      const dataB = new Date(`${partidaB.data}T${partidaB.hora}`);
+      return dataB.getTime() - dataA.getTime();
+    });
 
   const getPartidaInfo = (partidaId: number) => {
     const partida = partidas.find((p) => p.id === partidaId);
@@ -114,6 +110,30 @@ const operacoesConcluidas = (operacoes || [])
     return { totalStake, resultadoTotal, roi, numItens: itens.length };
   };
 
+  // === Modo escuro ===
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(
+    document.documentElement.classList.contains("dark")
+  );
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  if (isLoadingOperacoes) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center text-muted-foreground">Carregando operações...</div>
+      </div>
+    );
+  }
+
   // === Renderização ===
   return (
     <div className="container mx-auto px-4 py-8">
@@ -132,7 +152,7 @@ const operacoesConcluidas = (operacoes || [])
       </div>
 
       {operacoesConcluidas.length === 0 ? (
-        <Card className="bg-white border border-gray-200">
+        <Card className={isDarkMode ? "bg-[#2a2b2e] border border-[#44494d]" : "bg-white border border-gray-200"}>
           <CardContent className="py-12 text-center text-muted-foreground">
             Nenhuma operação concluída até o momento.
           </CardContent>
@@ -145,7 +165,10 @@ const operacoesConcluidas = (operacoes || [])
             const stats = calcularEstatisticas(itens);
 
             return (
-              <Card key={operacao.id} className="bg-white border border-gray-200">
+              <Card
+                key={operacao.id}
+                className={isDarkMode ? "bg-[#2a2b2e] border border-[#44494d]" : "bg-white border border-gray-200"}
+              >
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
