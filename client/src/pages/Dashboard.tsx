@@ -492,7 +492,9 @@ export default function Dashboard() {
               }`}
             >
               <div className="mb-6">
-                <h3 className="text-lg font-semibold">Evolução do Lucro (Acumulado no Ano)</h3>
+                <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>
+                  Evolução do Lucro (Acumulado no Ano)
+                </h3>
               </div>
             
               {(() => {
@@ -596,7 +598,7 @@ export default function Dashboard() {
             }`}
           >
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold">Resultados Semanais</h3>
+              <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>Resultados Semanais</h3>
               <div className="flex items-center gap-1">
                 <Button
                   size="icon"
@@ -704,7 +706,7 @@ export default function Dashboard() {
             }`}
           >
             <div className="mb-6">
-              <h3 className="text-lg font-semibold">Lucro e ROI por Mercado</h3>
+              <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>Lucro e ROI por Mercado</h3>
             </div>
 
             {marketData.length > 0 ? (
@@ -916,7 +918,7 @@ export default function Dashboard() {
             }`}
           >
             <div className="mb-6">
-              <h3 className="text-lg font-semibold">Lucro e ROI por Estado Emocional</h3>
+              <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>Lucro e ROI por Estado Emocional</h3>
               {/*<p className="text-sm text-muted-foreground">Lucro e ROI por estado</p>*/}
             </div>
 
@@ -1154,7 +1156,7 @@ export default function Dashboard() {
           } mt-6`}
         >
           <div className="mb-6">
-            <h3 className="text-lg font-semibold">Performance por Método</h3>
+            <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>Performance por Método</h3>
             <p className="text-sm text-muted-foreground">
               Relação entre Lucro (R$), ROI (%) e número de operações
             </p>
