@@ -483,72 +483,97 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
 
-          {/* Gráfico de Lucro Diário */}
-          <Card
-            className={`p-6 lg:col-span-7 transition-all duration-300 ${
-              isDarkMode
-                ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
-                : "bg-white border border-gray-200 shadow-sm"
-            }`}
-          >
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold">Evolução do Lucro</h3>
-            </div>
-
-            {dailyData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart
-                  data={dailyData}
-                  style={{
-                    backgroundColor: isDarkMode ? "transparent" : "#ffffff",
-                    borderRadius: "8px",
-                    padding: "4px",
-                  }}
-                >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke={isDarkMode ? "hsl(var(--border))" : "#e2e8f0"}
-                  />
-                  <XAxis
-                    dataKey="dia"
-                    stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"}
-                    fontSize={10}
-                    interval={4}
-                  />
-                  <YAxis
-                    stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"}
-                    fontSize={12}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: isDarkMode
-                        ? "hsl(var(--popover))"
-                        : "rgba(255,255,255,0.9)",
-                      border: isDarkMode
-                        ? "1px solid hsl(var(--border))"
-                        : "1px solid #cbd5e1",
-                      borderRadius: "8px",
-                      color: isDarkMode ? "white" : "black",
-                    }}
-                    formatter={(value: number) =>
-                      `R$ ${value.toFixed(2).replace(".", ",")}`
-                    }
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="lucro"
-                    stroke={isDarkMode ? "hsl(var(--primary))" : "#2563eb"}
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                Nenhum dado disponível
+          {/* Gráfico de Lucro Acumulado com Navegação */}
+            <Card
+              className={`p-6 lg:col-span-7 transition-all duration-300 ${
+                isDarkMode
+                  ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
+                  : "bg-white border border-gray-200 shadow-sm"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold">Evolução do Lucro (Acumulado)</h3>
+                <div className="flex gap-1">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setSemanaBase(subDays(semanaBase, 30))}
+                    className="h-6 w-6"
+                  >
+                    <ChevronLeft className="w-3 h-3" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setSemanaBase(addDays(semanaBase, 30))}
+                    className="h-6 w-6"
+                  >
+                    <ChevronRight className="w-3 h-3" />
+                  </Button>
+                </div>
               </div>
-            )}
-          </Card>
+            
+              {dailyData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart
+                    data={(() => {
+                      let acumulado = 0;
+                      return dailyData.map((d) => {
+                        acumulado += d.lucro;
+                        return { ...d, acumulado };
+                      });
+                    })()}
+                    style={{
+                      backgroundColor: isDarkMode ? "transparent" : "#ffffff",
+                      borderRadius: "8px",
+                      padding: "4px",
+                    }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke={isDarkMode ? "hsl(var(--border))" : "#e2e8f0"}
+                    />
+                    <XAxis
+                      dataKey="dia"
+                      stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"}
+                      fontSize={10}
+                      interval={4}
+                    />
+                    <YAxis
+                      stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"}
+                      fontSize={12}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: isDarkMode
+                          ? "hsl(var(--popover))"
+                          : "rgba(255,255,255,0.9)",
+                        border: isDarkMode
+                          ? "1px solid hsl(var(--border))"
+                          : "1px solid #cbd5e1",
+                        borderRadius: "8px",
+                        color: isDarkMode ? "white" : "black",
+                      }}
+                      formatter={(value: number) =>
+                        `R$ ${value.toFixed(2).replace(".", ",")}`
+                      }
+                      labelFormatter={(label) => `Dia: ${label}`}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="acumulado"
+                      stroke={isDarkMode ? "hsl(var(--primary))" : "#2563eb"}
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                  Nenhum dado disponível
+                </div>
+              )}
+            </Card>
 
           {/* Resultados Semanais */}
           <Card
