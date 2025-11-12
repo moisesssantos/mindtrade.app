@@ -574,7 +574,7 @@ export default function Dashboard() {
                       />
                       <Line
                         type="monotone"
-                        dataKey="acumulado"
+                        dataKey="Acumulado"
                         stroke={isDarkMode ? "hsl(var(--primary))" : "#2563eb"}
                         strokeWidth={2}
                         dot={false}
