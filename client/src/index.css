@@ -252,3 +252,68 @@
     transform: scale(0.97);
   }
 }
+/* ======================================================
+   🧠 FORMULÁRIOS MINDTRADE (Inputs, Labels, Placeholders)
+   ====================================================== */
+
+/* 🌞 Modo claro */
+:not(.dark) label,
+:not(.dark) .form-label {
+  color: hsl(var(--mind-purple)); /* Roxo MindTrade */
+}
+
+:not(.dark) input,
+:not(.dark) select,
+:not(.dark) textarea {
+  background-color: #ffffff;
+  color: hsl(var(--mind-gray));
+  border: 1px solid #d0d0d0;
+}
+
+:not(.dark) input::placeholder,
+:not(.dark) select::placeholder,
+:not(.dark) textarea::placeholder {
+  color: hsl(var(--mind-purple));
+  opacity: 0.7;
+}
+
+/* 🌑 Modo escuro */
+.dark label,
+.dark .form-label {
+  color: hsl(var(--mind-blue)); /* Azul Ciano MindTrade */
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: hsl(220 8% 14%);
+  border: 1px solid hsl(220 8% 22%);
+  color: hsl(0 0% 96%);
+  transition: all 0.25s ease;
+}
+
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+  border-color: hsl(var(--mind-blue));
+  box-shadow: 0 0 6px hsl(var(--mind-blue) / 0.4);
+}
+
+.dark input::placeholder,
+.dark select::placeholder,
+.dark textarea::placeholder {
+  color: hsl(var(--mind-blue));
+  opacity: 0.8;
+}
+
+/* 🧩 Corrigir select Radix UI (Trigger e Value) */
+.dark .SelectTrigger,
+.dark .select-trigger,
+.dark [role="combobox"],
+.dark [data-radix-select-value-text],
+.dark .SelectValue,
+.dark .select-value span {
+  color: hsl(var(--mind-blue)) !important;
+}
+
+
