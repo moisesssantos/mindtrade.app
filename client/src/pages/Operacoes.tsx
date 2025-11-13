@@ -193,38 +193,35 @@ return (
               key={operacao.id}
               className={isDarkMode ? "bg-[#2a2b2e] border border-[#44494d]" : "bg-white border border-gray-200"}
             >
-              <CardHeader>
-                {/* 📌 TÍTULO AJUSTADO */}
+              <CardHeader className="relative">
+                {/* Título */}
                 <CardTitle className="text-lg mb-1">
                   {info.competicao} - {info.mandante} vs {info.visitante}
                 </CardTitle>
-
+              
+                {/* Data e status */}
                 <p className="text-sm text-muted-foreground">
                   {info.dataFormatada} às {info.hora} — <Badge>Concluída</Badge>
                 </p>
-
-                {/* ✅ Botões de ação */}
-                <div className="mt-2 flex gap-2 flex-wrap">
+              
+                {/* ✅ Botões fixos no canto superior direito, só ícones */}
+                <div className="absolute top-2 right-2 flex gap-2">
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="icon"
                     onClick={() => setLocation(`/operacoes/${operacao.partidaId}`)}
                     data-testid={`button-view-${operacao.id}`}
-                    className="flex items-center gap-1"
                   >
                     <Eye className="w-4 h-4" />
-                    Ver Detalhes
                   </Button>
-
+              
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="icon"
                     onClick={() => setLocation(`/operacoes/${operacao.partidaId}`)}
                     data-testid={`button-edit-${operacao.id}`}
-                    className="flex items-center gap-1"
                   >
                     <Edit className="w-4 h-4" />
-                    Editar
                   </Button>
                 </div>
               </CardHeader>
