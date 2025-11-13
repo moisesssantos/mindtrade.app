@@ -836,7 +836,7 @@ const porEstadoEmocional = estadosEmocionais
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setMostrarPioresCompeticoes((prev) => !prev)}
+              onClick={() => setMostrarPioresEquipes((prev) => !prev)}
               className={`text-sm ${
                 mostrarPioresEquipes ? "text-[#0099DD]" : "text-red-600"
               }`}
