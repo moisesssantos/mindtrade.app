@@ -260,50 +260,68 @@ export default function Operacoes() {
                       <h3 className="text-sm font-semibold mb-2">Itens da Operação</h3>
 
                       <div className="space-y-1.5">
-                        {itens.map((item) => {
-                          const estrategiaInfo = getEstrategiaInfo(item.estrategiaId);
-                          const resultado = item.resultadoFinanceiro
-                            ? parseFloat(item.resultadoFinanceiro)
-                            : 0;
-
-                          return (
-                            <div
-                              key={item.id}
-                              className={`px-3 py-2 rounded-md flex justify-between flex-col md:flex-row gap-2 ${
-                                isDarkMode
-                                  ? "bg-[#2a2b2e] border border-[#44494d]"
-                                  : "bg-white border border-gray-200"
-                              }`}
-                            >
-                              {/* ESQUERDA */}
-                              <div className="flex flex-col gap-1 flex-1">
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <Badge variant="outline">{estrategiaInfo.mercadoNome}</Badge>
-                                  <Badge>{estrategiaInfo.nome}</Badge>
-
-                                  <span className="text-xs text-muted-foreground">
-                                    Stake: R$ {parseFloat(item.stake).toFixed(2).replace(".", ",")}
-                                  </span>
-
-                                  <span className="text-xs text-muted-foreground">
-                                    Entrada: {parseFloat(item.oddEntrada).toFixed(2).replace(".", ",")}
-                                  </span>
-
-                                  {item.oddSaida && (
+                          {itens.map((item) => {
+                            const estrategiaInfo = getEstrategiaInfo(item.estrategiaId);
+                            const resultado = item.resultadoFinanceiro
+                              ? parseFloat(item.resultadoFinanceiro)
+                              : 0;
+                          
+                            return (
+                              <div
+                                key={item.id}
+                                className={`px-3 py-2 rounded-md flex justify-between gap-2 ${
+                                  isDarkMode
+                                    ? "bg-[#2a2b2e] border border-[#44494d]"
+                                    : "bg-white border border-gray-200"
+                                }`}
+                              >
+                                {/* ESQUERDA */}
+                                <div className="flex flex-col gap-2 flex-1">
+                                  <div className="flex flex-wrap items-center gap-2 w-full">
+                                    <Badge variant="outline">{estrategiaInfo.mercadoNome}</Badge>
+                                    <Badge>{estrategiaInfo.nome}</Badge>
+                          
                                     <span className="text-xs text-muted-foreground">
-                                      Saída: {parseFloat(item.oddSaida).toFixed(2).replace(".", ",")}
+                                      Stake: R$ {parseFloat(item.stake).toFixed(2).replace(".", ",")}
                                     </span>
+                          
+                                    <span className="text-xs text-muted-foreground">
+                                      Entrada: {parseFloat(item.oddEntrada).toFixed(2).replace(".", ",")}
+                                    </span>
+                          
+                                    {item.oddSaida && (
+                                      <span className="text-xs text-muted-foreground">
+                                        Saída: {parseFloat(item.oddSaida).toFixed(2).replace(".", ",")}
+                                      </span>
+                                    )}
+                          
+                                    {/* RESULTADO — alinhado à direita e topo */}
+                                    <span
+                                      className={`ml-auto font-mono font-semibold text-xs ${
+                                        resultado > 0
+                                          ? "text-green-600 dark:text-green-400"
+                                          : resultado < 0
+                                          ? "text-red-600 dark:text-red-400"
+                                          : ""
+                                      }`}
+                                    >
+                                      R$ {resultado.toFixed(2).replace(".", ",")}
+                                    </span>
+                                  </div>
+                          
+                                  {/* OBSERVAÇÃO */}
+                                  {item.motivacaoSaidaObservacao && (
+                                    <div className="mt-1 w-full rounded-md bg-muted/30 p-2 text-xs text-muted-foreground whitespace-pre-wrap">
+                                      <span className="font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                                        Obs:
+                                      </span>{" "}
+                                      {item.motivacaoSaidaObservacao}
+                                    </div>
                                   )}
                                 </div>
-
-                                {/* NOVO CAMPO — OBSERVAÇÃO */}
-                                {item.motivacaoSaidaObservacao && (
-                                  <div className="mt-2 w-full rounded-md bg-muted/30 p-2 border border-border text-xs text-muted-foreground whitespace-pre-wrap">
-                                    <span className="font-semibold text-primary">Obs:</span>{" "}
-                                    {item.motivacaoSaidaObservacao}
-                                  </div>
-                                )}
                               </div>
+                            );
+                          })}  
 
                               {/* DIREITA — Resultado */}
                               <div
