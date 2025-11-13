@@ -838,10 +838,10 @@ const porEstadoEmocional = estadosEmocionais
               size="sm"
               onClick={() => setMostrarPioresCompeticoes((prev) => !prev)}
               className={`text-sm ${
-                mostrarPioresCompeticoes ? "text-[#0099DD]" : "text-red-600"
+                mostrarPioresEquipes ? "text-[#0099DD]" : "text-red-600"
               }`}
             >
-              {mostrarPioresCompeticoes ? "Ver Melhores" : "Ver Piores"}
+              {mostrarPioresEquipes ? "Ver Melhores" : "Ver Piores"}
             </Button>
           </div>
       
