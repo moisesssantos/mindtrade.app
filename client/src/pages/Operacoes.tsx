@@ -256,7 +256,7 @@ export default function Operacoes() {
                   {/* ==== ITENS DA OPERAÇÃO ==== */}
                   {itens.length > 0 && (
                     <div>
-                      <h3 className="text-sm font-semibold mb-2">Itens da Operação</h3>
+                      <h3 className="text-sm font-semibold mb-2" style={{ color: "#0099DD" }}>Itens da Operação</h3>
                   
                       <div className="space-y-1.5">
                         {itens.map((item) => {
@@ -311,9 +311,10 @@ export default function Operacoes() {
                                 {/* OBSERVAÇÃO */}
                                 {item.motivacaoSaidaObservacao && (
                                   <div className="mt-1 w-full rounded-md bg-muted/30 p-2 text-xs text-muted-foreground whitespace-pre-wrap">
-                                    <span className="font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
-                                      Obs:
-                                    </span>{" "}
+                                    <span className="font-semibold text-white px-2 py-0.5 rounded"
+                                      style={{ backgroundColor: "#5F2C82" }}>
+                                      OBS:
+                                      </span>{" "}
                                     {item.motivacaoSaidaObservacao}
                                   </div>
                                 )}
