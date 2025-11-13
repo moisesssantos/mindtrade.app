@@ -120,119 +120,143 @@ export default function Operacoes() {
   };
 
   // === Modo escuro ===
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(
-    document.documentElement.classList.contains("dark")
-  );
+const [isDarkMode, setIsDarkMode] = useState<boolean>(
+  document.documentElement.classList.contains("dark")
+);
 
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setIsDarkMode(document.documentElement.classList.contains("dark"));
-    });
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-    return () => observer.disconnect();
-  }, []);
+useEffect(() => {
+  const observer = new MutationObserver(() => {
+    setIsDarkMode(document.documentElement.classList.contains("dark"));
+  });
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["class"],
+  });
+  return () => observer.disconnect();
+}, []);
 
-  if (isLoadingOperacoes) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center text-muted-foreground">Carregando operações...</div>
-      </div>
-    );
-  }
-
-  // === Renderização ===
+if (isLoadingOperacoes) {
   return (
     <div className="container mx-auto px-4 py-8">
+      <div className="text-center text-muted-foreground">Carregando operações...</div>
+    </div>
+  );
+}
 
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div>
-          <h1 className="text-3xl font-bold">Operações Concluídas</h1>
-          <p className="text-muted-foreground mt-1">
-            Histórico de operações finalizadas com resumos completos
-          </p>
-        </div>
+// === Renderização ===
+return (
+  <div className="container mx-auto px-4 py-8">
 
-        <div className="flex-shrink-0 flex gap-2 flex-wrap justify-end">
-          <DateNavigator
-            onChange={(novaData) => {
-              setDataSelecionada(novaData);
-              setMostrarTudo(false);
-            }}
-          />
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setMostrarTudo(true)}
-            className="flex items-center gap-1"
-          >
-            <ListFilter className="w-4 h-4" />
-            <span className="hidden sm:inline">Tudo</span>
-          </Button>
-        </div>
+    <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <div>
+        <h1 className="text-3xl font-bold">Operações Concluídas</h1>
+        <p className="text-muted-foreground mt-1">
+          Histórico de operações finalizadas com resumos completos
+        </p>
       </div>
 
-      {operacoesConcluidas.length === 0 ? (
-        <Card className={isDarkMode ? "bg-[#2a2b2e] border border-[#44494d]" : "bg-white border border-gray-200"}>
-          <CardContent className="py-12 text-center text-muted-foreground">
-            Nenhuma operação concluída até o momento.
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-6">
-          {operacoesConcluidas.map((operacao) => {
-            const info = getPartidaInfo(operacao.partidaId);
-            const itens = getItensOperacao(operacao.id);
-            const stats = calcularEstatisticas(itens);
+      <div className="flex-shrink-0 flex gap-2 flex-wrap justify-end">
+        <DateNavigator
+          onChange={(novaData) => {
+            setDataSelecionada(novaData);
+            setMostrarTudo(false);
+          }}
+        />
 
-            return (
-              <Card
-                key={operacao.id}
-                className={isDarkMode ? "bg-[#2a2b2e] border border-[#44494d]" : "bg-white border border-gray-200"}
-              >
-                <CardHeader>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setMostrarTudo(true)}
+          className="flex items-center gap-1"
+        >
+          <ListFilter className="w-4 h-4" />
+          <span className="hidden sm:inline">Tudo</span>
+        </Button>
+      </div>
+    </div>
 
-                  {/* 📌 TÍTULO AJUSTADO */}
-                  <CardTitle className="text-lg mb-1">
-                    {info.competicao} - {info.mandante} vs {info.visitante}
-                  </CardTitle>
-                  
-                  <p className="text-sm text-muted-foreground">
-                    {info.dataFormatada} às {info.hora} — <Badge>Concluída</Badge>
-                  </p>
-                </CardHeader>
-                <CardContent>
+    {operacoesConcluidas.length === 0 ? (
+      <Card className={isDarkMode ? "bg-[#2a2b2e] border border-[#44494d]" : "bg-white border border-gray-200"}>
+        <CardContent className="py-12 text-center text-muted-foreground">
+          Nenhuma operação concluída até o momento.
+        </CardContent>
+      </Card>
+    ) : (
+      <div className="grid gap-6">
+        {operacoesConcluidas.map((operacao) => {
+          const info = getPartidaInfo(operacao.partidaId);
+          const itens = getItensOperacao(operacao.id);
+          const stats = calcularEstatisticas(itens);
 
-                  {/* 📌 MÉTRICAS EM LINHA */}
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                    <div className="bg-muted/30 p-3 rounded-md">
-                      <div className="text-xs text-muted-foreground mb-1">Itens</div>
-                      <div className="text-lg font-mono font-bold">{stats.numItens}</div>
-                    </div>
-                    <div className="bg-muted/30 p-3 rounded-md">
-                      <div className="text-xs text-muted-foreground mb-1">Total Investido</div>
-                      <div className="text-lg font-mono font-bold">R$ {stats.totalStake.toFixed(2).replace(".", ",")}</div>
-                    </div>
-                    <div className="bg-muted/30 p-3 rounded-md">
-                      <div className="text-xs text-muted-foreground mb-1">Resultado</div>
-                      <div className={`text-lg font-mono font-bold flex items-center gap-1 ${
-                          stats.resultadoTotal > 0 ? "text-green-600 dark:text-green-400" :
-                          stats.resultadoTotal < 0 ? "text-red-600 dark:text-red-400" : ""}`}>
-                        {stats.resultadoTotal > 0 ? <TrendingUp className="w-4 h-4" /> :
-                         stats.resultadoTotal < 0 ? <TrendingDown className="w-4 h-4" /> : null}
-                        R$ {stats.resultadoTotal.toFixed(2).replace(".", ",")}
-                      </div>
-                    </div>
-                    <div className="bg-muted/30 p-3 rounded-md">
-                      <div className="text-xs text-muted-foreground mb-1">ROI</div>
-                      <div className={`text-lg font-mono font-bold ...`}>
-                        {stats.roi.toFixed(2).replace(".", ",")}% 
-                      </div>
+          return (
+            <Card
+              key={operacao.id}
+              className={isDarkMode ? "bg-[#2a2b2e] border border-[#44494d]" : "bg-white border border-gray-200"}
+            >
+              <CardHeader>
+                {/* 📌 TÍTULO AJUSTADO */}
+                <CardTitle className="text-lg mb-1">
+                  {info.competicao} - {info.mandante} vs {info.visitante}
+                </CardTitle>
+
+                <p className="text-sm text-muted-foreground">
+                  {info.dataFormatada} às {info.hora} — <Badge>Concluída</Badge>
+                </p>
+
+                {/* ✅ Botões de ação */}
+                <div className="mt-2 flex gap-2 flex-wrap">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setLocation(`/operacoes/${operacao.partidaId}`)}
+                    data-testid={`button-view-${operacao.id}`}
+                    className="flex items-center gap-1"
+                  >
+                    <Eye className="w-4 h-4" />
+                    Ver Detalhes
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setLocation(`/operacoes/${operacao.partidaId}`)}
+                    data-testid={`button-edit-${operacao.id}`}
+                    className="flex items-center gap-1"
+                  >
+                    <Edit className="w-4 h-4" />
+                    Editar
+                  </Button>
+                </div>
+              </CardHeader>
+
+              <CardContent>
+                {/* 📌 MÉTRICAS EM LINHA */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                  <div className="bg-muted/30 p-3 rounded-md">
+                    <div className="text-xs text-muted-foreground mb-1">Itens</div>
+                    <div className="text-lg font-mono font-bold">{stats.numItens}</div>
+                  </div>
+                  <div className="bg-muted/30 p-3 rounded-md">
+                    <div className="text-xs text-muted-foreground mb-1">Total Investido</div>
+                    <div className="text-lg font-mono font-bold">R$ {stats.totalStake.toFixed(2).replace(".", ",")}</div>
+                  </div>
+                  <div className="bg-muted/30 p-3 rounded-md">
+                    <div className="text-xs text-muted-foreground mb-1">Resultado</div>
+                    <div className={`text-lg font-mono font-bold flex items-center gap-1 ${
+                      stats.resultadoTotal > 0 ? "text-green-600 dark:text-green-400" :
+                      stats.resultadoTotal < 0 ? "text-red-600 dark:text-red-400" : ""}`}>
+                      {stats.resultadoTotal > 0 ? <TrendingUp className="w-4 h-4" /> :
+                       stats.resultadoTotal < 0 ? <TrendingDown className="w-4 h-4" /> : null}
+                      R$ {stats.resultadoTotal.toFixed(2).replace(".", ",")}
                     </div>
                   </div>
+                  <div className="bg-muted/30 p-3 rounded-md">
+                    <div className="text-xs text-muted-foreground mb-1">ROI</div>
+                    <div className="text-lg font-mono font-bold">
+                      {stats.roi.toFixed(2).replace(".", ",")}% 
+                    </div>
+                  </div>
+                </div>
 
                   {/* ==== ITENS DA OPERAÇÃO ==== */}
                   {itens.length > 0 && (
