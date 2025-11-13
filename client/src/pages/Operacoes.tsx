@@ -206,14 +206,14 @@ return (
               
                 {/* ✅ Botões fixos no canto superior direito, só ícones */}
                 <div className="absolute top-2 right-2 flex gap-2">
-                  <Button
+                  {/*<Button
                     variant="outline"
                     size="icon"
                     onClick={() => setLocation(`/operacoes/${operacao.partidaId}`)}
                     data-testid={`button-view-${operacao.id}`}
                   >
                     <Eye className="w-4 h-4" />
-                  </Button>
+                  </Button>*/}
               
                   <Button
                     variant="outline"
