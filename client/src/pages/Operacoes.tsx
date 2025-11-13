@@ -281,16 +281,16 @@ export default function Operacoes() {
                                   <Badge>{estrategiaInfo.nome}</Badge>
                   
                                   <span className="text-xs text-muted-foreground">
-                                    Stake: R$ {parseFloat(item.stake).toFixed(2).replace(".", ",")}
+                                    <strong>Stake:</strong> R$ {parseFloat(item.stake).toFixed(2).replace(".", ",")}
                                   </span>
                   
                                   <span className="text-xs text-muted-foreground">
-                                    Entrada: {parseFloat(item.oddEntrada).toFixed(2).replace(".", ",")}
+                                    <strong>Entrada:</strong> {parseFloat(item.oddEntrada).toFixed(2).replace(".", ",")}
                                   </span>
                   
                                   {item.oddSaida && (
                                     <span className="text-xs text-muted-foreground">
-                                      Saída: {parseFloat(item.oddSaida).toFixed(2).replace(".", ",")}
+                                      <strong>Saída:</strong> {parseFloat(item.oddSaida).toFixed(2).replace(".", ",")}
                                     </span>
                                   )}
                   
