@@ -423,7 +423,7 @@ const porEstadoEmocional = estadosEmocionais
   }
 >
   <div className="mb-4 pb-3 border-b border-border/40">
-    <h3 className="text-lg font-semibold">Filtros</h3>
+    <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>Filtros</h3>
   </div>
 
   <div className="flex flex-wrap items-end gap-3">
@@ -608,7 +608,7 @@ const porEstadoEmocional = estadosEmocionais
           : "p-6 bg-white border border-gray-200 shadow-sm"
       }
     >
-      <h3 className="text-lg font-semibold mb-4">Resumo Geral</h3>
+      <h3 className="text-lg font-semibold mb-4" style={{ color: "#0099DD" }}>Resumo Geral</h3>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <p className="text-sm text-muted-foreground">Total de Operações</p>
@@ -649,7 +649,7 @@ const porEstadoEmocional = estadosEmocionais
           : "p-6 bg-white border border-gray-200 shadow-sm"
       }
     >
-      <h3 className="text-lg font-semibold mb-4">
+      <h3 className="text-lg font-semibold mb-4" style={{ color: "#0099DD" }}>
         Performance por Mercado
       </h3>
       {porMercado.length === 0 ? (
@@ -704,7 +704,7 @@ const porEstadoEmocional = estadosEmocionais
           : "p-6 bg-white border border-gray-200 shadow-sm"
       }
     >
-      <h3 className="text-lg font-semibold mb-4">
+      <h3 className="text-lg font-semibold mb-4" style={{ color: "#0099DD" }}>
         Performance por Estratégia
       </h3>
       {porEstrategia.length === 0 ? (
@@ -766,7 +766,7 @@ const porEstadoEmocional = estadosEmocionais
         }
       >
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold">Performance por Competição</h3>
+          <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>Performance por Competição</h3>
           <Button
             variant="ghost"
             size="sm"
@@ -832,7 +832,7 @@ const porEstadoEmocional = estadosEmocionais
           }
         >
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold">Performance por Equipe</h3>
+            <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>Performance por Equipe</h3>
             <Button
               variant="ghost"
               size="sm"
@@ -897,7 +897,7 @@ const porEstadoEmocional = estadosEmocionais
             : "p-6 bg-white border border-gray-200 shadow-sm"
         }
       >
-        <h3 className="text-lg font-semibold mb-4">
+        <h3 className="text-lg font-semibold mb-4" style={{ color: "#0099DD" }}>
           Análise Comportamental
         </h3>
         <div className="space-y-6">
@@ -949,7 +949,7 @@ const porEstadoEmocional = estadosEmocionais
 
         {porEstadoEmocional.length > 0 && (
           <div>
-            <h4 className="text-sm font-medium mb-3">
+            <h4 className="text-sm font-medium mb-3" style={{ color: "#0099DD" }}>
               Performance por Estado Emocional
             </h4>
             <div className="rounded-lg border dark:border-border">
