@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Eye, TrendingDown, TrendingUp, Edit } from "lucide-react";
 import { useLocation } from "wouter";
 import DateNavigator from "@/components/DateNavigator";
-import { apiRequest } from "@/lib/queryClient";
 import { isSameDay, parseISO } from "date-fns";
 import { ListFilter } from "lucide-react";
 
@@ -42,7 +41,7 @@ type OperacaoItem = {
   estadoEmocional: string | null;
   motivacaoEntrada: string | null;
   autoavaliacao: string | null;
-  motivacaoSaidaObservacao: string | null;
+  motivacaoSaidaObservacao: string | null; // NOVO
 };
 
 type Equipe = { id: number; nome: string };
@@ -69,22 +68,22 @@ export default function Operacoes() {
 
   // === Funções auxiliares ===
   const operacoesConcluidas = operacoes
-  .filter((op) => op.status === "CONCLUIDA")
-  .filter((op) => {
-    if (mostrarTudo) return true;
-    const partida = partidas.find((p) => p.id === op.partidaId);
-    if (!partida) return false;
-    const dataPartida = parseISO(partida.data);
-    return isSameDay(dataPartida, dataSelecionada);
-  })
-  .sort((a, b) => {
-    const partidaA = partidas.find((p) => p.id === a.partidaId);
-    const partidaB = partidas.find((p) => p.id === b.partidaId);
-    if (!partidaA || !partidaB) return 0;
-    const dataA = new Date(`${partidaA.data}T${partidaA.hora}`);
-    const dataB = new Date(`${partidaB.data}T${partidaB.hora}`);
-    return dataB.getTime() - dataA.getTime();
-  });
+    .filter((op) => op.status === "CONCLUIDA")
+    .filter((op) => {
+      if (mostrarTudo) return true;
+      const partida = partidas.find((p) => p.id === op.partidaId);
+      if (!partida) return false;
+      const dataPartida = parseISO(partida.data);
+      return isSameDay(dataPartida, dataSelecionada);
+    })
+    .sort((a, b) => {
+      const partidaA = partidas.find((p) => p.id === a.partidaId);
+      const partidaB = partidas.find((p) => p.id === b.partidaId);
+      if (!partidaA || !partidaB) return 0;
+      const dataA = new Date(`${partidaA.data}T${partidaA.hora}`);
+      const dataB = new Date(`${partidaB.data}T${partidaB.hora}`);
+      return dataB.getTime() - dataA.getTime();
+    });
 
   const getPartidaInfo = (partidaId: number) => {
     const partida = partidas.find((p) => p.id === partidaId);
@@ -154,15 +153,15 @@ export default function Operacoes() {
             Histórico de operações finalizadas com resumos completos
           </p>
         </div>
-      
-        {/* Calendário + Botão "Mostrar tudo" */}
+
         <div className="flex-shrink-0 flex gap-2 flex-wrap justify-end">
           <DateNavigator
             onChange={(novaData) => {
               setDataSelecionada(novaData);
-              setMostrarTudo(false); // volta ao modo filtrado
+              setMostrarTudo(false);
             }}
           />
+
           <Button
             variant="outline"
             size="sm"
@@ -199,14 +198,17 @@ export default function Operacoes() {
                       <CardTitle className="text-lg mb-1">
                         {info.competicao} - {info.mandante} vs {info.visitante}
                       </CardTitle>
+
                       <p className="text-sm text-muted-foreground">
                         {info.dataFormatada} às {info.hora} — <Badge>Concluída</Badge>
                       </p>
                     </div>
+
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" onClick={() => setLocation(`/operacoes/${operacao.partidaId}`)}>
                         <Eye className="w-4 h-4 mr-1" /> Ver
                       </Button>
+
                       <Button variant="outline" size="sm" onClick={() => setLocation(`/operacoes/${operacao.partidaId}`)}>
                         <Edit className="w-4 h-4" />
                       </Button>
@@ -215,38 +217,48 @@ export default function Operacoes() {
                 </CardHeader>
 
                 <CardContent>
+                  
+                  {/* ==== MÉTRICAS GERAIS ==== */}
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                     <div className="bg-muted/30 p-3 rounded-md">
                       <div className="text-xs text-muted-foreground mb-1">Itens</div>
                       <div className="text-lg font-mono font-bold">{stats.numItens}</div>
                     </div>
+
                     <div className="bg-muted/30 p-3 rounded-md">
                       <div className="text-xs text-muted-foreground mb-1">Total Investido</div>
                       <div className="text-lg font-mono font-bold">R$ {stats.totalStake.toFixed(2).replace(".", ",")}</div>
                     </div>
+
                     <div className="bg-muted/30 p-3 rounded-md">
                       <div className="text-xs text-muted-foreground mb-1">Resultado</div>
                       <div className={`text-lg font-mono font-bold flex items-center gap-1 ${
-                          stats.resultadoTotal > 0 ? "text-green-600 dark:text-green-400" :
-                          stats.resultadoTotal < 0 ? "text-red-600 dark:text-red-400" : ""}`}>
+                        stats.resultadoTotal > 0 ? "text-green-600 dark:text-green-400" :
+                        stats.resultadoTotal < 0 ? "text-red-600 dark:text-red-400" : ""
+                      }`}>
                         {stats.resultadoTotal > 0 ? <TrendingUp className="w-4 h-4" /> :
                          stats.resultadoTotal < 0 ? <TrendingDown className="w-4 h-4" /> : null}
                         R$ {stats.resultadoTotal.toFixed(2).replace(".", ",")}
                       </div>
                     </div>
+
                     <div className="bg-muted/30 p-3 rounded-md">
                       <div className="text-xs text-muted-foreground mb-1">ROI</div>
                       <div className={`text-lg font-mono font-bold ${
-                          stats.roi > 0 ? "text-green-600 dark:text-green-400" :
-                          stats.roi < 0 ? "text-red-600 dark:text-red-400" : ""}`}>
-                        {stats.roi.toFixed(2).replace(".", ",")}%
+                        stats.roi > 0 ? "text-green-600 dark:text-green-400" :
+                        stats.roi < 0 ? "text-red-600 dark:text-red-400" : ""
+                      }`}>
+                        {stats.roi.toFixed(2).replace(".", ",")}% 
                       </div>
                     </div>
                   </div>
 
+
+                  {/* ==== ITENS DA OPERAÇÃO ==== */}
                   {itens.length > 0 && (
                     <div>
                       <h3 className="text-sm font-semibold mb-2">Itens da Operação</h3>
+
                       <div className="space-y-1.5">
                         {itens.map((item) => {
                           const estrategiaInfo = getEstrategiaInfo(item.estrategiaId);
@@ -257,60 +269,55 @@ export default function Operacoes() {
                           return (
                             <div
                               key={item.id}
-                              className={`px-3 py-2 rounded-md flex justify-between ${
+                              className={`px-3 py-2 rounded-md flex justify-between flex-col md:flex-row gap-2 ${
                                 isDarkMode
                                   ? "bg-[#2a2b2e] border border-[#44494d]"
                                   : "bg-white border border-gray-200"
                               }`}
                             >
-                              <div
-                                key={item.id}
-                                className={`px-3 py-2 rounded-md flex justify-between flex-col md:flex-row gap-2 ${
-                                  isDarkMode
-                                    ? "bg-[#2a2b2e] border border-[#44494d]"
-                                    : "bg-white border border-gray-200"
-                                }`}
-                              >
-                                <div className="flex flex-col gap-1 flex-1">
-                                  <div className="flex flex-wrap items-center gap-2">
-                                    <Badge variant="outline">{estrategiaInfo.mercadoNome}</Badge>
-                                    <Badge>{estrategiaInfo.nome}</Badge>
-                              
+                              {/* ESQUERDA */}
+                              <div className="flex flex-col gap-1 flex-1">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <Badge variant="outline">{estrategiaInfo.mercadoNome}</Badge>
+                                  <Badge>{estrategiaInfo.nome}</Badge>
+
+                                  <span className="text-xs text-muted-foreground">
+                                    Stake: R$ {parseFloat(item.stake).toFixed(2).replace(".", ",")}
+                                  </span>
+
+                                  <span className="text-xs text-muted-foreground">
+                                    Entrada: {parseFloat(item.oddEntrada).toFixed(2).replace(".", ",")}
+                                  </span>
+
+                                  {item.oddSaida && (
                                     <span className="text-xs text-muted-foreground">
-                                      Stake: R$ {parseFloat(item.stake).toFixed(2).replace(".", ",")}
+                                      Saída: {parseFloat(item.oddSaida).toFixed(2).replace(".", ",")}
                                     </span>
-                              
-                                    <span className="text-xs text-muted-foreground">
-                                      Entrada: {parseFloat(item.oddEntrada).toFixed(2).replace(".", ",")}
-                                    </span>
-                              
-                                    {item.oddSaida && (
-                                      <span className="text-xs text-muted-foreground">
-                                        Saída: {parseFloat(item.oddSaida).toFixed(2).replace(".", ",")}
-                                      </span>
-                                    )}
-                                  </div>
-                              
-                                  {/* Observação (NOVO) */}
-                                  {item.motivacaoSaidaObservacao && (
-                                    <div className="mt-2 w-full rounded-md bg-muted/30 p-2 border border-border text-xs text-muted-foreground whitespace-pre-wrap">
-                                      <span className="font-semibold text-primary">Obs:</span> {item.motivacaoSaidaObservacao}
-                                    </div>
                                   )}
                                 </div>
-                              
-                                <div
-                                  className={`font-mono font-semibold self-start md:self-center ${
-                                    resultado > 0
-                                      ? "text-green-600 dark:text-green-400"
-                                      : resultado < 0
-                                      ? "text-red-600 dark:text-red-400"
-                                      : ""
-                                  }`}
-                                >
-                                  R$ {resultado.toFixed(2).replace(".", ",")}
-                                </div>
+
+                                {/* NOVO CAMPO — OBSERVAÇÃO */}
+                                {item.motivacaoSaidaObservacao && (
+                                  <div className="mt-2 w-full rounded-md bg-muted/30 p-2 border border-border text-xs text-muted-foreground whitespace-pre-wrap">
+                                    <span className="font-semibold text-primary">Obs:</span>{" "}
+                                    {item.motivacaoSaidaObservacao}
+                                  </div>
+                                )}
                               </div>
+
+                              {/* DIREITA — Resultado */}
+                              <div
+                                className={`font-mono font-semibold self-start md:self-center ${
+                                  resultado > 0
+                                    ? "text-green-600 dark:text-green-400"
+                                    : resultado < 0
+                                    ? "text-red-600 dark:text-red-400"
+                                    : ""
+                                }`}
+                              >
+                                R$ {resultado.toFixed(2).replace(".", ",")}
+                              </div>
+                            </div>
                           );
                         })}
                       </div>
