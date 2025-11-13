@@ -218,8 +218,12 @@ export default function Operacoes() {
                     </div>
                     <div className="bg-muted/30 p-3 rounded-md">
                       <div className="text-xs text-muted-foreground mb-1">Resultado</div>
-                      <div className={`text-lg font-mono font-bold flex items-center gap-1 ...`}>
-                        ...
+                      <div className={`text-lg font-mono font-bold flex items-center gap-1 ${
+                          stats.resultadoTotal > 0 ? "text-green-600 dark:text-green-400" :
+                          stats.resultadoTotal < 0 ? "text-red-600 dark:text-red-400" : ""}`}>
+                        {stats.resultadoTotal > 0 ? <TrendingUp className="w-4 h-4" /> :
+                         stats.resultadoTotal < 0 ? <TrendingDown className="w-4 h-4" /> : null}
+                        R$ {stats.resultadoTotal.toFixed(2).replace(".", ",")}
                       </div>
                     </div>
                     <div className="bg-muted/30 p-3 rounded-md">
