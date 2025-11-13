@@ -237,7 +237,7 @@ export default function Operacoes() {
                   {/* ==== ITENS DA OPERAÇÃO ==== */}
                   {itens.length > 0 && (
                     <div>
-                      <h3 className="text-sm font-semibold mb-2">Operações</h3>
+                      <h3 className="text-sm font-semibold mb-2" style={{ color: "#0099DD" }}>Operações</h3>
 
                       <div className="space-y-1.5">
                         {itens.map((item) => {
