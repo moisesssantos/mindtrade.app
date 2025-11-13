@@ -483,6 +483,71 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
 
+          {/* 📌 NOVO CARD — Semana Resumida (linha única) */}
+            <Card
+              className={`w-full p-4 mt-4 transition-all ${
+                isDarkMode
+                  ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
+                  : "bg-white border border-gray-200 shadow-sm"
+              }`}
+            >
+              <div className="flex items-center gap-4 overflow-hidden">
+            
+                {/* Botão Semana Anterior */}
+                <button
+                  onClick={handlePrevWeek}
+                  className="px-2 text-sm font-medium text-muted-foreground hover:text-primary shrink-0"
+                >
+                  &lt;
+                </button>
+            
+                {/* Conteúdo rolável */}
+                <div className="flex-1 overflow-hidden">
+                  <div className="flex items-center gap-4 whitespace-nowrap transition-all">
+                    {weeklySummary.map((dia) => (
+                      <span key={dia.nome} className="flex items-center gap-1 whitespace-nowrap">
+                        {/* Nome do dia */}
+                        <span className="font-semibold">{dia.nome}</span>
+            
+                        {/* ROI com cor */}
+                        <span
+                          className={
+                            dia.roi >= 0
+                              ? "text-green-500 font-semibold"
+                              : "text-red-500 font-semibold"
+                          }
+                        >
+                          {dia.roi.toFixed(2)}%
+                        </span>
+            
+                        {/* Lucro */}
+                        <span className="text-muted-foreground">
+                          R$ {dia.lucro.toFixed(2)}
+                        </span>
+            
+                        {/* Qtde Operações */}
+                        <span className="text-muted-foreground">
+                          {dia.qtdOps} Op.
+                        </span>
+            
+                        {/* Separador */}
+                        <span className="mx-3 text-muted-foreground">|</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+            
+                {/* Botão Próxima Semana */}
+                <button
+                  onClick={handleNextWeek}
+                  className="px-2 text-sm font-medium text-muted-foreground hover:text-primary shrink-0"
+                >
+                  &gt;
+                </button>
+            
+              </div>
+            </Card>
+            
           {/* Gráfico de Lucro Acumulado no Ano */}
             <Card
               className={`p-6 lg:col-span-7 transition-all duration-300 ${
