@@ -196,38 +196,38 @@ export default function Operacoes() {
                 <CardHeader>
 
                   {/* 📌 TÍTULO AJUSTADO */}
-                  <p className="text-lg mb-1 font-normal">
-                    {info.competicao} - {info.mandante} vs {info.visitante}{" "}
-                    {info.dataFormatada} às {info.hora} - <Badge>Concluída</Badge>
+                  <CardTitle className="text-lg mb-1">
+                    {info.competicao} - {info.mandante} vs {info.visitante}
+                  </CardTitle>
+                  
+                  <p className="text-sm text-muted-foreground">
+                    {info.dataFormatada} às {info.hora} — <Badge>Concluída</Badge>
                   </p>
                 </CardHeader>
-
                 <CardContent>
 
                   {/* 📌 MÉTRICAS EM LINHA */}
-                  <div className="mb-4 text-sm flex flex-wrap gap-x-6 gap-y-1">
-                    <span><strong>Itens:</strong> {stats.numItens}</span>
-
-                    <span>
-                      <strong>Total Investido:</strong> 
-                      R$ {stats.totalStake.toFixed(2).replace(".", ",")}
-                    </span>
-
-                    <span className={`
-                      ${stats.resultadoTotal > 0 ? "text-green-600 dark:text-green-400" :
-                        stats.resultadoTotal < 0 ? "text-red-600 dark:text-red-400" : ""}
-                    `}>
-                      <strong>Resultado:</strong> 
-                      R$ {stats.resultadoTotal.toFixed(2).replace(".", ",")}
-                    </span>
-
-                    <span className={`
-                      ${stats.roi > 0 ? "text-green-600 dark:text-green-400" :
-                        stats.roi < 0 ? "text-red-600 dark:text-red-400" : ""}
-                    `}>
-                      <strong>ROI:</strong> 
-                      {stats.roi.toFixed(2).replace(".", ",")}%
-                    </span>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                    <div className="bg-muted/30 p-3 rounded-md">
+                      <div className="text-xs text-muted-foreground mb-1">Itens</div>
+                      <div className="text-lg font-mono font-bold">{stats.numItens}</div>
+                    </div>
+                    <div className="bg-muted/30 p-3 rounded-md">
+                      <div className="text-xs text-muted-foreground mb-1">Total Investido</div>
+                      <div className="text-lg font-mono font-bold">R$ {stats.totalStake.toFixed(2).replace(".", ",")}</div>
+                    </div>
+                    <div className="bg-muted/30 p-3 rounded-md">
+                      <div className="text-xs text-muted-foreground mb-1">Resultado</div>
+                      <div className={`text-lg font-mono font-bold flex items-center gap-1 ...`}>
+                        ...
+                      </div>
+                    </div>
+                    <div className="bg-muted/30 p-3 rounded-md">
+                      <div className="text-xs text-muted-foreground mb-1">ROI</div>
+                      <div className={`text-lg font-mono font-bold ...`}>
+                        {stats.roi.toFixed(2).replace(".", ",")}% 
+                      </div>
+                    </div>
                   </div>
 
                   {/* ==== ITENS DA OPERAÇÃO ==== */}
