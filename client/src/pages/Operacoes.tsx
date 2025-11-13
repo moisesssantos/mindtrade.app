@@ -263,33 +263,54 @@ export default function Operacoes() {
                                   : "bg-white border border-gray-200"
                               }`}
                             >
-                              <div className="flex flex-wrap items-center gap-2">
-                                <Badge variant="outline">{estrategiaInfo.mercadoNome}</Badge>
-                                <Badge>{estrategiaInfo.nome}</Badge>
-                                <span className="text-xs text-muted-foreground">
-                                  Stake: R$ {parseFloat(item.stake).toFixed(2).replace(".", ",")}
-                                </span>
-                                <span className="text-xs text-muted-foreground">
-                                  Entrada: {parseFloat(item.oddEntrada).toFixed(2).replace(".", ",")}
-                                </span>
-                                {item.oddSaida && (
-                                  <span className="text-xs text-muted-foreground">
-                                    Saída: {parseFloat(item.oddSaida).toFixed(2).replace(".", ",")}
-                                  </span>
-                                )}
-                              </div>
                               <div
-                                className={`font-mono font-semibold ${
-                                  resultado > 0
-                                    ? "text-green-600 dark:text-green-400"
-                                    : resultado < 0
-                                    ? "text-red-600 dark:text-red-400"
-                                    : ""
+                                key={item.id}
+                                className={`px-3 py-2 rounded-md flex justify-between flex-col md:flex-row gap-2 ${
+                                  isDarkMode
+                                    ? "bg-[#2a2b2e] border border-[#44494d]"
+                                    : "bg-white border border-gray-200"
                                 }`}
                               >
-                                R$ {resultado.toFixed(2).replace(".", ",")}
+                                <div className="flex flex-col gap-1 flex-1">
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <Badge variant="outline">{estrategiaInfo.mercadoNome}</Badge>
+                                    <Badge>{estrategiaInfo.nome}</Badge>
+                              
+                                    <span className="text-xs text-muted-foreground">
+                                      Stake: R$ {parseFloat(item.stake).toFixed(2).replace(".", ",")}
+                                    </span>
+                              
+                                    <span className="text-xs text-muted-foreground">
+                                      Entrada: {parseFloat(item.oddEntrada).toFixed(2).replace(".", ",")}
+                                    </span>
+                              
+                                    {item.oddSaida && (
+                                      <span className="text-xs text-muted-foreground">
+                                        Saída: {parseFloat(item.oddSaida).toFixed(2).replace(".", ",")}
+                                      </span>
+                                    )}
+                                  </div>
+                              
+                                  {/* Observação (NOVO) */}
+                                  {item.motivacaoSaidaObservacao && (
+                                    <div className="mt-2 w-full rounded-md bg-muted/30 p-2 border border-border text-xs text-muted-foreground whitespace-pre-wrap">
+                                      <span className="font-semibold text-primary">Obs:</span> {item.motivacaoSaidaObservacao}
+                                    </div>
+                                  )}
+                                </div>
+                              
+                                <div
+                                  className={`font-mono font-semibold self-start md:self-center ${
+                                    resultado > 0
+                                      ? "text-green-600 dark:text-green-400"
+                                      : resultado < 0
+                                      ? "text-red-600 dark:text-red-400"
+                                      : ""
+                                  }`}
+                                >
+                                  R$ {resultado.toFixed(2).replace(".", ",")}
+                                </div>
                               </div>
-                            </div>
                           );
                         })}
                       </div>
