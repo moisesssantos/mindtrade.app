@@ -37,6 +37,7 @@ import {
   PolarAngleAxis,
   PolarRadiusAxis,
   ReferenceLine,
+
 } from "recharts";
 
 import { useLocation } from "wouter";
@@ -82,12 +83,6 @@ type Transacao = {
   valor: string;
   data: string;
   descricao: string | null;
-};
-
-type Estrategia = {
-  id: number;
-  nome: string;
-  mercadoId: number;
 };
 
 export default function Dashboard() {
@@ -178,11 +173,7 @@ export default function Dashboard() {
   const hoje = new Date();
   hoje.setHours(23, 59, 59, 999);
   const diasPassados = 30;
-  const dailyData: {
-    dia: string;
-    lucro: number;
-    operacoes: number;
-  }[] = [];
+  const dailyData = [];
 
   for (let i = diasPassados - 1; i >= 0; i--) {
     const dia = new Date(hoje);
@@ -368,50 +359,44 @@ export default function Dashboard() {
     };
   });
 
-  // 🔹 Novo resumo semanal para o card em linha única
-  const weeklySummary = dadosSemana.map((d) => ({
-    nome: d.diaSemana,
-    lucro: d.lucro,
-    roi: d.percentualBanca,
-    qtdOps: d.operacoes,
-  }));
-
   const textoSemana = `${format(inicioSemana, "d", { locale: ptBR })} - ${format(fimSemana, "d MMM yyyy", { locale: ptBR })}`;
 
   // Agregações por Estratégia
   const porEstrategia = (estrategias || [])
-    .map((estrategia) => {
-      const itensEstrategia = itens.filter(
-        (item) => item.estrategiaId === estrategia.id
-      );
+  .map((estrategia) => {
+    const itensEstrategia = itens.filter(
+      (item) => item.estrategiaId === estrategia.id
+    );
 
-      const stakeTotal = itensEstrategia.reduce(
-        (acc, item) => acc + parseFloat(item.stake || "0"),
-        0
-      );
+    const stakeTotal = itensEstrategia.reduce(
+      (acc, item) => acc + parseFloat(item.stake || "0"),
+      0
+    );
 
-      const lucro = itensEstrategia.reduce(
-        (acc, item) => acc + parseFloat(item.resultadoFinanceiro || "0"),
-        0
-      );
+    const lucro = itensEstrategia.reduce(
+      (acc, item) => acc + parseFloat(item.resultadoFinanceiro || "0"),
+      0
+    );
 
-      const roiEstrategia = stakeTotal > 0 ? (lucro / stakeTotal) * 100 : 0;
+    const roiEstrategia = stakeTotal > 0 ? (lucro / stakeTotal) * 100 : 0;
 
-      // 🔗 liga a estratégia ao nome do mercado correspondente
-      const mercadoNome =
-        mercados.find((m) => m.id === estrategia.mercadoId)?.nome || "Outros";
+    // 🔗 liga a estratégia ao nome do mercado correspondente
+    const mercadoNome =
+      mercados.find((m) => m.id === estrategia.mercadoId)?.nome || "Outros";
 
-      return {
-        estrategia: estrategia.nome,
-        mercado: mercadoNome, // novo campo usado na cor da bolha
-        lucro,
-        roi: roiEstrategia,
-        operacoes: itensEstrategia.length,
-      };
-    })
-    .filter((item) => item.operacoes > 0);
+    return {
+      estrategia: estrategia.nome,
+      mercado: mercadoNome, // novo campo usado na cor da bolha
+      lucro,
+      roi: roiEstrategia,
+      operacoes: itensEstrategia.length,
+    };
+  })
+  .filter((item) => item.operacoes > 0);
 
+  // Verificar se os dados foram corretamente agregados
   console.log("Dados por estratégia:", porEstrategia);
+
 
   // Análise comportamental
   const seguiuPlanoSim = itens.filter((item) => item.seguiuPlano === true);
@@ -442,20 +427,19 @@ export default function Dashboard() {
   // =======================
   // MAPA DE CORES (fora do JSX)
   // =======================
-  const mercadosUsados = Array.from(
-    new Set(porEstrategia.map((e) => e.mercado)),
-  );
+  const mercadosUsados = Array.from(new Set(porEstrategia.map((e) => e.mercado)));
 
   const coresDisponiveis = [
     "#3b82f6", // azul
-    "#10b981", // verde
-    "#8b5cf6", // roxo
-    "#f59e0b", // laranja
-    "#ec4899", // rosa
-    "#06b6d4", // ciano
-    "#94a3b8", // cinza fallback
+      "#10b981", // verde
+      "#8b5cf6", // roxo
+      "#f59e0b", // laranja
+      "#ec4899", // rosa
+      "#06b6d4", // ciano
+      "#94a3b8", // cinza fallback
   ];
 
+  // Mapa consistente entre mercado e cor atribuída
   const mapaCores = mercadosUsados.reduce((acc, nome, i) => {
     acc[nome] = coresDisponiveis[i % coresDisponiveis.length];
     return acc;
@@ -497,67 +481,8 @@ export default function Dashboard() {
           />
         </div>
 
-        {/* 📌 NOVO CARD — Semana Resumida (linha única) */}
-        <Card
-          className={`w-full p-4 mb-6 transition-all ${
-            isDarkMode
-              ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
-              : "bg-white border border-gray-200 shadow-sm"
-          }`}
-        >
-          <div className="flex items-center gap-4 overflow-hidden">
-            {/* Semana anterior */}
-            <button
-              onClick={() => setSemanaBase(subDays(semanaBase, 7))}
-              className="px-2 text-sm font-medium text-muted-foreground hover:text-primary shrink-0"
-            >
-              &lt;
-            </button>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
 
-            {/* Conteúdo rolável (linha única) */}
-            <div className="flex-1 overflow-hidden">
-              <div className="flex items-center gap-4 whitespace-nowrap">
-                {weeklySummary.map((dia) => (
-                  <span
-                    key={dia.nome}
-                    className="flex items-center gap-1 whitespace-nowrap"
-                  >
-                    <span className="font-semibold">{dia.nome}</span>
-
-                    <span
-                      className={
-                        dia.roi >= 0
-                          ? "text-green-500 font-semibold"
-                          : "text-red-500 font-semibold"
-                      }
-                    >
-                      {dia.roi.toFixed(2)}%
-                    </span>
-
-                    <span className="text-muted-foreground">
-                      R$ {dia.lucro.toFixed(2)}
-                    </span>
-
-                    <span className="text-muted-foreground">
-                      {dia.qtdOps} Op.
-                    </span>
-
-                    <span className="mx-3 text-muted-foreground">|</span>
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Próxima semana */}
-            <button
-              onClick={() => setSemanaBase(addDays(semanaBase, 7))}
-              className="px-2 text-sm font-medium text-muted-foreground hover:text-primary shrink-0"
-            >
-              &gt;
-            </button>
-          </div>
-        </Card>
-            
           {/* Gráfico de Lucro Acumulado no Ano */}
             <Card
               className={`p-6 lg:col-span-7 transition-all duration-300 ${
