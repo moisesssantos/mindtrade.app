@@ -41,7 +41,7 @@ type OperacaoItem = {
   estadoEmocional: string | null;
   motivacaoEntrada: string | null;
   autoavaliacao: string | null;
-  motivacaoSaidaObservacao: string | null; // NOVO
+  motivacaoSaidaObservacao: string | null;
 };
 
 type Equipe = { id: number; nome: string };
@@ -146,6 +146,7 @@ export default function Operacoes() {
   // === Renderização ===
   return (
     <div className="container mx-auto px-4 py-8">
+
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
           <h1 className="text-3xl font-bold">Operações Concluídas</h1>
@@ -193,40 +194,25 @@ export default function Operacoes() {
                 className={isDarkMode ? "bg-[#2a2b2e] border border-[#44494d]" : "bg-white border border-gray-200"}
               >
                 <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-lg mb-1">
-                        {info.competicao} - {info.mandante} vs {info.visitante}{" "}
-                        {info.dataFormatada} às {info.hora} - 
-                        <span className="ml-1"><Badge>Concluída</Badge></span>
-                      </p>
-                    </div>
 
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => setLocation(`/operacoes/${operacao.partidaId}`)}>
-                        <Eye className="w-4 h-4 mr-1" /> Ver
-                      </Button>
-
-                      <Button variant="outline" size="sm" onClick={() => setLocation(`/operacoes/${operacao.partidaId}`)}>
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
+                  {/* 📌 TÍTULO AJUSTADO */}
+                  <p className="text-lg mb-1 font-normal">
+                    {info.competicao} - {info.mandante} vs {info.visitante}{" "}
+                    {info.dataFormatada} às {info.hora} - <Badge>Concluída</Badge>
+                  </p>
                 </CardHeader>
 
                 <CardContent>
-                  
-                  {/* ==== MÉTRICAS GERAIS ==== */}
+
+                  {/* 📌 MÉTRICAS EM LINHA */}
                   <div className="mb-4 text-sm flex flex-wrap gap-x-6 gap-y-1">
-                    <span>
-                      <strong>Itens:</strong> {stats.numItens}
-                    </span>
-                  
+                    <span><strong>Itens:</strong> {stats.numItens}</span>
+
                     <span>
                       <strong>Total Investido:</strong> 
                       R$ {stats.totalStake.toFixed(2).replace(".", ",")}
                     </span>
-                  
+
                     <span className={`
                       ${stats.resultadoTotal > 0 ? "text-green-600 dark:text-green-400" :
                         stats.resultadoTotal < 0 ? "text-red-600 dark:text-red-400" : ""}
@@ -234,7 +220,7 @@ export default function Operacoes() {
                       <strong>Resultado:</strong> 
                       R$ {stats.resultadoTotal.toFixed(2).replace(".", ",")}
                     </span>
-                  
+
                     <span className={`
                       ${stats.roi > 0 ? "text-green-600 dark:text-green-400" :
                         stats.roi < 0 ? "text-red-600 dark:text-red-400" : ""}
@@ -247,15 +233,15 @@ export default function Operacoes() {
                   {/* ==== ITENS DA OPERAÇÃO ==== */}
                   {itens.length > 0 && (
                     <div>
-                      <h3 className="text-sm font-semibold mb-2" style={{ color: "#0099DD" }}>Operações</h3>
-                  
+                      <h3 className="text-sm font-semibold mb-2">Operações</h3>
+
                       <div className="space-y-1.5">
                         {itens.map((item) => {
                           const estrategiaInfo = getEstrategiaInfo(item.estrategiaId);
                           const resultado = item.resultadoFinanceiro
                             ? parseFloat(item.resultadoFinanceiro)
                             : 0;
-                  
+
                           return (
                             <div
                               key={item.id}
@@ -270,22 +256,22 @@ export default function Operacoes() {
                                 <div className="flex flex-wrap items-center gap-2 w-full">
                                   <Badge variant="outline">{estrategiaInfo.mercadoNome}</Badge>
                                   <Badge>{estrategiaInfo.nome}</Badge>
-                  
+
                                   <span className="text-xs text-muted-foreground">
                                     <strong>Stake:</strong> R$ {parseFloat(item.stake).toFixed(2).replace(".", ",")}
                                   </span>
-                  
+
                                   <span className="text-xs text-muted-foreground">
-                                    <strong>Entrada:</strong> {parseFloat(item.oddEntrada).toFixed(2).replace(".", ",")}
+                                    Entrada: {parseFloat(item.oddEntrada).toFixed(2).replace(".", ",")}
                                   </span>
-                  
+
                                   {item.oddSaida && (
                                     <span className="text-xs text-muted-foreground">
-                                      <strong>Saída:</strong> {parseFloat(item.oddSaida).toFixed(2).replace(".", ",")}
+                                      Saída: {parseFloat(item.oddSaida).toFixed(2).replace(".", ",")}
                                     </span>
                                   )}
-                  
-                                  {/* RESULTADO → alinhado no topo à direita */}
+
+                                  {/* RESULTADO → topo direita */}
                                   <span
                                     className={`ml-auto font-mono font-semibold text-xs ${
                                       resultado > 0
@@ -298,14 +284,16 @@ export default function Operacoes() {
                                     R$ {resultado.toFixed(2).replace(".", ",")}
                                   </span>
                                 </div>
-                  
+
                                 {/* OBSERVAÇÃO */}
                                 {item.motivacaoSaidaObservacao && (
                                   <div className="mt-1 w-full rounded-md bg-muted/30 p-2 text-xs text-muted-foreground whitespace-pre-wrap">
-                                    <span className="font-semibold text-white px-2 py-0.5 rounded"
-                                      style={{ backgroundColor: "#5F2C82" }}>
-                                      OBS:
-                                      </span>{" "}
+                                    <span
+                                      className="font-semibold text-white px-2 py-0.5 rounded"
+                                      style={{ backgroundColor: "#5F2C82" }}
+                                    >
+                                      Obs:
+                                    </span>{" "}
                                     {item.motivacaoSaidaObservacao}
                                   </div>
                                 )}
@@ -316,6 +304,7 @@ export default function Operacoes() {
                       </div>
                     </div>
                   )}
+
                 </CardContent>
               </Card>
             );
