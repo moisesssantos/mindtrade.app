@@ -207,58 +207,60 @@ export default function Relatorios() {
       : 0;
 
   // === Agregações por mercado ===
-  const porMercado = mercados
-    .map((mercado) => {
-      const itensMercado = itensFiltrados.filter(
-        (item) => item.mercadoId === mercado.id
-      );
-      const stakeTotal = itensMercado.reduce(
-        (acc, item) => acc + parseFloat(item.stake || "0"),
-        0
-      );
-      const lucro = itensMercado.reduce(
-        (acc, item) => acc + parseFloat(item.resultadoFinanceiro || "0"),
-        0
-      );
-      const roiMercado = stakeTotal > 0 ? (lucro / stakeTotal) * 100 : 0;
-      const numOperacoes = itensMercado.length;
+const porMercado = mercados
+  .map((mercado) => {
+    const itensMercado = itensFiltrados.filter(
+      (item) => item.mercadoId === mercado.id
+    );
+    const stakeTotal = itensMercado.reduce(
+      (acc, item) => acc + parseFloat(item.stake || "0"),
+      0
+    );
+    const lucro = itensMercado.reduce(
+      (acc, item) => acc + parseFloat(item.resultadoFinanceiro || "0"),
+      0
+    );
+    const roiMercado = stakeTotal > 0 ? (lucro / stakeTotal) * 100 : 0;
+    const numOperacoes = itensMercado.length;
 
-      return {
-        mercado: mercado.nome,
-        lucro,
-        roi: roiMercado,
-        operacoes: numOperacoes,
-      };
-    })
-    .filter((item) => item.operacoes > 0);
+    return {
+      mercado: mercado.nome,
+      lucro,
+      roi: roiMercado,
+      operacoes: numOperacoes,
+    };
+  })
+  .filter((item) => item.operacoes > 0)
+  .sort((a, b) => b.lucro - a.lucro); // ✅ agora sim!
 
   // === Agregações por estratégia ===
-  const porEstrategia = estrategias
-    .map((estrategia) => {
-      const itensEstrategia = itensFiltrados.filter(
-        (item) => item.estrategiaId === estrategia.id
-      );
-      const stakeTotal = itensEstrategia.reduce(
-        (acc, item) => acc + parseFloat(item.stake || "0"),
-        0
-      );
-      const lucro = itensEstrategia.reduce(
-        (acc, item) => acc + parseFloat(item.resultadoFinanceiro || "0"),
-        0
-      );
-      const roiEstrategia = stakeTotal > 0 ? (lucro / stakeTotal) * 100 : 0;
-      const numOperacoes = itensEstrategia.length;
-      const mercado = mercados.find((m) => m.id === estrategia.mercadoId);
+const porEstrategia = estrategias
+  .map((estrategia) => {
+    const itensEstrategia = itensFiltrados.filter(
+      (item) => item.estrategiaId === estrategia.id
+    );
+    const stakeTotal = itensEstrategia.reduce(
+      (acc, item) => acc + parseFloat(item.stake || "0"),
+      0
+    );
+    const lucro = itensEstrategia.reduce(
+      (acc, item) => acc + parseFloat(item.resultadoFinanceiro || "0"),
+      0
+    );
+    const roiEstrategia = stakeTotal > 0 ? (lucro / stakeTotal) * 100 : 0;
+    const numOperacoes = itensEstrategia.length;
+    const mercado = mercados.find((m) => m.id === estrategia.mercadoId);
 
-      return {
-        estrategia: estrategia.nome,
-        mercado: mercado?.nome || "",
-        lucro,
-        roi: roiEstrategia,
-        operacoes: numOperacoes,
-      };
-    })
-    .filter((item) => item.operacoes > 0);
+    return {
+      estrategia: estrategia.nome,
+      mercado: mercado?.nome || "",
+      lucro,
+      roi: roiEstrategia,
+      operacoes: numOperacoes,
+    };
+  })
+  .filter((item) => item.operacoes > 0)
+  .sort((a, b) => b.lucro - a.lucro); // ✅ agora sim!
 
   // 🏆 Agrupar por Competição — mesma lógica de porMercado
     const [mostrarPioresCompeticoes, setMostrarPioresCompeticoes] = useState(false);
@@ -363,11 +365,13 @@ export default function Relatorios() {
     stakeSeguiuNao > 0 ? (lucroSeguiuNao / stakeSeguiuNao) * 100 : 0;
 
   // === Por estado emocional ===
-  const estadosSet = new Set(
-    itensFiltrados.map((item) => item.estadoEmocional).filter(Boolean)
-  );
-  const estadosEmocionais = Array.from(estadosSet);
-  const porEstadoEmocional = estadosEmocionais.map((estado) => {
+const estadosSet = new Set(
+  itensFiltrados.map((item) => item.estadoEmocional).filter(Boolean)
+);
+const estadosEmocionais = Array.from(estadosSet);
+
+const porEstadoEmocional = estadosEmocionais
+  .map((estado) => {
     const itensEstado = itensFiltrados.filter(
       (item) => item.estadoEmocional === estado
     );
@@ -381,7 +385,8 @@ export default function Relatorios() {
     );
     const roiEstado = stakeTotal > 0 ? (lucro / stakeTotal) * 100 : 0;
     return { estado, lucro, roi: roiEstado, operacoes: itensEstado.length };
-  });
+  })
+  .sort((a, b) => b.lucro - a.lucro); // ✅ ordenação correta aqui
 
   // === Reset filtros ===
   const limparFiltros = () => {
