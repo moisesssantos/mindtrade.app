@@ -195,12 +195,10 @@ export default function Operacoes() {
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle className="text-lg mb-1">
-                        {info.competicao} - {info.mandante} vs {info.visitante}
-                      </CardTitle>
-
-                      <p className="text-sm text-muted-foreground">
-                        {info.dataFormatada} às {info.hora} — <Badge>Concluída</Badge>
+                      <p className="text-lg mb-1">
+                        {info.competicao} - {info.mandante} vs {info.visitante}{" "}
+                        {info.dataFormatada} às {info.hora} - 
+                        <span className="ml-1"><Badge>Concluída</Badge></span>
                       </p>
                     </div>
 
@@ -219,44 +217,37 @@ export default function Operacoes() {
                 <CardContent>
                   
                   {/* ==== MÉTRICAS GERAIS ==== */}
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                    <div className="bg-muted/30 p-3 rounded-md">
-                      <div className="text-xs text-muted-foreground mb-1">Itens</div>
-                      <div className="text-lg font-mono font-bold">{stats.numItens}</div>
-                    </div>
-
-                    <div className="bg-muted/30 p-3 rounded-md">
-                      <div className="text-xs text-muted-foreground mb-1">Total Investido</div>
-                      <div className="text-lg font-mono font-bold">R$ {stats.totalStake.toFixed(2).replace(".", ",")}</div>
-                    </div>
-
-                    <div className="bg-muted/30 p-3 rounded-md">
-                      <div className="text-xs text-muted-foreground mb-1">Resultado</div>
-                      <div className={`text-lg font-mono font-bold flex items-center gap-1 ${
-                        stats.resultadoTotal > 0 ? "text-green-600 dark:text-green-400" :
-                        stats.resultadoTotal < 0 ? "text-red-600 dark:text-red-400" : ""
-                      }`}>
-                        {stats.resultadoTotal > 0 ? <TrendingUp className="w-4 h-4" /> :
-                         stats.resultadoTotal < 0 ? <TrendingDown className="w-4 h-4" /> : null}
-                        R$ {stats.resultadoTotal.toFixed(2).replace(".", ",")}
-                      </div>
-                    </div>
-
-                    <div className="bg-muted/30 p-3 rounded-md">
-                      <div className="text-xs text-muted-foreground mb-1">ROI</div>
-                      <div className={`text-lg font-mono font-bold ${
-                        stats.roi > 0 ? "text-green-600 dark:text-green-400" :
-                        stats.roi < 0 ? "text-red-600 dark:text-red-400" : ""
-                      }`}>
-                        {stats.roi.toFixed(2).replace(".", ",")}% 
-                      </div>
-                    </div>
+                  <div className="mb-4 text-sm flex flex-wrap gap-x-6 gap-y-1">
+                    <span>
+                      <strong>Itens:</strong> {stats.numItens}
+                    </span>
+                  
+                    <span>
+                      <strong>Total Investido:</strong> 
+                      R$ {stats.totalStake.toFixed(2).replace(".", ",")}
+                    </span>
+                  
+                    <span className={`
+                      ${stats.resultadoTotal > 0 ? "text-green-600 dark:text-green-400" :
+                        stats.resultadoTotal < 0 ? "text-red-600 dark:text-red-400" : ""}
+                    `}>
+                      <strong>Resultado:</strong> 
+                      R$ {stats.resultadoTotal.toFixed(2).replace(".", ",")}
+                    </span>
+                  
+                    <span className={`
+                      ${stats.roi > 0 ? "text-green-600 dark:text-green-400" :
+                        stats.roi < 0 ? "text-red-600 dark:text-red-400" : ""}
+                    `}>
+                      <strong>ROI:</strong> 
+                      {stats.roi.toFixed(2).replace(".", ",")}%
+                    </span>
                   </div>
 
                   {/* ==== ITENS DA OPERAÇÃO ==== */}
                   {itens.length > 0 && (
                     <div>
-                      <h3 className="text-sm font-semibold mb-2" style={{ color: "#0099DD" }}>Itens da Operação</h3>
+                      <h3 className="text-sm font-semibold mb-2" style={{ color: "#0099DD" }}>Operações</h3>
                   
                       <div className="space-y-1.5">
                         {itens.map((item) => {
