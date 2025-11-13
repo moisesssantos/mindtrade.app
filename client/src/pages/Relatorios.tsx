@@ -771,7 +771,9 @@ const porEstadoEmocional = estadosEmocionais
             variant="ghost"
             size="sm"
             onClick={() => setMostrarPioresCompeticoes((prev) => !prev)}
-            className="text-sm"
+            className={`text-sm ${
+              mostrarPioresCompeticoes ? "text-[#0099DD]" : "text-red-600"
+            }`}
           >
             {mostrarPioresCompeticoes ? "Ver Melhores" : "Ver Piores"}
           </Button>
@@ -834,10 +836,12 @@ const porEstadoEmocional = estadosEmocionais
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setMostrarPioresEquipes((prev) => !prev)}
-              className="text-sm"
+              onClick={() => setMostrarPioresCompeticoes((prev) => !prev)}
+              className={`text-sm ${
+                mostrarPioresCompeticoes ? "text-[#0099DD]" : "text-red-600"
+              }`}
             >
-              {mostrarPioresEquipes ? "Ver Melhores" : "Ver Piores"}
+              {mostrarPioresCompeticoes ? "Ver Melhores" : "Ver Piores"}
             </Button>
           </div>
       
