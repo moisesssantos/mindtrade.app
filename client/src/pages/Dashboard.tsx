@@ -528,7 +528,7 @@ export default function Dashboard() {
 
           {/* Linha compacta de Resultados Semanais */}
           <Card
-            className={`relative p-4 mb-4 transition-all duration-300 overflow-hidden ${
+            className={`relative p-4 mb-4 transition-all duration-300 overflow-visible ${
               isDarkMode
                 ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
                 : "bg-white border border-gray-200 shadow-sm"
