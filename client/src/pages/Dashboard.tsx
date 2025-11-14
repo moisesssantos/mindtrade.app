@@ -304,10 +304,10 @@ export default function Dashboard() {
   });
 
     // ===============================
-    // 🔥 MATRIZ DE LUCRO – MOTIVAÇÃO × AUTOAVALIAÇÃO
+    // 🔥 MINI HEATMAP – MOTIVAÇÃO × AUTOAVALIAÇÃO (LUCRO)
     // ===============================
     
-    // Categorias reais vindas do BD
+    // Categorias vindas do BD
     const avaliacoes = [
       ...new Set(itens.map((i) => i.autoavaliacao).filter(Boolean))
     ];
@@ -316,8 +316,8 @@ export default function Dashboard() {
       ...new Set(itens.map((i) => i.motivacaoEntrada).filter(Boolean))
     ];
     
-    // Matriz rica com dados de lucro e quantidade
-    const matrizLucro = motivacoes.map((motivacao) => {
+    // Matriz compacta
+    const heatmapMini = motivacoes.map((motivacao) => {
       const linha: Record<string, any> = { motivacao };
     
       avaliacoes.forEach((av) => {
@@ -326,7 +326,6 @@ export default function Dashboard() {
         );
     
         const quantidade = itensMatch.length;
-    
         const lucro = itensMatch.reduce(
           (acc, item) => acc + Number(item.resultadoFinanceiro || 0),
           0
@@ -731,7 +730,7 @@ export default function Dashboard() {
               })()}
             </Card>
 
-          {/* MATRIZ DE LUCRO – Motivação × Autoavaliação */}
+          {/* MINI HEATMAP – Motivação × Autoavaliação */}
           <Card
             className={`p-6 lg:col-span-5 transition-all duration-300 ${
               isDarkMode
@@ -741,62 +740,75 @@ export default function Dashboard() {
           >
             <div className="mb-6">
               <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>
-                Motivação × Autoavaliação (Lucro & Volume)
+                Motivação × Autoavaliação (Lucro)
               </h3>
               <p className="text-sm text-muted-foreground">
-                Lucro total e quantidade de operações por combinação
+                Lucro total por combinação (Heatmap compacto)
               </p>
             </div>
           
-            {/* Grid responsivo */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {matrizLucro.map((linha) => (
-                <div key={linha.motivacao}>
-                  <h4 className="text-sm font-semibold mb-2 text-primary">
+            {/* Cabeçalho: Autoavaliações */}
+            <div className="grid grid-cols-[140px_repeat(auto-fit,minmax(20px,1fr))] gap-2 mb-2">
+              <div></div>
+              {avaliacoes.map((av) => (
+                <div
+                  key={av}
+                  className="text-[11px] text-center font-medium text-muted-foreground"
+                >
+                  {av}
+                </div>
+              ))}
+            </div>
+          
+            {/* Linhas */}
+            <div className="flex flex-col gap-3">
+              {heatmapMini.map((linha) => (
+                <div
+                  key={linha.motivacao}
+                  className="grid grid-cols-[140px_repeat(auto-fit,minmax(20px,1fr))] gap-2 items-center"
+                >
+                  {/* Motivação */}
+                  <div className="text-xs font-semibold text-primary">
                     {linha.motivacao}
-                  </h4>
-          
-                  <div className="grid grid-cols-3 gap-3">
-                    {avaliacoes.map((av) => {
-                      const cell = linha[av];
-                      const lucro = cell.lucro;
-                      const quantidade = cell.quantidade;
-          
-                      // Determina cor da célula conforme lucro
-                      const cor =
-                        lucro > 0
-                          ? `rgba(0, 180, 255, ${Math.min(0.15 + Math.abs(lucro) / 150, 0.8)})`
-                          : lucro < 0
-                          ? `rgba(255, 80, 80, ${Math.min(0.15 + Math.abs(lucro) / 150, 0.8)})`
-                          : isDarkMode
-                          ? "rgba(255,255,255,0.05)"
-                          : "rgba(0,0,0,0.05)";
-          
-                      return (
-                        <div
-                          key={av}
-                          className="p-3 rounded-lg border text-center cursor-pointer hover:scale-[1.02] transition-all"
-                          style={{
-                            backgroundColor: cor,
-                            borderColor: isDarkMode
-                              ? "rgba(255,255,255,0.15)"
-                              : "#cbd5e1",
-                          }}
-                          title={`Motivação: ${linha.motivacao}\nAvaliação: ${av}\nQuantidade: ${quantidade}\nLucro: R$ ${lucro.toFixed(
-                            2
-                          )}\nROI: ${cell.roi.toFixed(2)}%`}
-                        >
-                          <div className="text-xs font-semibold">{av}</div>
-          
-                          <div className="text-sm mt-1 font-bold">
-                            R$ {lucro.toFixed(2)}
-                          </div>
-          
-                          <div className="text-xs opacity-80">{quantidade} ops</div>
-                        </div>
-                      );
-                    })}
                   </div>
+          
+                  {/* Células compactas */}
+                  {avaliacoes.map((av) => {
+                    const cell = linha[av];
+                    const lucro = cell.lucro;
+                    const quantidade = cell.quantidade;
+                    const roi = cell.roi;
+          
+                    // Cores compactas
+                    let cor = "rgba(0,0,0,0.05)";
+                    if (lucro > 0) {
+                      cor = `rgba(0,153,221,${
+                        0.25 + Math.min(Math.abs(lucro) / 200, 0.7)
+                      })`; // azul MindTrade
+                    } else if (lucro < 0) {
+                      cor = `rgba(220,38,38,${
+                        0.25 + Math.min(Math.abs(lucro) / 200, 0.7)
+                      })`; // vermelho elegante
+                    }
+          
+                    return (
+                      <div
+                        key={av}
+                        title={`Motivação: ${linha.motivacao}
+          Avaliação: ${av}
+          Lucro: R$ ${lucro.toFixed(2)}
+          ROI: ${roi.toFixed(2)}%
+          Ops: ${quantidade}`}
+                        className="w-full h-6 rounded-md border transition-all hover:scale-[1.08] cursor-pointer"
+                        style={{
+                          backgroundColor: cor,
+                          borderColor: isDarkMode
+                            ? "rgba(255,255,255,0.1)"
+                            : "rgba(0,0,0,0.1)",
+                        }}
+                      ></div>
+                    );
+                  })}
                 </div>
               ))}
             </div>
