@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import MetricCard from "@/components/MetricCard";
 import { Card } from "@/components/ui/card";
@@ -302,12 +303,7 @@ export default function Dashboard() {
   });
 
   // Dados da semana (7 dias baseado na semanaBase)
-  const inicioSemana = startOfWeek(semanaBase, { weekStartsOn: 1 }); // Segunda-feira
-  const fimSemana = endOfWeek(semanaBase, { weekStartsOn: 1 }); // Domingo
-
-  const diasDaSemana = Array.from({ length: 7 }, (_, i) => {
-    return addDays(inicioSemana, i);
-  });
+  const diasDaSemana = Array.from({ length: 7 }, (_, i) => addDays(semanaBase, i));
 
   const dadosSemana = diasDaSemana.map((dia) => {
     const diaInicio = new Date(
@@ -483,6 +479,79 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
 
+          {/* Linha compacta de Resultados Semanais */}
+            <Card
+              className={`p-4 mb-6 transition-all duration-300 ${
+                isDarkMode
+                  ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
+                  : "bg-white border border-gray-200 shadow-sm"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-semibold text-muted-foreground">
+                  Visão semanal (linha compacta)
+                </h3>
+                <div className="flex items-center gap-1">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setSemanaBase(subDays(semanaBase, 1))}
+                    className="h-6 w-6"
+                  >
+                    <ChevronLeft className="w-3 h-3" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setSemanaBase(addDays(semanaBase, 1))}
+                    className="h-6 w-6"
+                  >
+                    <ChevronRight className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+            
+              <div className="overflow-x-auto">
+                <div className="flex gap-4 text-sm font-mono whitespace-nowrap">
+                  {dadosSemana.map((dia, index) => {
+                    const lucroPositivo = dia.percentualBanca >= 0;
+                    const lucroCor = lucroPositivo
+                      ? isDarkMode
+                        ? "text-green-400"
+                        : "text-green-600"
+                      : isDarkMode
+                      ? "text-red-400"
+                      : "text-red-600";
+            
+                    return (
+                      <div
+                        key={index}
+                        className={`flex items-center gap-1 ${
+                          dia.temDados ? "" : "opacity-50"
+                        }`}
+                      >
+                        <span className="font-bold">{dia.diaSemana}</span>
+                        {dia.temDados ? (
+                          <>
+                            <span className={`${lucroCor}`}>
+                              {dia.percentualBanca >= 0 ? "+" : ""}
+                              {dia.percentualBanca.toFixed(1).replace(".", ",")}% 
+                            </span>
+                            <span className={`${lucroCor}`}>
+                              R$ {Math.abs(dia.lucro).toFixed(2).replace(".", ",")}
+                            </span>
+                            <span className="text-muted-foreground">{dia.operacoes} Op.</span>
+                          </>
+                        ) : (
+                          <span className="text-muted-foreground">Sem dados</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </Card>
+          
           {/* Gráfico de Lucro Acumulado no Ano */}
             <Card
               className={`p-6 lg:col-span-7 transition-all duration-300 ${
