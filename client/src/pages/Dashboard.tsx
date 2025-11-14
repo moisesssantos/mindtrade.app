@@ -478,88 +478,88 @@ export default function Dashboard() {
           />
         </div>
 
-          {/* Linha compacta de Resultados Semanais */}
-            <Card
-              className={`p-4 mb-6 transition-all duration-300 ${
-                isDarkMode
-                  ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
-                  : "bg-white border border-gray-200 shadow-sm"
-              }`}
-            >
-              <div className="overflow-x-auto">
-                <div className="flex items-center text-sm font-mono whitespace-nowrap">
-                  {/* Seta esquerda */}
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => setSemanaBase(subDays(semanaBase, 1))}
-                    className="h-6 w-6 shrink-0 mr-2"
-                  >
-                    <ChevronLeft className="w-3 h-3" />
-                  </Button>
-            
-                  {/* Dias da semana */}
-                  {dadosSemana.map((dia, index) => {
-                    const lucroPositivo = dia.percentualBanca >= 0;
-                    const lucroCor = lucroPositivo
-                      ? isDarkMode
-                        ? "text-green-400"
-                        : "text-green-600"
-                      : isDarkMode
-                      ? "text-red-400"
-                      : "text-red-600";
-            
-                    return (
-                      <React.Fragment key={index}>
-                        <div
-                          className={`flex flex-col justify-center w-[130px] overflow-hidden ${
-                            dia.temDados ? "" : "opacity-50"
-                          }`}
-                        >
-                          <div className="flex gap-1 items-center truncate">
-                            <span className="text-primary font-bold">
-                              {format(dia.data, "EEEE", { locale: ptBR }).charAt(0).toUpperCase()}
-                            </span>
-                            <span className="font-bold">
-                              {format(dia.data, "dd/MM")}
-                            </span>
-                          </div>
-                          {dia.temDados ? (
-                            <div className="flex gap-1 items-center truncate">
-                              <span className={`${lucroCor}`}>
-                                {dia.percentualBanca >= 0 ? "+" : ""}
-                                {dia.percentualBanca.toFixed(1).replace(".", ",")}%
+            {/* Linha compacta de Resultados Semanais */}
+              <Card
+                className={`p-4 mb-6 transition-all duration-300 ${
+                  isDarkMode
+                    ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
+                    : "bg-white border border-gray-200 shadow-sm"
+                }`}
+              >
+                <div className="overflow-x-auto scroll-smooth">
+                  <div className="flex items-center text-sm font-mono whitespace-nowrap flex-nowrap">
+                    {/* Seta esquerda */}
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => setSemanaBase(subDays(semanaBase, 1))}
+                      className="h-6 w-6 shrink-0 mr-2"
+                    >
+                      <ChevronLeft className="w-3 h-3" />
+                    </Button>
+              
+                    {/* Dias da semana */}
+                    {dadosSemana.map((dia, index) => {
+                      const lucroPositivo = dia.percentualBanca >= 0;
+                      const lucroCor = lucroPositivo
+                        ? isDarkMode
+                          ? "text-green-400"
+                          : "text-green-600"
+                        : isDarkMode
+                        ? "text-red-400"
+                        : "text-red-600";
+              
+                      return (
+                        <React.Fragment key={index}>
+                          <div
+                            className={`flex flex-col justify-center items-start min-w-[130px] max-w-[130px] px-1 flex-shrink-0 ${
+                              dia.temDados ? "" : "opacity-50"
+                            }`}
+                          >
+                            <div className="flex gap-1 items-center w-full overflow-hidden text-ellipsis">
+                              <span className="text-primary font-bold">
+                                {format(dia.data, "EEEE", { locale: ptBR }).charAt(0).toUpperCase()}
                               </span>
-                              <span className={`${lucroCor}`}>
-                                R$ {Math.abs(dia.lucro).toFixed(2).replace(".", ",")}
+                              <span className="font-bold">
+                                {format(dia.data, "dd/MM")}
                               </span>
-                              <span className="text-muted-foreground">{dia.operacoes} Op.</span>
                             </div>
-                          ) : (
-                            <span className="text-muted-foreground">Sem dados</span>
+                            {dia.temDados ? (
+                              <div className="flex gap-1 items-center w-full overflow-hidden text-ellipsis">
+                                <span className={`${lucroCor}`}>
+                                  {dia.percentualBanca >= 0 ? "+" : ""}
+                                  {dia.percentualBanca.toFixed(1).replace(".", ",")}%
+                                </span>
+                                <span className={`${lucroCor}`}>
+                                  R$ {Math.abs(dia.lucro).toFixed(2).replace(".", ",")}
+                                </span>
+                                <span className="text-muted-foreground">{dia.operacoes} Op.</span>
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground">Sem dados</span>
+                            )}
+                          </div>
+              
+                          {/* Separador visual */}
+                          {index < dadosSemana.length - 1 && (
+                            <span className="text-muted-foreground px-2">|</span>
                           )}
-                        </div>
-            
-                        {/* Separador visual */}
-                        {index < dadosSemana.length - 1 && (
-                          <span className="text-muted-foreground px-2">|</span>
-                        )}
-                      </React.Fragment>
-                    );
-                  })}
-            
-                  {/* Seta direita */}
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => setSemanaBase(addDays(semanaBase, 1))}
-                    className="h-6 w-6 shrink-0 ml-2"
-                  >
-                    <ChevronRight className="w-3 h-3" />
-                  </Button>
+                        </React.Fragment>
+                      );
+                    })}
+              
+                    {/* Seta direita */}
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => setSemanaBase(addDays(semanaBase, 1))}
+                      className="h-6 w-6 shrink-0 ml-2"
+                    >
+                      <ChevronRight className="w-3 h-3" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </Card>
+              </Card>
 
           {/* Grid de gráficos e demais cards */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">    
