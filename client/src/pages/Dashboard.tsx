@@ -751,54 +751,7 @@ export default function Dashboard() {
               </p>
             </div>
           
-            {/* TOOLTIP CUSTOMIZADO */}
-            {tooltipData && (
-              <div
-                style={{
-                  position: "fixed",
-                  left: tooltipPos.x + 12,
-                  top: tooltipPos.y + 12,
-                  backgroundColor: isDarkMode
-                    ? "rgba(20,20,30,0.92)"
-                    : "rgba(255,255,255,0.96)",
-                  border: isDarkMode
-                    ? "1px solid hsl(var(--border))"
-                    : "1px solid #cbd5e1",
-                  padding: "8px 12px",
-                  borderRadius: "8px",
-                  color: isDarkMode ? "#f8fafc" : "#0f172a",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  boxShadow: "0 0 10px rgba(0,0,0,0.25)",
-                  backdropFilter: "blur(6px)",
-                  pointerEvents: "none",
-                  zIndex: 9999,
-                  minWidth: "160px",
-                }}
-              >
-                <div style={{ fontWeight: 700, marginBottom: 6, color: "#0099DD" }}>
-                  {tooltipData.motivacao}
-                </div>
-          
-                <div style={{ marginBottom: 4 }}>
-                  Avaliação: <b>{tooltipData.avaliacao}</b>
-                </div>
-          
-                <div style={{ color: tooltipData.lucro >= 0 ? "#16a34a" : "#dc2626" }}>
-                  Lucro: <b>R$ {tooltipData.lucro.toFixed(2).replace(".", ",")}</b>
-                </div>
-          
-                <div style={{ color: tooltipData.roi >= 0 ? "#3b82f6" : "#ef4444" }}>
-                  ROI: <b>{tooltipData.roi.toFixed(2).replace(".", ",")}%</b>
-                </div>
-          
-                <div style={{ fontSize: 11, opacity: 0.8, marginTop: 4 }}>
-                  {tooltipData.quantidade} operações
-                </div>
-              </div>
-            )}
-          
-            {/* Cabeçalho das Autoavaliações */}
+            {/* Cabeçalho: Autoavaliações */}
             <div className="grid grid-cols-[140px_repeat(auto-fit,minmax(20px,1fr))] gap-2 mb-2">
               <div></div>
               {avaliacoes.map((av) => (
@@ -823,14 +776,14 @@ export default function Dashboard() {
                     {linha.motivacao}
                   </div>
           
-                  {/* Células do Heatmap */}
+                  {/* Células */}
                   {avaliacoes.map((av) => {
                     const cell = linha[av];
                     const lucro = cell.lucro;
                     const quantidade = cell.quantidade;
                     const roi = cell.roi;
           
-                    // Cor do Heatmap
+                    // Cores
                     let cor = "rgba(0,0,0,0.05)";
                     if (lucro > 0) {
                       cor = `rgba(0,153,221,${
@@ -1084,7 +1037,6 @@ export default function Dashboard() {
               </div>
             )}
           </Card>
-
 
           {/* Resultado por Estado Emocional */}
           <Card
