@@ -304,39 +304,50 @@ export default function Dashboard() {
   });
 
     // ===============================
-    // 🔥 HEATMAP – MOTIVAÇÃO × AUTOAVALIAÇÃO
+    // 🔥 MATRIZ DE LUCRO – MOTIVAÇÃO × AUTOAVALIAÇÃO
     // ===============================
     
-    // Lista dinâmica de autoavaliações (valores reais do BD)
+    // Categorias reais vindas do BD
     const avaliacoes = [
       ...new Set(itens.map((i) => i.autoavaliacao).filter(Boolean))
     ];
     
-    // Lista dinâmica de motivações (valores reais do BD)
     const motivacoes = [
       ...new Set(itens.map((i) => i.motivacaoEntrada).filter(Boolean))
     ];
     
-    // Matriz base (linhas = motivações)
-    const heatmapMatrix = motivacoes.map((motivacao) => {
+    // Matriz rica com dados de lucro e quantidade
+    const matrizLucro = motivacoes.map((motivacao) => {
       const linha: Record<string, any> = { motivacao };
-      avaliacoes.forEach((av) => (linha[av] = 0));
+    
+      avaliacoes.forEach((av) => {
+        const itensMatch = itens.filter(
+          (i) => i.motivacaoEntrada === motivacao && i.autoavaliacao === av
+        );
+    
+        const quantidade = itensMatch.length;
+    
+        const lucro = itensMatch.reduce(
+          (acc, item) => acc + Number(item.resultadoFinanceiro || 0),
+          0
+        );
+    
+        const stakeTotal = itensMatch.reduce(
+          (acc, item) => acc + Number(item.stake || 0),
+          0
+        );
+    
+        const roi = stakeTotal > 0 ? (lucro / stakeTotal) * 100 : 0;
+    
+        linha[av] = {
+          quantidade,
+          lucro,
+          roi,
+        };
+      });
+    
       return linha;
     });
-    
-    // Preencher com contagens reais
-    itens.forEach((item) => {
-      if (!item.motivacaoEntrada || !item.autoavaliacao) return;
-    
-      const linha = heatmapMatrix.find(
-        (l) => l.motivacao === item.motivacaoEntrada
-      );
-    
-      if (linha && linha[item.autoavaliacao] !== undefined) {
-        linha[item.autoavaliacao] += 1;
-      }
-    });
-
   
   // Dados da semana (7 dias baseado na semanaBase)
   const diasDaSemana = Array.from({ length: 7 }, (_, i) => addDays(semanaBase, i));
@@ -720,7 +731,7 @@ export default function Dashboard() {
               })()}
             </Card>
 
-          {/* HEATMAP – Motivação × Autoavaliação */}
+          {/* MATRIZ DE LUCRO – Motivação × Autoavaliação */}
           <Card
             className={`p-6 lg:col-span-5 transition-all duration-300 ${
               isDarkMode
@@ -730,92 +741,65 @@ export default function Dashboard() {
           >
             <div className="mb-6">
               <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>
-                Motivação × Autoavaliação
+                Motivação × Autoavaliação (Lucro & Volume)
               </h3>
               <p className="text-sm text-muted-foreground">
-                Frequência das combinações (Heatmap)
+                Lucro total e quantidade de operações por combinação
               </p>
             </div>
           
-            {heatmapMatrix.length > 0 ? (
-              <ResponsiveContainer width="100%" height={400}>
-                <BarChart
-                  data={heatmapMatrix}
-                  layout="vertical"
-                  margin={{ top: 10, right: 10, bottom: 20, left: 10 }}
-                >
-                  {/* Grade */}
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke={isDarkMode ? "hsl(var(--border))" : "#e2e8f0"}
-                  />
+            {/* Grid responsivo */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {matrizLucro.map((linha) => (
+                <div key={linha.motivacao}>
+                  <h4 className="text-sm font-semibold mb-2 text-primary">
+                    {linha.motivacao}
+                  </h4>
           
-                  {/* Eixo Y — Motivações */}
-                  <YAxis
-                    type="category"
-                    dataKey="motivacao"
-                    width={140}
-                    stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"}
-                    fontSize={12}
-                  />
+                  <div className="grid grid-cols-3 gap-3">
+                    {avaliacoes.map((av) => {
+                      const cell = linha[av];
+                      const lucro = cell.lucro;
+                      const quantidade = cell.quantidade;
           
-                  {/* Eixo X — escala numérica */}
-                  <XAxis
-                    type="number"
-                    stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"}
-                    fontSize={12}
-                  />
+                      // Determina cor da célula conforme lucro
+                      const cor =
+                        lucro > 0
+                          ? `rgba(0, 180, 255, ${Math.min(0.15 + Math.abs(lucro) / 150, 0.8)})`
+                          : lucro < 0
+                          ? `rgba(255, 80, 80, ${Math.min(0.15 + Math.abs(lucro) / 150, 0.8)})`
+                          : isDarkMode
+                          ? "rgba(255,255,255,0.05)"
+                          : "rgba(0,0,0,0.05)";
           
-                  {/* Tooltip de vidro */}
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: isDarkMode
-                        ? "rgba(20,20,30,0.9)"
-                        : "rgba(255,255,255,0.95)",
-                      borderRadius: "8px",
-                      border: isDarkMode
-                        ? "1px solid hsl(var(--border))"
-                        : "1px solid #cbd5e1",
-                      color: isDarkMode ? "white" : "black",
-                      backdropFilter: "blur(6px)",
-                    }}
-                    formatter={(value, name) => [`${value}x`, name]}
-                    cursor={{ fill: "transparent" }}
-                  />
+                      return (
+                        <div
+                          key={av}
+                          className="p-3 rounded-lg border text-center cursor-pointer hover:scale-[1.02] transition-all"
+                          style={{
+                            backgroundColor: cor,
+                            borderColor: isDarkMode
+                              ? "rgba(255,255,255,0.15)"
+                              : "#cbd5e1",
+                          }}
+                          title={`Motivação: ${linha.motivacao}\nAvaliação: ${av}\nQuantidade: ${quantidade}\nLucro: R$ ${lucro.toFixed(
+                            2
+                          )}\nROI: ${cell.roi.toFixed(2)}%`}
+                        >
+                          <div className="text-xs font-semibold">{av}</div>
           
-                  {/* Barras empilhadas para formar o heatmap */}
-                  {avaliacoes.map((av) => (
-                    <Bar key={av} dataKey={av} stackId="heat" barSize={32}>
-                      {heatmapMatrix.map((row, i) => {
-                        const valor = row[av];
+                          <div className="text-sm mt-1 font-bold">
+                            R$ {lucro.toFixed(2)}
+                          </div>
           
-                        const maxValor = Math.max(
-                          ...heatmapMatrix.map((m) =>
-                            Math.max(...avaliacoes.map((a) => m[a]))
-                          )
-                        );
-          
-                        const intensidade = maxValor > 0 ? valor / maxValor : 0;
-          
-                        // Azul MindTrade com intensidade
-                        const cor = `rgba(0,153,221,${
-                          0.15 + intensidade * 0.7
-                        })`;
-          
-                        return <Cell key={i} fill={cor} />;
-                      })}
-                    </Bar>
-                  ))}
-          
-                  {/* Legenda automática */}
-                  <Legend />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-[400px] flex items-center justify-center text-muted-foreground">
-                Nenhum dado disponível
-              </div>
-            )}
+                          <div className="text-xs opacity-80">{quantidade} ops</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
           </Card>
 
           {/* Gráfico de Lucro e ROI por Mercado */}
