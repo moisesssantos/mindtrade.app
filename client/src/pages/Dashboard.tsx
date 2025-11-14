@@ -517,7 +517,7 @@ export default function Dashboard() {
                           }`}
                         >
                           <span className="font-bold">
-                            {format(dia.data, "EEE dd/MM", { locale: ptBR })}
+                            {format(dia.data, "EEEE", { locale: ptBR }).charAt(0).toUpperCase()} {format(dia.data, "dd/MM")}
                           </span>
                           {dia.temDados ? (
                             <>
