@@ -487,13 +487,13 @@ export default function Dashboard() {
               }`}
             >
               <div className="overflow-x-auto">
-                <div className="flex items-center gap-4 text-sm font-mono whitespace-nowrap">
+                <div className="flex items-center text-sm font-mono whitespace-nowrap">
                   {/* Seta esquerda */}
                   <Button
                     size="icon"
                     variant="ghost"
                     onClick={() => setSemanaBase(subDays(semanaBase, 1))}
-                    className="h-6 w-6 shrink-0"
+                    className="h-6 w-6 shrink-0 mr-2"
                   >
                     <ChevronLeft className="w-3 h-3" />
                   </Button>
@@ -512,7 +512,7 @@ export default function Dashboard() {
                     return (
                       <React.Fragment key={index}>
                         <div
-                          className={`flex items-center gap-1 min-w-[110px] ${
+                          className={`flex items-center gap-1 min-w-[120px] pr-2 ${
                             dia.temDados ? "" : "opacity-50"
                           }`}
                         >
@@ -540,7 +540,7 @@ export default function Dashboard() {
             
                         {/* Separador visual */}
                         {index < dadosSemana.length - 1 && (
-                          <span className="text-muted-foreground">|</span>
+                          <span className="text-muted-foreground pr-2">|</span>
                         )}
                       </React.Fragment>
                     );
@@ -551,7 +551,7 @@ export default function Dashboard() {
                     size="icon"
                     variant="ghost"
                     onClick={() => setSemanaBase(addDays(semanaBase, 1))}
-                    className="h-6 w-6 shrink-0"
+                    className="h-6 w-6 shrink-0 ml-2"
                   >
                     <ChevronRight className="w-3 h-3" />
                   </Button>
