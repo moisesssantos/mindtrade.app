@@ -798,7 +798,7 @@ export default function Dashboard() {
               </div>
             )}
           
-            {/* Cabeçalho: Autoavaliações */}
+            {/* Cabeçalho das Autoavaliações */}
             <div className="grid grid-cols-[140px_repeat(auto-fit,minmax(20px,1fr))] gap-2 mb-2">
               <div></div>
               {avaliacoes.map((av) => (
@@ -811,7 +811,7 @@ export default function Dashboard() {
               ))}
             </div>
           
-            {/* Linhas */}
+            {/* Linhas do Heatmap */}
             <div className="flex flex-col gap-3">
               {heatmapMini.map((linha) => (
                 <div
@@ -823,14 +823,14 @@ export default function Dashboard() {
                     {linha.motivacao}
                   </div>
           
-                  {/* Células */}
+                  {/* Células do Heatmap */}
                   {avaliacoes.map((av) => {
                     const cell = linha[av];
                     const lucro = cell.lucro;
                     const quantidade = cell.quantidade;
                     const roi = cell.roi;
           
-                    // Cores do heatmap
+                    // Cor do Heatmap
                     let cor = "rgba(0,0,0,0.05)";
                     if (lucro > 0) {
                       cor = `rgba(0,153,221,${
@@ -846,8 +846,6 @@ export default function Dashboard() {
                       <div
                         key={av}
                         onMouseEnter={(e) => {
-                          const rect = e.target.getBoundingClientRect();
-                          setTooltipPos({ x: rect.left, y: rect.top });
                           setTooltipData({
                             motivacao: linha.motivacao,
                             avaliacao: av,
@@ -855,6 +853,10 @@ export default function Dashboard() {
                             roi,
                             quantidade,
                           });
+                          setTooltipPos({ x: e.clientX, y: e.clientY });
+                        }}
+                        onMouseMove={(e) => {
+                          setTooltipPos({ x: e.clientX, y: e.clientY });
                         }}
                         onMouseLeave={() => setTooltipData(null)}
                         className="w-full h-6 rounded-md border transition-all hover:scale-[1.08] cursor-pointer"
