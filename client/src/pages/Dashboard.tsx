@@ -750,21 +750,23 @@ export default function Dashboard() {
                   left: tooltipPos.x + 15,
                   top: tooltipPos.y + 15,
                   backgroundColor: isDarkMode
-                    ? "rgba(20,20,30,0.95)"
+                    ? "rgba(20,20,30,0.97)"
                     : "rgba(255,255,255,0.96)",
                   border: isDarkMode
-                    ? "1px solid hsl(var(--border))"
+                    ? "1px solid rgba(255,255,255,0.15)"
                     : "1px solid #cbd5e1",
                   padding: "10px 14px",
                   borderRadius: "8px",
                   color: isDarkMode ? "#f8fafc" : "#0f172a",
                   fontSize: 12,
                   fontWeight: 600,
-                  boxShadow: "0 0 12px rgba(0,0,0,0.30)",
+                  boxShadow: "0 0 18px rgba(0,0,0,0.45)",
                   backdropFilter: "blur(6px)",
                   pointerEvents: "none",
-                  zIndex: 999999,
-                  minWidth: "160px",
+          
+                  /* ⭐ CORREÇÃO CRÍTICA ⭐ */
+                  zIndex: 2147483647,
+                  transform: "translateZ(999px)",
                 }}
               >
                 <div style={{ fontWeight: 700, marginBottom: 6, color: "#0099DD" }}>
@@ -776,7 +778,8 @@ export default function Dashboard() {
                 </div>
           
                 <div style={{ color: tooltipData.lucro >= 0 ? "#16a34a" : "#dc2626" }}>
-                  Lucro: <b>R$ {tooltipData.lucro.toFixed(2).replace(".", ",")}</b>
+                  Lucro:{" "}
+                  <b>R$ {tooltipData.lucro.toFixed(2).replace(".", ",")}</b>
                 </div>
           
                 <div style={{ color: tooltipData.roi >= 0 ? "#3b82f6" : "#ef4444" }}>
