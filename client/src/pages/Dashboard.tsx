@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import MetricCard from "@/components/MetricCard";
 import { Card } from "@/components/ui/card";
@@ -96,6 +95,10 @@ export default function Dashboard() {
 
   // 🟢 Estado para controlar o hover nas bolhas
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  // 🔥 Tooltip do Heatmap
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+  const [tooltipData, setTooltipData] = useState(null);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -490,7 +493,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="mb-8">
+        <div className="mb-6">
           <h1 className="text-3xl font-bold" data-testid="text-page-title">
             Dashboard
           </h1>
@@ -500,7 +503,7 @@ export default function Dashboard() {
         </div>
 
         {/* Métricas Principais */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
           <MetricCard
             title="Lucro Total"
             value={`R$ ${lucroTotal.toFixed(2).replace(".", ",")}`}
@@ -525,7 +528,7 @@ export default function Dashboard() {
 
           {/* Linha compacta de Resultados Semanais */}
           <Card
-            className={`relative p-4 mb-6 transition-all duration-300 overflow-hidden ${
+            className={`relative p-4 mb-4 transition-all duration-300 overflow-hidden ${
               isDarkMode
                 ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
                 : "bg-white border border-gray-200 shadow-sm"
@@ -622,17 +625,17 @@ export default function Dashboard() {
           </Card>    
 
           {/* Grid de gráficos e demais cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">    
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-4">    
           
           {/* Gráfico de Lucro Acumulado no Ano */}
             <Card
-              className={`p-6 lg:col-span-7 transition-all duration-300 ${
+              className={`p-4 lg:col-span-6 transition-all duration-300 ${
                 isDarkMode
                   ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
                   : "bg-white border border-gray-200 shadow-sm"
               }`}
             >
-              <div className="mb-6">
+              <div className="mb-4">
                 <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>
                   Evolução do Lucro (Acumulado no Ano)
                 </h3>
@@ -675,15 +678,16 @@ export default function Dashboard() {
                 }
             
                 return dataAcumulada.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart
-                      data={dataAcumulada}
-                      style={{
-                        backgroundColor: isDarkMode ? "transparent" : "#ffffff",
-                        borderRadius: "8px",
-                        padding: "4px",
-                      }}
-                    >
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart
+                    data={dataAcumulada}
+                    margin={{ top: 5, right: 5, bottom: 5, left: 0 }}   // 🔥 bordas internas reduzidas
+                    style={{
+                      backgroundColor: isDarkMode ? "transparent" : "#ffffff",
+                      borderRadius: "8px",
+                      padding: "0px",   // 🔥 remove bordas internas
+                    }}
+                  >
                       <CartesianGrid
                         strokeDasharray="3 3"
                         stroke={isDarkMode ? "hsl(var(--border))" : "#e2e8f0"}
@@ -730,15 +734,15 @@ export default function Dashboard() {
               })()}
             </Card>
 
-          {/* MINI HEATMAP – Motivação × Autoavaliação */}
+         {/* MINI HEATMAP – Motivação × Autoavaliação */}
           <Card
-            className={`p-6 lg:col-span-5 transition-all duration-300 ${
+            className={`p-4 lg:col-span-6 transition-all duration-300 ${
               isDarkMode
                 ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
                 : "bg-white border border-gray-200 shadow-sm"
             }`}
           >
-            <div className="mb-6">
+            <div className="mb-4">
               <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>
                 Motivação × Autoavaliação (Lucro)
               </h3>
@@ -746,6 +750,53 @@ export default function Dashboard() {
                 Lucro total por combinação (Heatmap compacto)
               </p>
             </div>
+          
+            {/* TOOLTIP CUSTOMIZADO */}
+            {tooltipData && (
+              <div
+                style={{
+                  position: "fixed",
+                  left: tooltipPos.x + 12,
+                  top: tooltipPos.y + 12,
+                  backgroundColor: isDarkMode
+                    ? "rgba(20,20,30,0.92)"
+                    : "rgba(255,255,255,0.96)",
+                  border: isDarkMode
+                    ? "1px solid hsl(var(--border))"
+                    : "1px solid #cbd5e1",
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                  color: isDarkMode ? "#f8fafc" : "#0f172a",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  boxShadow: "0 0 10px rgba(0,0,0,0.25)",
+                  backdropFilter: "blur(6px)",
+                  pointerEvents: "none",
+                  zIndex: 9999,
+                  minWidth: "160px",
+                }}
+              >
+                <div style={{ fontWeight: 700, marginBottom: 6, color: "#0099DD" }}>
+                  {tooltipData.motivacao}
+                </div>
+          
+                <div style={{ marginBottom: 4 }}>
+                  Avaliação: <b>{tooltipData.avaliacao}</b>
+                </div>
+          
+                <div style={{ color: tooltipData.lucro >= 0 ? "#16a34a" : "#dc2626" }}>
+                  Lucro: <b>R$ {tooltipData.lucro.toFixed(2).replace(".", ",")}</b>
+                </div>
+          
+                <div style={{ color: tooltipData.roi >= 0 ? "#3b82f6" : "#ef4444" }}>
+                  ROI: <b>{tooltipData.roi.toFixed(2).replace(".", ",")}%</b>
+                </div>
+          
+                <div style={{ fontSize: 11, opacity: 0.8, marginTop: 4 }}>
+                  {tooltipData.quantidade} operações
+                </div>
+              </div>
+            )}
           
             {/* Cabeçalho: Autoavaliações */}
             <div className="grid grid-cols-[140px_repeat(auto-fit,minmax(20px,1fr))] gap-2 mb-2">
@@ -772,33 +823,40 @@ export default function Dashboard() {
                     {linha.motivacao}
                   </div>
           
-                  {/* Células compactas */}
+                  {/* Células */}
                   {avaliacoes.map((av) => {
                     const cell = linha[av];
                     const lucro = cell.lucro;
                     const quantidade = cell.quantidade;
                     const roi = cell.roi;
           
-                    // Cores compactas
+                    // Cores do heatmap
                     let cor = "rgba(0,0,0,0.05)";
                     if (lucro > 0) {
                       cor = `rgba(0,153,221,${
                         0.25 + Math.min(Math.abs(lucro) / 200, 0.7)
-                      })`; // azul MindTrade
+                      })`;
                     } else if (lucro < 0) {
                       cor = `rgba(220,38,38,${
                         0.25 + Math.min(Math.abs(lucro) / 200, 0.7)
-                      })`; // vermelho elegante
+                      })`;
                     }
           
                     return (
                       <div
                         key={av}
-                        title={`Motivação: ${linha.motivacao}
-          Avaliação: ${av}
-          Lucro: R$ ${lucro.toFixed(2)}
-          ROI: ${roi.toFixed(2)}%
-          Ops: ${quantidade}`}
+                        onMouseEnter={(e) => {
+                          const rect = e.target.getBoundingClientRect();
+                          setTooltipPos({ x: rect.left, y: rect.top });
+                          setTooltipData({
+                            motivacao: linha.motivacao,
+                            avaliacao: av,
+                            lucro,
+                            roi,
+                            quantidade,
+                          });
+                        }}
+                        onMouseLeave={() => setTooltipData(null)}
                         className="w-full h-6 rounded-md border transition-all hover:scale-[1.08] cursor-pointer"
                         style={{
                           backgroundColor: cor,
@@ -816,13 +874,13 @@ export default function Dashboard() {
 
           {/* Gráfico de Lucro e ROI por Mercado */}
           <Card
-            className={`p-6 lg:col-span-6 ${
+            className={`p-4 lg:col-span-6 ${
               isDarkMode
                 ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
                 : "bg-white border border-gray-200 shadow-sm"
             }`}
           >
-            <div className="mb-6">
+            <div className="mb-4">
               <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>Lucro e ROI por Mercado</h3>
             </div>
 
@@ -1028,13 +1086,13 @@ export default function Dashboard() {
 
           {/* Resultado por Estado Emocional */}
           <Card
-            className={`p-6 lg:col-span-6 transition-all ${
+            className={`p-4 lg:col-span-6 transition-all ${
               isDarkMode
                 ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
                 : "bg-white border border-gray-200 shadow-sm"
             }`}
           >
-            <div className="mb-6">
+            <div className="mb-4">
               <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>Lucro e ROI por Estado Emocional</h3>
               {/*<p className="text-sm text-muted-foreground">Lucro e ROI por estado</p>*/}
             </div>
@@ -1266,13 +1324,13 @@ export default function Dashboard() {
         // COMPONENTE DO GRÁFICO
         // =======================*/}
         <Card
-          className={`p-6 lg:col-span-6 transition-all ${
+          className={`p-4 lg:col-span-6 transition-all ${
             isDarkMode
               ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
               : "bg-white border border-gray-200 shadow-sm"
-          } mt-6`}
+          } mt-2`}
         >
-          <div className="mb-6">
+          <div className="mb-4">
             <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>Performance por Método</h3>
             <p className="text-sm text-muted-foreground">
               Relação entre Lucro (R$), ROI (%) e número de operações
@@ -1611,23 +1669,23 @@ export default function Dashboard() {
         {/* Análise Comportamental */}
         {(seguiuPlanoSim.length > 0 || seguiuPlanoNao.length > 0) && (
           <Card
-            className={`p-6 mt-6 ${
+            className={`p-4 mt-4 ${
               isDarkMode
                 ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20"
                 : "bg-white border border-gray-200 shadow-sm"
             }`}
           >
-            <div className="mb-6">
+            <div className="mb-4">
               <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>Análise Comportamental</h3>
               <p className="text-sm text-muted-foreground">
                 Impacto de seguir o método de trading
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Card: Seguiu o Método */}
               <div
-                className={`p-6 rounded-lg border transition-all ${
+                className={`p-4 rounded-lg border transition-all ${
                   isDarkMode
                     ? "bg-card border-primary/20"
                     : "bg-gray-50 border-gray-200 shadow-sm"
@@ -1672,7 +1730,7 @@ export default function Dashboard() {
 
               {/* Card: Não Seguiu o Método */}
               <div
-                className={`p-6 rounded-lg border transition-all ${
+                className={`p-4 rounded-lg border transition-all ${
                   isDarkMode
                     ? "bg-card border-primary/20"
                     : "bg-gray-50 border-gray-200 shadow-sm"
