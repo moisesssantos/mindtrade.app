@@ -512,18 +512,20 @@ export default function Dashboard() {
                     return (
                       <React.Fragment key={index}>
                         <div
-                          className={`flex items-center gap-1 min-w-[120px] pr-2 ${
+                          className={`flex flex-col justify-center w-[130px] overflow-hidden ${
                             dia.temDados ? "" : "opacity-50"
                           }`}
                         >
-                          <span className="text-primary font-bold">
-                            {format(dia.data, "EEEE", { locale: ptBR }).charAt(0).toUpperCase()}
-                          </span>
-                          <span className="font-bold">
-                            {format(dia.data, "dd/MM")}
-                          </span>
+                          <div className="flex gap-1 items-center truncate">
+                            <span className="text-primary font-bold">
+                              {format(dia.data, "EEEE", { locale: ptBR }).charAt(0).toUpperCase()}
+                            </span>
+                            <span className="font-bold">
+                              {format(dia.data, "dd/MM")}
+                            </span>
+                          </div>
                           {dia.temDados ? (
-                            <>
+                            <div className="flex gap-1 items-center truncate">
                               <span className={`${lucroCor}`}>
                                 {dia.percentualBanca >= 0 ? "+" : ""}
                                 {dia.percentualBanca.toFixed(1).replace(".", ",")}%
@@ -532,7 +534,7 @@ export default function Dashboard() {
                                 R$ {Math.abs(dia.lucro).toFixed(2).replace(".", ",")}
                               </span>
                               <span className="text-muted-foreground">{dia.operacoes} Op.</span>
-                            </>
+                            </div>
                           ) : (
                             <span className="text-muted-foreground">Sem dados</span>
                           )}
@@ -540,7 +542,7 @@ export default function Dashboard() {
             
                         {/* Separador visual */}
                         {index < dadosSemana.length - 1 && (
-                          <span className="text-muted-foreground pr-2">|</span>
+                          <span className="text-muted-foreground px-2">|</span>
                         )}
                       </React.Fragment>
                     );
