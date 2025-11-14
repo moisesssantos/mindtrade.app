@@ -736,45 +736,35 @@ export default function Dashboard() {
 
          {/* MINI HEATMAP – Motivação × Autoavaliação */}
           <Card
-            className={`p-4 lg:col-span-6 transition-all duration-300 ${
+            className={`relative p-4 lg:col-span-6 transition-all duration-300 overflow-visible ${
               isDarkMode
                 ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
                 : "bg-white border border-gray-200 shadow-sm"
             }`}
           >
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>
-                Motivação × Autoavaliação (Lucro)
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Lucro total por combinação (Heatmap compacto)
-              </p>
-            </div>
           
-            {/* ======================  
-                🔥 TOOLTIP GLOBAL  
-                ====================== */}
+            {/* TOOLTIP ABSOLUTO */}
             {tooltipData && (
               <div
                 style={{
                   position: "fixed",
-                  left: tooltipPos.x + 12,
-                  top: tooltipPos.y + 12,
+                  left: tooltipPos.x + 15,
+                  top: tooltipPos.y + 15,
                   backgroundColor: isDarkMode
-                    ? "rgba(20,20,30,0.92)"
+                    ? "rgba(20,20,30,0.95)"
                     : "rgba(255,255,255,0.96)",
                   border: isDarkMode
                     ? "1px solid hsl(var(--border))"
                     : "1px solid #cbd5e1",
-                  padding: "8px 12px",
+                  padding: "10px 14px",
                   borderRadius: "8px",
                   color: isDarkMode ? "#f8fafc" : "#0f172a",
                   fontSize: 12,
                   fontWeight: 600,
-                  boxShadow: "0 0 12px rgba(0,0,0,0.28)",
+                  boxShadow: "0 0 12px rgba(0,0,0,0.30)",
                   backdropFilter: "blur(6px)",
                   pointerEvents: "none",
-                  zIndex: 99999,
+                  zIndex: 999999, // 🔥 tooltip sempre acima de tudo
                   minWidth: "160px",
                 }}
               >
@@ -800,6 +790,15 @@ export default function Dashboard() {
               </div>
             )}
           
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>
+                Motivação × Autoavaliação (Lucro)
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Lucro total por combinação (Heatmap compacto)
+              </p>
+            </div>
+          
             {/* Cabeçalho: Autoavaliações */}
             <div className="grid grid-cols-[140px_repeat(auto-fit,minmax(20px,1fr))] gap-2 mb-2">
               <div></div>
@@ -813,7 +812,7 @@ export default function Dashboard() {
               ))}
             </div>
           
-            {/* Linhas do Heatmap */}
+            {/* Linhas */}
             <div className="flex flex-col gap-3">
               {heatmapMini.map((linha) => (
                 <div
@@ -825,14 +824,14 @@ export default function Dashboard() {
                     {linha.motivacao}
                   </div>
           
-                  {/* Células */}
+                  {/* CÉLULAS */}
                   {avaliacoes.map((av) => {
                     const cell = linha[av];
                     const lucro = cell.lucro;
                     const quantidade = cell.quantidade;
                     const roi = cell.roi;
           
-                    // Cor dinâmica da célula
+                    // COR DO HEATMAP
                     let cor = "rgba(0,0,0,0.05)";
                     if (lucro > 0) {
                       cor = `rgba(0,153,221,${
@@ -847,20 +846,6 @@ export default function Dashboard() {
                     return (
                       <div
                         key={av}
-                        onMouseEnter={(e) => {
-                          setTooltipData({
-                            motivacao: linha.motivacao,
-                            avaliacao: av,
-                            lucro,
-                            roi,
-                            quantidade,
-                          });
-                          setTooltipPos({ x: e.clientX, y: e.clientY });
-                        }}
-                        onMouseMove={(e) => {
-                          setTooltipPos({ x: e.clientX, y: e.clientY });
-                        }}
-                        onMouseLeave={() => setTooltipData(null)}
                         className="w-full h-6 rounded-md border transition-all hover:scale-[1.08] cursor-pointer"
                         style={{
                           backgroundColor: cor,
@@ -868,6 +853,18 @@ export default function Dashboard() {
                             ? "rgba(255,255,255,0.1)"
                             : "rgba(0,0,0,0.1)",
                         }}
+                        onMouseEnter={(e) => {
+                          const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                          setTooltipPos({ x: rect.left, y: rect.top });
+                          setTooltipData({
+                            motivacao: linha.motivacao,
+                            avaliacao: av,
+                            lucro,
+                            roi,
+                            quantidade,
+                          });
+                        }}
+                        onMouseLeave={() => setTooltipData(null)}
                       ></div>
                     );
                   })}
