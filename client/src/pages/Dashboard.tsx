@@ -478,77 +478,82 @@ export default function Dashboard() {
         </div>
 
           {/* Linha compacta de Resultados Semanais */}
-          <Card
-            className={`p-4 mb-6 transition-all duration-300 ${
-              isDarkMode
-                ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
-                : "bg-white border border-gray-200 shadow-sm"
-            }`}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold text-muted-foreground">
-                Visão semanal (linha compacta)
-              </h3>
-              <div className="flex items-center gap-1">
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => setSemanaBase(subDays(semanaBase, 1))}
-                  className="h-6 w-6"
-                >
-                  <ChevronLeft className="w-3 h-3" />
-                </Button>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => setSemanaBase(addDays(semanaBase, 1))}
-                  className="h-6 w-6"
-                >
-                  <ChevronRight className="w-3 h-3" />
-                </Button>
-              </div>
-            </div>
-          
-            <div className="overflow-x-auto">
-              <div className="flex gap-4 text-sm font-mono whitespace-nowrap">
-                {dadosSemana.map((dia, index) => {
-                  const lucroPositivo = dia.percentualBanca >= 0;
-                  const lucroCor = lucroPositivo
-                    ? isDarkMode
-                      ? "text-green-400"
-                      : "text-green-600"
-                    : isDarkMode
-                    ? "text-red-400"
-                    : "text-red-600";
-          
-                  return (
-                    <div
-                      key={index}
-                      className={`flex items-center gap-1 ${
-                        dia.temDados ? "" : "opacity-50"
-                      }`}
-                    >
-                      <span className="font-bold">{dia.diaSemana}</span>
-                      {dia.temDados ? (
-                        <>
-                          <span className={`${lucroCor}`}>
-                            {dia.percentualBanca >= 0 ? "+" : ""}
-                            {dia.percentualBanca.toFixed(1).replace(".", ",")}%
+            <Card
+              className={`p-4 mb-6 transition-all duration-300 ${
+                isDarkMode
+                  ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
+                  : "bg-white border border-gray-200 shadow-sm"
+              }`}
+            >
+              <div className="overflow-x-auto">
+                <div className="flex items-center gap-4 text-sm font-mono whitespace-nowrap">
+                  {/* Seta esquerda */}
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setSemanaBase(subDays(semanaBase, 1))}
+                    className="h-6 w-6 shrink-0"
+                  >
+                    <ChevronLeft className="w-3 h-3" />
+                  </Button>
+            
+                  {/* Dias da semana */}
+                  {dadosSemana.map((dia, index) => {
+                    const lucroPositivo = dia.percentualBanca >= 0;
+                    const lucroCor = lucroPositivo
+                      ? isDarkMode
+                        ? "text-green-400"
+                        : "text-green-600"
+                      : isDarkMode
+                      ? "text-red-400"
+                      : "text-red-600";
+            
+                    return (
+                      <React.Fragment key={index}>
+                        <div
+                          className={`flex items-center gap-1 ${
+                            dia.temDados ? "" : "opacity-50"
+                          }`}
+                        >
+                          <span className="font-bold">
+                            {format(dia.data, "EEE dd/MM", { locale: ptBR })}
                           </span>
-                          <span className={`${lucroCor}`}>
-                            R$ {Math.abs(dia.lucro).toFixed(2).replace(".", ",")}
-                          </span>
-                          <span className="text-muted-foreground">{dia.operacoes} Op.</span>
-                        </>
-                      ) : (
-                        <span className="text-muted-foreground">Sem dados</span>
-                      )}
-                    </div>
-                  );
-                })}
+                          {dia.temDados ? (
+                            <>
+                              <span className={`${lucroCor}`}>
+                                {dia.percentualBanca >= 0 ? "+" : ""}
+                                {dia.percentualBanca.toFixed(1).replace(".", ",")}% 
+                              </span>
+                              <span className={`${lucroCor}`}>
+                                R$ {Math.abs(dia.lucro).toFixed(2).replace(".", ",")}
+                              </span>
+                              <span className="text-muted-foreground">{dia.operacoes} Op.</span>
+                            </>
+                          ) : (
+                            <span className="text-muted-foreground">Sem dados</span>
+                          )}
+                        </div>
+            
+                        {/* Separador visual */}
+                        {index < dadosSemana.length - 1 && (
+                          <span className="text-muted-foreground">|</span>
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+            
+                  {/* Seta direita */}
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setSemanaBase(addDays(semanaBase, 1))}
+                    className="h-6 w-6 shrink-0"
+                  >
+                    <ChevronRight className="w-3 h-3" />
+                  </Button>
+                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
 
           {/* Grid de gráficos e demais cards */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">    
