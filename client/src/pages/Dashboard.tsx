@@ -355,7 +355,7 @@ export default function Dashboard() {
     };
   });
 
-  const textoSemana = `${format(inicioSemana, "d", { locale: ptBR })} - ${format(fimSemana, "d MMM yyyy", { locale: ptBR })}`;
+  const textoSemana = `${format(semanaBase, "d", { locale: ptBR })} - ${format(addDays(semanaBase, 6), "d MMM yyyy", { locale: ptBR })}`;
 
   // Agregações por Estratégia
   const porEstrategia = (estrategias || [])
