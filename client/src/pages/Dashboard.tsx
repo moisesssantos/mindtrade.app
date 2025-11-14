@@ -303,6 +303,41 @@ export default function Dashboard() {
     };
   });
 
+    // ===============================
+    // 🔥 HEATMAP – MOTIVAÇÃO × AUTOAVALIAÇÃO
+    // ===============================
+    
+    // Lista dinâmica de autoavaliações (valores reais do BD)
+    const avaliacoes = [
+      ...new Set(itens.map((i) => i.autoavaliacao).filter(Boolean))
+    ];
+    
+    // Lista dinâmica de motivações (valores reais do BD)
+    const motivacoes = [
+      ...new Set(itens.map((i) => i.motivacaoEntrada).filter(Boolean))
+    ];
+    
+    // Matriz base (linhas = motivações)
+    const heatmapMatrix = motivacoes.map((motivacao) => {
+      const linha: Record<string, any> = { motivacao };
+      avaliacoes.forEach((av) => (linha[av] = 0));
+      return linha;
+    });
+    
+    // Preencher com contagens reais
+    itens.forEach((item) => {
+      if (!item.motivacaoEntrada || !item.autoavaliacao) return;
+    
+      const linha = heatmapMatrix.find(
+        (l) => l.motivacao === item.motivacaoEntrada
+      );
+    
+      if (linha && linha[item.autoavaliacao] !== undefined) {
+        linha[item.autoavaliacao] += 1;
+      }
+    });
+
+  
   // Dados da semana (7 dias baseado na semanaBase)
   const diasDaSemana = Array.from({ length: 7 }, (_, i) => addDays(semanaBase, i));
 
@@ -685,7 +720,7 @@ export default function Dashboard() {
               })()}
             </Card>
 
-          {/* Resultados Semanais */}
+          {/* HEATMAP – Motivação × Autoavaliação */}
           <Card
             className={`p-6 lg:col-span-5 transition-all duration-300 ${
               isDarkMode
@@ -693,105 +728,95 @@ export default function Dashboard() {
                 : "bg-white border border-gray-200 shadow-sm"
             }`}
           >
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>Resultados Semanais</h3>
-              <div className="flex items-center gap-1">
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => setSemanaBase(subDays(semanaBase, 7))}
-                  data-testid="button-semana-anterior"
-                  className="h-6 w-6"
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>
+                Motivação × Autoavaliação
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Frequência das combinações (Heatmap)
+              </p>
+            </div>
+          
+            {heatmapMatrix.length > 0 ? (
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart
+                  data={heatmapMatrix}
+                  layout="vertical"
+                  margin={{ top: 10, right: 10, bottom: 20, left: 10 }}
                 >
-                  <ChevronLeft className="w-3 h-3" />
-                </Button>
-                <span className="text-sm font-medium text-muted-foreground">
-                  {textoSemana}
-                </span>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => setSemanaBase(addDays(semanaBase, 7))}
-                  data-testid="button-semana-proxima"
-                  className="h-6 w-6"
-                >
-                  <ChevronRight className="w-3 h-3" />
-                </Button>
+                  {/* Grade */}
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke={isDarkMode ? "hsl(var(--border))" : "#e2e8f0"}
+                  />
+          
+                  {/* Eixo Y — Motivações */}
+                  <YAxis
+                    type="category"
+                    dataKey="motivacao"
+                    width={140}
+                    stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"}
+                    fontSize={12}
+                  />
+          
+                  {/* Eixo X — escala numérica */}
+                  <XAxis
+                    type="number"
+                    stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"}
+                    fontSize={12}
+                  />
+          
+                  {/* Tooltip de vidro */}
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: isDarkMode
+                        ? "rgba(20,20,30,0.9)"
+                        : "rgba(255,255,255,0.95)",
+                      borderRadius: "8px",
+                      border: isDarkMode
+                        ? "1px solid hsl(var(--border))"
+                        : "1px solid #cbd5e1",
+                      color: isDarkMode ? "white" : "black",
+                      backdropFilter: "blur(6px)",
+                    }}
+                    formatter={(value, name) => [`${value}x`, name]}
+                    cursor={{ fill: "transparent" }}
+                  />
+          
+                  {/* Barras empilhadas para formar o heatmap */}
+                  {avaliacoes.map((av) => (
+                    <Bar key={av} dataKey={av} stackId="heat" barSize={32}>
+                      {heatmapMatrix.map((row, i) => {
+                        const valor = row[av];
+          
+                        const maxValor = Math.max(
+                          ...heatmapMatrix.map((m) =>
+                            Math.max(...avaliacoes.map((a) => m[a]))
+                          )
+                        );
+          
+                        const intensidade = maxValor > 0 ? valor / maxValor : 0;
+          
+                        // Azul MindTrade com intensidade
+                        const cor = `rgba(0,153,221,${
+                          0.15 + intensidade * 0.7
+                        })`;
+          
+                        return <Cell key={i} fill={cor} />;
+                      })}
+                    </Bar>
+                  ))}
+          
+                  {/* Legenda automática */}
+                  <Legend />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-[400px] flex items-center justify-center text-muted-foreground">
+                Nenhum dado disponível
               </div>
-            </div>
-
-            <div className="space-y-1.5">
-              {dadosSemana.map((dia, index) => {
-                const lucroPositivo = dia.percentualBanca >= 0;
-                const lucroCor = lucroPositivo
-                  ? isDarkMode
-                    ? "text-green-400"
-                    : "text-green-600"
-                  : isDarkMode
-                  ? "text-red-400"
-                  : "text-red-600";
-
-                const lucroCorSuave = lucroPositivo
-                  ? isDarkMode
-                    ? "text-green-400/80"
-                    : "text-green-600/80"
-                  : isDarkMode
-                  ? "text-red-400/80"
-                  : "text-red-600/80";
-
-                return (
-                  <div
-                    key={index}
-                    className={`p-3 rounded-lg border transition-all ${
-                      dia.temDados
-                        ? isDarkMode
-                          ? "bg-card hover:bg-card/80 border-primary/20"
-                          : "bg-gray-50 hover:bg-gray-100 border-gray-200 shadow-sm"
-                        : "opacity-50 bg-muted/20"
-                    }`}
-                    onClick={() => dia.temDados && navigate("/operacoes")}
-                    data-testid={`card-dia-${index}`}
-                  >
-                    {dia.temDados ? (
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-sm min-w-[32px]">
-                          {dia.diaSemana}
-                        </span>
-                        <div className="flex items-center gap-3">
-                          <span
-                            className={`font-mono font-bold text-sm ${lucroCor}`}
-                          >
-                            {dia.percentualBanca >= 0 ? "+" : ""}
-                            {dia.percentualBanca.toFixed(1).replace(".", ",")}%
-                          </span>
-                          <span
-                            className={`font-mono text-sm ${lucroCorSuave}`}
-                          >
-                            R$ {Math.abs(dia.lucro).toFixed(2).replace(".", ",")}
-                          </span>
-                          <span className="text-xs text-muted-foreground min-w-[42px] text-right">
-                            {dia.operacoes} Op.
-                          </span>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-sm min-w-[32px]">
-                          {dia.diaSemana}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          Sem dados
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+            )}
           </Card>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
           {/* Gráfico de Lucro e ROI por Mercado */}
           <Card
