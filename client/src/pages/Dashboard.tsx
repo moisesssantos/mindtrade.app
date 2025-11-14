@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import MetricCard from "@/components/MetricCard";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import React from "react";
 import {
   TrendingUp,
   Target,
