@@ -486,72 +486,76 @@ export default function Dashboard() {
                   : "bg-white border border-gray-200 shadow-sm"
               }`}
             >
-              <div className="flex flex-wrap items-center gap-4 text-sm font-mono">
-                {/* Seta esquerda */}
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => setSemanaBase(subDays(semanaBase, 1))}
-                  className="h-6 w-6 shrink-0"
-                >
-                  <ChevronLeft className="w-3 h-3" />
-                </Button>
+              <div className="overflow-x-auto">
+                <div className="flex items-center gap-4 text-sm font-mono whitespace-nowrap">
+                  {/* Seta esquerda */}
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setSemanaBase(subDays(semanaBase, 1))}
+                    className="h-6 w-6 shrink-0"
+                  >
+                    <ChevronLeft className="w-3 h-3" />
+                  </Button>
             
-                {/* Dias da semana */}
-                {dadosSemana.map((dia, index) => {
-                  const lucroPositivo = dia.percentualBanca >= 0;
-                  const lucroCor = lucroPositivo
-                    ? isDarkMode
-                      ? "text-green-400"
-                      : "text-green-600"
-                    : isDarkMode
-                    ? "text-red-400"
-                    : "text-red-600";
+                  {/* Dias da semana */}
+                  {dadosSemana.map((dia, index) => {
+                    const lucroPositivo = dia.percentualBanca >= 0;
+                    const lucroCor = lucroPositivo
+                      ? isDarkMode
+                        ? "text-green-400"
+                        : "text-green-600"
+                      : isDarkMode
+                      ? "text-red-400"
+                      : "text-red-600";
             
-                  return (
-                    <React.Fragment key={index}>
-                      <div
-                        className={`flex items-center gap-1 min-w-[120px] ${
-                          dia.temDados ? "" : "opacity-50"
-                        }`}
-                      >
-                        <span className="font-bold">
-                          {format(dia.data, "EEEE", { locale: ptBR }).charAt(0).toUpperCase()}{" "}
-                          {format(dia.data, "dd/MM")}
-                        </span>
-                        {dia.temDados ? (
-                          <>
-                            <span className={`${lucroCor}`}>
-                              {dia.percentualBanca >= 0 ? "+" : ""}
-                              {dia.percentualBanca.toFixed(1).replace(".", ",")}%
-                            </span>
-                            <span className={`${lucroCor}`}>
-                              R$ {Math.abs(dia.lucro).toFixed(2).replace(".", ",")}
-                            </span>
-                            <span className="text-muted-foreground">{dia.operacoes} Op.</span>
-                          </>
-                        ) : (
-                          <span className="text-muted-foreground">Sem dados</span>
+                    return (
+                      <React.Fragment key={index}>
+                        <div
+                          className={`flex items-center gap-1 min-w-[110px] ${
+                            dia.temDados ? "" : "opacity-50"
+                          }`}
+                        >
+                          <span className="text-primary font-bold">
+                            {format(dia.data, "EEEE", { locale: ptBR }).charAt(0).toUpperCase()}
+                          </span>
+                          <span className="font-bold">
+                            {format(dia.data, "dd/MM")}
+                          </span>
+                          {dia.temDados ? (
+                            <>
+                              <span className={`${lucroCor}`}>
+                                {dia.percentualBanca >= 0 ? "+" : ""}
+                                {dia.percentualBanca.toFixed(1).replace(".", ",")}%
+                              </span>
+                              <span className={`${lucroCor}`}>
+                                R$ {Math.abs(dia.lucro).toFixed(2).replace(".", ",")}
+                              </span>
+                              <span className="text-muted-foreground">{dia.operacoes} Op.</span>
+                            </>
+                          ) : (
+                            <span className="text-muted-foreground">Sem dados</span>
+                          )}
+                        </div>
+            
+                        {/* Separador visual */}
+                        {index < dadosSemana.length - 1 && (
+                          <span className="text-muted-foreground">|</span>
                         )}
-                      </div>
+                      </React.Fragment>
+                    );
+                  })}
             
-                      {/* Separador visual */}
-                      {index < dadosSemana.length - 1 && (
-                        <span className="text-muted-foreground">|</span>
-                      )}
-                    </React.Fragment>
-                  );
-                })}
-            
-                {/* Seta direita */}
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => setSemanaBase(addDays(semanaBase, 1))}
-                  className="h-6 w-6 shrink-0"
-                >
-                  <ChevronRight className="w-3 h-3" />
-                </Button>
+                  {/* Seta direita */}
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setSemanaBase(addDays(semanaBase, 1))}
+                    className="h-6 w-6 shrink-0"
+                  >
+                    <ChevronRight className="w-3 h-3" />
+                  </Button>
+                </div>
               </div>
             </Card>
 
