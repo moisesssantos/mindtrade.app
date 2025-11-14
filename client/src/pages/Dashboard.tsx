@@ -742,7 +742,6 @@ export default function Dashboard() {
                 : "bg-white border border-gray-200 shadow-sm"
             }`}
           >
-          
             {/* TOOLTIP ABSOLUTO */}
             {tooltipData && (
               <div
@@ -764,7 +763,7 @@ export default function Dashboard() {
                   boxShadow: "0 0 12px rgba(0,0,0,0.30)",
                   backdropFilter: "blur(6px)",
                   pointerEvents: "none",
-                  zIndex: 999999, // 🔥 tooltip sempre acima de tudo
+                  zIndex: 999999,
                   minWidth: "160px",
                 }}
               >
@@ -853,9 +852,8 @@ export default function Dashboard() {
                             ? "rgba(255,255,255,0.1)"
                             : "rgba(0,0,0,0.1)",
                         }}
-                        onMouseEnter={(e) => {
-                          const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                          setTooltipPos({ x: rect.left, y: rect.top });
+                        onMouseMove={(e) => {
+                          setTooltipPos({ x: e.clientX, y: e.clientY });
                           setTooltipData({
                             motivacao: linha.motivacao,
                             avaliacao: av,
