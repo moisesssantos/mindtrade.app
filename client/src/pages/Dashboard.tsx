@@ -486,8 +486,8 @@ export default function Dashboard() {
                   : "bg-white border border-gray-200 shadow-sm"
               }`}
             >
-              <div className="overflow-x-auto">
-                <div className="flex items-center gap-4 text-sm font-mono whitespace-nowrap">
+              <div className="overflow-hidden">
+                <div className="flex items-center gap-4 text-sm font-mono">
                   {/* Seta esquerda */}
                   <Button
                     size="icon"
@@ -523,7 +523,7 @@ export default function Dashboard() {
                             <>
                               <span className={`${lucroCor}`}>
                                 {dia.percentualBanca >= 0 ? "+" : ""}
-                                {dia.percentualBanca.toFixed(1).replace(".", ",")}% 
+                                {dia.percentualBanca.toFixed(1).replace(".", ",")}%
                               </span>
                               <span className={`${lucroCor}`}>
                                 R$ {Math.abs(dia.lucro).toFixed(2).replace(".", ",")}
