@@ -480,25 +480,27 @@ export default function Dashboard() {
 
             {/* Linha compacta de Resultados Semanais */}
               <Card
-                className={`p-4 mb-6 transition-all duration-300 ${
+                className={`relative p-4 mb-6 transition-all duration-300 overflow-hidden ${
                   isDarkMode
                     ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
                     : "bg-white border border-gray-200 shadow-sm"
                 }`}
               >
-                <div className="overflow-x-auto scroll-smooth">
-                  <div className="flex items-center text-sm font-mono whitespace-nowrap flex-nowrap">
-                    {/* Seta esquerda */}
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => setSemanaBase(subDays(semanaBase, 1))}
-                      className="h-6 w-6 shrink-0 mr-2"
-                    >
-                      <ChevronLeft className="w-3 h-3" />
-                    </Button>
+                {/* Seta esquerda fixa */}
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-background">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setSemanaBase(subDays(semanaBase, 1))}
+                    className="h-8 w-8"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+                </div>
               
-                    {/* Dias da semana */}
+                {/* Conteúdo rolável */}
+                <div className="overflow-x-auto scroll-smooth px-10">
+                  <div className="flex items-center text-sm font-mono whitespace-nowrap flex-nowrap gap-3">
                     {dadosSemana.map((dia, index) => {
                       const lucroPositivo = dia.percentualBanca >= 0;
                       const lucroCor = lucroPositivo
@@ -512,11 +514,11 @@ export default function Dashboard() {
                       return (
                         <React.Fragment key={index}>
                           <div
-                            className={`flex flex-col justify-center items-start min-w-[130px] max-w-[130px] px-1 flex-shrink-0 ${
+                            className={`flex items-center gap-2 px-3 py-2 rounded-md min-w-max ${
                               dia.temDados ? "" : "opacity-50"
                             }`}
                           >
-                            <div className="flex gap-1 items-center w-full overflow-hidden text-ellipsis">
+                            <div className="flex gap-1 items-center">
                               <span className="text-primary font-bold">
                                 {format(dia.data, "EEEE", { locale: ptBR }).charAt(0).toUpperCase()}
                               </span>
@@ -524,13 +526,14 @@ export default function Dashboard() {
                                 {format(dia.data, "dd/MM")}
                               </span>
                             </div>
+              
                             {dia.temDados ? (
-                              <div className="flex gap-1 items-center w-full overflow-hidden text-ellipsis">
-                                <span className={`${lucroCor}`}>
+                              <div className="flex gap-1 items-center">
+                                <span className={lucroCor}>
                                   {dia.percentualBanca >= 0 ? "+" : ""}
                                   {dia.percentualBanca.toFixed(1).replace(".", ",")}%
                                 </span>
-                                <span className={`${lucroCor}`}>
+                                <span className={lucroCor}>
                                   R$ {Math.abs(dia.lucro).toFixed(2).replace(".", ",")}
                                 </span>
                                 <span className="text-muted-foreground">{dia.operacoes} Op.</span>
@@ -540,24 +543,25 @@ export default function Dashboard() {
                             )}
                           </div>
               
-                          {/* Separador visual */}
                           {index < dadosSemana.length - 1 && (
-                            <span className="text-muted-foreground px-2">|</span>
+                            <span className="text-muted-foreground">|</span>
                           )}
                         </React.Fragment>
                       );
                     })}
-              
-                    {/* Seta direita */}
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => setSemanaBase(addDays(semanaBase, 1))}
-                      className="h-6 w-6 shrink-0 ml-2"
-                    >
-                      <ChevronRight className="w-3 h-3" />
-                    </Button>
                   </div>
+                </div>
+              
+                {/* Seta direita fixa */}
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-background">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setSemanaBase(addDays(semanaBase, 1))}
+                    className="h-8 w-8"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
                 </div>
               </Card>
 
