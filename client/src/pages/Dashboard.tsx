@@ -744,11 +744,10 @@ export default function Dashboard() {
           >
             {/* TOOLTIP ABSOLUTO */}
             {tooltipData && (() => {
-
               // Evita tooltip sair da tela
-              const safeX = Math.min(tooltipPos.x + 15, window.innerWidth - 180);
-              const safeY = Math.min(tooltipPos.y + 15, window.innerHeight - 120);
-            
+              const safeX = Math.min(tooltipPos.x + 15, window.innerWidth - 200);
+              const safeY = Math.min(tooltipPos.y + 15, window.innerHeight - 140);
+          
               return (
                 <div
                   style={{
@@ -756,7 +755,7 @@ export default function Dashboard() {
                     left: safeX,
                     top: safeY,
                     backgroundColor: isDarkMode
-                      ? "rgba(20,20,30,0.97)"
+                      ? "#1e293b"
                       : "rgba(255,255,255,0.96)",
                     border: isDarkMode
                       ? "1px solid rgba(255,255,255,0.15)"
@@ -769,40 +768,40 @@ export default function Dashboard() {
                     boxShadow: "0 0 18px rgba(0,0,0,0.45)",
                     backdropFilter: "blur(6px)",
                     pointerEvents: "none",
-            
-                    // Força a ficar acima de tudo
                     zIndex: 2147483647,
                     transform: "translateZ(999px)",
+                    maxWidth: "260px",
                   }}
                 >
                   <div style={{ fontWeight: 700, marginBottom: 6, color: "#0099DD" }}>
                     {tooltipData.motivacao}
                   </div>
-            
+          
                   <div style={{ marginBottom: 4 }}>
                     Avaliação: <b>{tooltipData.avaliacao}</b>
                   </div>
-            
+          
                   <div style={{ color: tooltipData.lucro >= 0 ? "#16a34a" : "#dc2626" }}>
                     Lucro: <b>R$ {tooltipData.lucro.toFixed(2).replace(".", ",")}</b>
                   </div>
-            
+          
                   <div style={{ color: tooltipData.roi >= 0 ? "#3b82f6" : "#ef4444" }}>
                     ROI: <b>{tooltipData.roi.toFixed(2).replace(".", ",")}%</b>
                   </div>
-            
+          
                   <div style={{ fontSize: 11, opacity: 0.8, marginTop: 4 }}>
                     {tooltipData.quantidade} operações
                   </div>
                 </div>
               );
             })()}
-
+          
             <div className="mb-4">
               <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>
                 Motivação × Autoavaliação (Lucro)
               </h3>
               <p className="text-sm text-muted-foreground">
+                Lucro total por combinação (Heatmap compacto)
               </p>
             </div>
           
