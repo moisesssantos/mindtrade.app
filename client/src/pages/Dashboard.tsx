@@ -742,7 +742,7 @@ export default function Dashboard() {
                 : "bg-white border border-gray-200 shadow-sm"
             }`}
           >
-            {/* TOOLTIP ABSOLUTO */}
+            {/* TOOLTIP ABSOLUTO (blindado contra stacking do dark mode) */}
             {tooltipData && (() => {
               // Evita tooltip sair da tela
               const safeX = Math.min(tooltipPos.x + 15, window.innerWidth - 260);
@@ -754,9 +754,7 @@ export default function Dashboard() {
                     position: "fixed",
                     left: safeX,
                     top: safeY,
-                    backgroundColor: isDarkMode
-                      ? "#1e293b"
-                      : "rgba(255,255,255,0.96)",
+                    backgroundColor: isDarkMode ? "#1e293b" : "rgba(255,255,255,0.96)",
                     border: isDarkMode
                       ? "1px solid rgba(255,255,255,0.15)"
                       : "1px solid #cbd5e1",
@@ -767,11 +765,15 @@ export default function Dashboard() {
                     fontWeight: 600,
                     boxShadow: "0 0 18px rgba(0,0,0,0.45)",
                     backdropFilter: "blur(6px)",
+                    WebkitBackdropFilter: "blur(6px)", // <— compatibilidade
                     pointerEvents: "none",
                     zIndex: 2147483647,
                     maxWidth: "260px",
                     overflow: "hidden",
                     whiteSpace: "normal",
+                    // ⚠️ Blindagem contra efeitos do tema escuro
+                    isolation: "isolate",
+                    mixBlendMode: "normal",
                   }}
                 >
                   <div style={{ fontWeight: 700, marginBottom: 6, color: "#0099DD" }}>
@@ -782,11 +784,20 @@ export default function Dashboard() {
                     Avaliação: <b>{tooltipData.avaliacao}</b>
                   </div>
           
-                  <div style={{ color: tooltipData.lucro >= 0 ? "#16a34a" : "#dc2626" }}>
-                    Lucro: <b>R$ {tooltipData.lucro.toFixed(2).replace(".", ",")}</b>
+                  <div
+                    style={{
+                      color: tooltipData.lucro >= 0 ? "#16a34a" : "#dc2626",
+                    }}
+                  >
+                    Lucro:{" "}
+                    <b>R$ {tooltipData.lucro.toFixed(2).replace(".", ",")}</b>
                   </div>
           
-                  <div style={{ color: tooltipData.roi >= 0 ? "#3b82f6" : "#ef4444" }}>
+                  <div
+                    style={{
+                      color: tooltipData.roi >= 0 ? "#3b82f6" : "#ef4444",
+                    }}
+                  >
                     ROI: <b>{tooltipData.roi.toFixed(2).replace(".", ",")}%</b>
                   </div>
           
@@ -853,7 +864,8 @@ export default function Dashboard() {
                     return (
                       <div
                         key={av}
-                        className="w-full h-6 rounded-md border transition-all hover:scale-[1.08] cursor-pointer"
+                        // Removido hover:scale-[1.08] para evitar transform/stacking no dark
+                        className="w-full h-6 rounded-md border transition-[background-color,border-color] cursor-pointer"
                         style={{
                           backgroundColor: cor,
                           borderColor: isDarkMode
