@@ -789,7 +789,7 @@ export default function Dashboard() {
                     position: "fixed",
                     left: tooltipPos.x + 15,
                     top: tooltipPos.y + 15,
-                    transform: "translateZ(999px)", // força camada superior
+                    transform: "translateZ(999px)",
                     backgroundColor: isDarkMode
                       ? "rgba(30,41,59,0.88)"
                       : "rgba(255,255,255,0.96)",
@@ -811,42 +811,28 @@ export default function Dashboard() {
                 >
                   <div
                     style={{
-                      fontWeight: 700,
-                      marginBottom: 6,
                       color: tooltipData.lucro >= 0
-                        ? (isDarkMode ? "#22c55e" : "#16a34a") // VERDE OFICIAL
+                        ? (isDarkMode ? "#22c55e" : "#16a34a")
                         : "#dc2626",
+                      marginBottom: 4,
+                      fontSize: 12,
                     }}
                   >
-                    {tooltipData.motivacao}
+                    Lucro:{" "}
+                    <b>R$ {tooltipData.lucro.toFixed(2).replace(".", ",")}</b>
                   </div>
-          
-                  <div style={{ marginBottom: 4 }}>
-                    Avaliação: <b>{tooltipData.avaliacao}</b>
-                  </div>
-          
-                  <div
-                    style={{
-                      color: tooltipData.lucro >= 0
-                        ? (isDarkMode ? "#22c55e" : "#16a34a") // VERDE OFICIAL
-                        : "#dc2626",
-                    }}
-                  >
-                    Lucro:
-                    <b> R$ {tooltipData.lucro.toFixed(2).replace(".", ",")}</b>
-                  </div>
-          
+                
                   <div
                     style={{
                       color: tooltipData.roi >= 0 ? "#3b82f6" : "#ef4444",
-                      marginTop: 2,
+                      marginBottom: 4,
                     }}
                   >
-                    ROI:
-                    <b> {tooltipData.roi.toFixed(2).replace(".", ",")}%</b>
+                    ROI:{" "}
+                    <b>{tooltipData.roi.toFixed(2).replace(".", ",")}%</b>
                   </div>
-          
-                  <div style={{ fontSize: 11, opacity: 0.8, marginTop: 4 }}>
+                
+                  <div style={{ fontSize: 11, opacity: 0.65 }}>
                     {tooltipData.quantidade} operações
                   </div>
                 </div>
