@@ -904,6 +904,14 @@ export default function Dashboard() {
                         }}
                         onMouseMove={(e) => {
                           setTooltipPos({ x: e.clientX, y: e.clientY });
+                        
+                          console.log(
+                            "DARK?", isDarkMode,
+                            "MOVENDO",
+                            "Motivação:", linha.motivacao,
+                            "Avaliacao:", av
+                          );
+                        
                           setTooltipData({
                             motivacao: linha.motivacao,
                             avaliacao: av,
@@ -912,6 +920,7 @@ export default function Dashboard() {
                             quantidade,
                           });
                         }}
+
                         onMouseLeave={() => setTooltipData(null)}
                       ></div>
                     );
