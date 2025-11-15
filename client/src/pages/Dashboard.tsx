@@ -44,6 +44,11 @@ import {
 import { useLocation } from "wouter";
 import { format, addDays, subDays, startOfWeek, endOfWeek } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { createPortal } from "react-dom";
+
+function PortalTooltip({ children }) {
+  return createPortal(children, document.body);
+}
 
 type Operacao = {
   id: number;
@@ -776,21 +781,17 @@ export default function Dashboard() {
                 : "bg-white border border-gray-200 shadow-sm"
             }`}
           >
-            {/* TOOLTIP ABSOLUTO */}
-            {tooltipData && (() => {
-              // Evita tooltip sair da tela
-              const safeX = Math.min(tooltipPos.x + 15, window.innerWidth - 260);
-              const safeY = Math.min(tooltipPos.y + 15, window.innerHeight - 140);
-          
-              return (
+            {/* TOOLTIP VIA PORTAL */}
+            {tooltipData && (
+              <PortalTooltip>
                 <div
                   style={{
                     position: "fixed",
-                    isolation: "isolate", // 👈 força novo stacking context ALTO
-                    left: safeX,
-                    top: safeY,
+                    left: tooltipPos.x + 15,
+                    top: tooltipPos.y + 15,
+                    transform: "translateZ(999px)", // força camada superior
                     backgroundColor: isDarkMode
-                      ? "rgba(30,41,59,0.85)"
+                      ? "rgba(30,41,59,0.88)"
                       : "rgba(255,255,255,0.96)",
                     border: isDarkMode
                       ? "1px solid rgba(255,255,255,0.15)"
@@ -803,49 +804,59 @@ export default function Dashboard() {
                     boxShadow: "0 0 18px rgba(0,0,0,0.45)",
                     backdropFilter: "blur(8px)",
                     pointerEvents: "none",
-                    zIndex: 999999999, // 👈 mais alto do que qualquer container
+                    zIndex: 9999999999,
                     maxWidth: "260px",
-                    overflow: "hidden",
                     whiteSpace: "normal",
                   }}
                 >
-                  <div style={{
-                    fontWeight: 700,
-                    marginBottom: 6,
-                    color: isDarkMode ? "#38bdf8" : "#0099DD"  // 🔥 azul claro no dark
-                  }}>
+                  <div
+                    style={{
+                      fontWeight: 700,
+                      marginBottom: 6,
+                      color: tooltipData.lucro >= 0
+                        ? (isDarkMode ? "#22c55e" : "#16a34a") // VERDE OFICIAL
+                        : "#dc2626",
+                    }}
+                  >
                     {tooltipData.motivacao}
                   </div>
-                
+          
                   <div style={{ marginBottom: 4 }}>
                     Avaliação: <b>{tooltipData.avaliacao}</b>
                   </div>
-                
-                  <div style={{
-                    color: tooltipData.lucro >= 0
-                      ? (isDarkMode ? "#22c55e" : "#16a34a")  // verde igual aos cards
-                        : "#dc2626"
-                  }}>
-                    Lucro: <b>R$ {tooltipData.lucro.toFixed(2).replace(".", ",")}</b>
+          
+                  <div
+                    style={{
+                      color: tooltipData.lucro >= 0
+                        ? (isDarkMode ? "#22c55e" : "#16a34a") // VERDE OFICIAL
+                        : "#dc2626",
+                    }}
+                  >
+                    Lucro:
+                    <b> R$ {tooltipData.lucro.toFixed(2).replace(".", ",")}</b>
                   </div>
-                
-                  <div style={{
-                    color: tooltipData.roi >= 0 ? "#3b82f6" : "#ef4444"
-                  }}>
-                    ROI: <b>{tooltipData.roi.toFixed(2).replace(".", ",")}%</b>
+          
+                  <div
+                    style={{
+                      color: tooltipData.roi >= 0 ? "#3b82f6" : "#ef4444",
+                      marginTop: 2,
+                    }}
+                  >
+                    ROI:
+                    <b> {tooltipData.roi.toFixed(2).replace(".", ",")}%</b>
                   </div>
-                
+          
                   <div style={{ fontSize: 11, opacity: 0.8, marginTop: 4 }}>
                     {tooltipData.quantidade} operações
                   </div>
                 </div>
-              );
-            })()}
+              </PortalTooltip>
+            )}
           
             <div className="mb-4">
               <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>
                 Motivação × Autoavaliação (Lucro)
-              </h3>              
+              </h3>
             </div>
           
             {/* Cabeçalho: Autoavaliações */}
@@ -881,14 +892,17 @@ export default function Dashboard() {
                     const roi = cell.roi;
           
                     // COR DO HEATMAP
-                    let cor = "rgba(0,0,0,0.05)";
+                    let cor = isDarkMode
+                      ? "rgba(255,255,255,0.08)"
+                      : "rgba(0,0,0,0.05)";
+          
                     if (lucro > 0) {
-                      cor = `rgba(0,153,221,${
-                        0.25 + Math.min(Math.abs(lucro) / 200, 0.7)
-                      })`;
+                      cor = `rgba(16, 185, 129, ${
+                        0.25 + Math.min(Math.abs(lucro) / 200, 0.65)
+                      })`; // verde translúcido
                     } else if (lucro < 0) {
                       cor = `rgba(220,38,38,${
-                        0.25 + Math.min(Math.abs(lucro) / 200, 0.7)
+                        0.25 + Math.min(Math.abs(lucro) / 200, 0.65)
                       })`;
                     }
           
@@ -904,14 +918,6 @@ export default function Dashboard() {
                         }}
                         onMouseMove={(e) => {
                           setTooltipPos({ x: e.clientX, y: e.clientY });
-                        
-                          console.log(
-                            "DARK?", isDarkMode,
-                            "MOVENDO",
-                            "Motivação:", linha.motivacao,
-                            "Avaliacao:", av
-                          );
-                        
                           setTooltipData({
                             motivacao: linha.motivacao,
                             avaliacao: av,
@@ -920,7 +926,6 @@ export default function Dashboard() {
                             quantidade,
                           });
                         }}
-
                         onMouseLeave={() => setTooltipData(null)}
                       ></div>
                     );
