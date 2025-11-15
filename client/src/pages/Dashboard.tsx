@@ -121,25 +121,22 @@ export default function Dashboard() {
   // FUNÇÕES AUXILIARES
   // =======================
   
-  function getGradienteCor(lucro: number) {
-    const maxLucro = 200;
-    const minLucro = -200;
-    const clamped = Math.max(minLucro, Math.min(maxLucro, lucro));
-    const percent = (clamped - minLucro) / (maxLucro - minLucro); // 0 a 1
-  
-    // Interpolação entre vermelho → cinza → verde
-    const r = percent < 0.5
-      ? 220 + (128 - 220) * (percent / 0.5)
-      : 128 - (128 - 16) * ((percent - 0.5) / 0.5);
-    const g = percent < 0.5
-      ? 38 + (128 - 38) * (percent / 0.5)
-      : 128 + (185 - 128) * ((percent - 0.5) / 0.5);
-    const b = percent < 0.5
-      ? 38 + (128 - 38) * (percent / 0.5)
-      : 128 + (129 - 128) * ((percent - 0.5) / 0.5);
-  
-    return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
-  }
+  function getGradienteCor(lucro: number, min = -150, max = 150) {
+  const clamped = Math.max(min, Math.min(max, lucro));
+  const percent = (clamped - min) / (max - min); // 0 a 1
+
+  const r = percent < 0.5
+    ? 220 + (128 - 220) * (percent / 0.5)
+    : 128 - (128 - 16) * ((percent - 0.5) / 0.5);
+  const g = percent < 0.5
+    ? 38 + (128 - 38) * (percent / 0.5)
+    : 128 + (185 - 128) * ((percent - 0.5) / 0.5);
+  const b = percent < 0.5
+    ? 38 + (128 - 38) * (percent / 0.5)
+    : 128 + (129 - 128) * ((percent - 0.5) / 0.5);
+
+  return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+}
   
   const { data: relatoriosData, isLoading } = useQuery<{
     operacoes: Operacao[];
@@ -868,19 +865,22 @@ export default function Dashboard() {
             </div>
           
             {/* Legenda de escala de cores */}
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-xs text-red-600">−200</span>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs text-red-600">−150</span>
               <div className="flex-1 h-3 rounded-full bg-gradient-to-r from-red-600 via-gray-300 to-green-500" />
-              <span className="text-xs text-green-600">+200</span>
+              <span className="text-xs text-green-600">+150</span>
             </div>
           
             {/* Cabeçalho: Autoavaliações */}
-            <div className="grid grid-cols-[140px_repeat(auto-fit,minmax(20px,1fr))] gap-2 mb-2">
+            <div className="grid grid-cols-[140px_repeat(auto-fit,minmax(20px,1fr))] gap-0 mb-1">
               <div></div>
               {avaliacoes.map((av) => (
                 <div
                   key={av}
-                  className="text-[11px] text-center font-medium text-muted-foreground"
+                  className="text-[11px] text-center font-medium text-muted-foreground border-l"
+                  style={{
+                    borderColor: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
+                  }}
                 >
                   {av}
                 </div>
@@ -888,11 +888,20 @@ export default function Dashboard() {
             </div>
           
             {/* Linhas */}
-            <div className="flex flex-col gap-3">
-              {heatmapMini.map((linha) => (
+            <div className="flex flex-col gap-0">
+              {heatmapMini.map((linha, index) => (
                 <div
                   key={linha.motivacao}
-                  className="grid grid-cols-[140px_repeat(auto-fit,minmax(20px,1fr))] gap-2 items-center"
+                  className="grid grid-cols-[140px_repeat(auto-fit,minmax(20px,1fr))] items-center border-b"
+                  style={{
+                    backgroundColor:
+                      index % 2 === 0
+                        ? isDarkMode
+                          ? "rgba(255,255,255,0.02)"
+                          : "#f9fafb"
+                        : "transparent",
+                    borderColor: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
+                  }}
                 >
                   {/* Motivação */}
                   <div className="text-xs font-semibold text-primary">
@@ -909,12 +918,12 @@ export default function Dashboard() {
                     return (
                       <div
                         key={av}
-                        className="w-full h-6 border transition-all hover:scale-[1.08] cursor-pointer"
+                        className="w-full h-6 border border-l transition-all hover:scale-[1.08] cursor-pointer"
                         style={{
-                          backgroundColor: getGradienteCor(lucro),
+                          backgroundColor: getGradienteCor(lucro, -150, 150),
                           borderColor: isDarkMode
-                            ? "rgba(255,255,255,0.1)"
-                            : "rgba(0,0,0,0.1)",
+                            ? "rgba(255,255,255,0.08)"
+                            : "rgba(0,0,0,0.06)",
                           borderRadius: 0,
                         }}
                         onMouseMove={(e) => {
