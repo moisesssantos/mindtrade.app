@@ -703,20 +703,54 @@ export default function Dashboard() {
                         fontSize={12}
                       />
                       <Tooltip
+                        wrapperStyle={{ background: "none", boxShadow: "none" }}
                         contentStyle={{
-                          backgroundColor: isDarkMode
-                            ? "hsl(var(--popover))"
-                            : "rgba(255,255,255,0.9)",
-                          border: isDarkMode
-                            ? "1px solid hsl(var(--border))"
-                            : "1px solid #cbd5e1",
-                          borderRadius: "8px",
-                          color: isDarkMode ? "white" : "black",
+                          background: "none",
+                          border: "none",
+                          boxShadow: "none",
+                          padding: 0,
                         }}
-                        formatter={(value: number) =>
-                          `R$ ${value.toFixed(2).replace(".", ",")}`
-                        }
+                        cursor={{
+                          stroke: isDarkMode ? "hsl(var(--border))" : "#cbd5e1",
+                          strokeWidth: 1,
+                        }}
+                        content={({ active, payload }) => {
+                          if (active && payload && payload.length) {
+                            const p = payload[0].payload;
+                      
+                            return (
+                              <div
+                                style={{
+                                  backgroundColor: isDarkMode
+                                    ? "rgba(20,20,30,0.9)"
+                                    : "rgba(255,255,255,0.95)",
+                                  border: isDarkMode
+                                    ? "1px solid hsl(var(--border))"
+                                    : "1px solid #cbd5e1",
+                                  borderRadius: "8px",
+                                  padding: "8px 10px",
+                                  color: isDarkMode ? "#f8fafc" : "#0f172a",
+                                  fontSize: 13,
+                                  fontWeight: 600,
+                                  minWidth: "140px",
+                                  boxShadow: "0 0 8px rgba(0,0,0,0.3)",
+                                  backdropFilter: "blur(6px)",
+                                }}
+                              >
+                                <div style={{ fontWeight: 700, marginBottom: 4, color: "#0099DD" }}>
+                                  {p.dia}
+                                </div>
+                      
+                                <span style={{ color: p.acumulado >= 0 ? "#3b82f6" : "#ef4444" }}>
+                                  R$ {p.acumulado.toFixed(2).replace(".", ",")}
+                                </span>
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
                       />
+
                       <Line
                         type="monotone"
                         dataKey="acumulado"
@@ -947,49 +981,58 @@ export default function Dashboard() {
 
                   {/* Tooltip com efeito vidro */}
                   <Tooltip
+                    wrapperStyle={{ background: "none", boxShadow: "none" }}
                     contentStyle={{
-                      backgroundColor: isDarkMode
-                        ? "rgba(20,20,30,0.9)"
-                        : "rgba(255,255,255,0.9)",
-                      border: isDarkMode
-                        ? "1px solid hsl(var(--border))"
-                        : "1px solid #cbd5e1",
-                      borderRadius: "10px",
-                      color: isDarkMode ? "white" : "black",
-                      boxShadow: isDarkMode
-                        ? "0 0 16px rgba(80,80,120,0.25)"
-                        : "0 0 12px rgba(0,0,0,0.08)",
-                      backdropFilter: "blur(6px)",
+                      background: "none",
+                      border: "none",
+                      boxShadow: "none",
+                      padding: 0,
                     }}
                     cursor={{
-                      fill: "transparent",
                       stroke: isDarkMode ? "hsl(var(--border))" : "#cbd5e1",
                       strokeWidth: 1,
                     }}
-                    formatter={(_, __, props: any) => {
-                      const { payload, dataKey } = props;
-                      const valor = payload[dataKey];
-                      const positivo = valor >= 0;
-
-                      const cor = positivo ? "#3b82f6" : "#ef4444";
-                      const prefixo = dataKey === "lucro" ? "Lucro" : "ROI";
-                      const sufixo = dataKey === "lucro" ? "R$" : "%";
-
-                      const formatado = valor
-                        .toLocaleString("pt-BR", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })
-                        .replace(".", ",");
-
-                      return [
-                        <span style={{ color: cor, fontWeight: "bold" }}>
-                          {`${prefixo}: ${sufixo} ${formatado}`}
-                        </span>,
-                        <span style={{ color: isDarkMode ? "white" : "black" }}>
-                          {prefixo}
-                        </span>,
-                      ];
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const p = payload[0].payload;
+                  
+                        const corLucro = p.lucro >= 0 ? "#3b82f6" : "#ef4444";
+                        const corRoi = p.roi >= 0 ? "#3b82f6" : "#ef4444";
+                  
+                        return (
+                          <div
+                            style={{
+                              backgroundColor: isDarkMode
+                                ? "rgba(20,20,30,0.9)"
+                                : "rgba(255,255,255,0.95)",
+                              border: isDarkMode
+                                ? "1px solid hsl(var(--border))"
+                                : "1px solid #cbd5e1",
+                              borderRadius: "8px",
+                              padding: "8px 10px",
+                              color: isDarkMode ? "#f8fafc" : "#0f172a",
+                              fontSize: 13,
+                              fontWeight: 600,
+                              minWidth: "150px",
+                              boxShadow: "0 0 8px rgba(0,0,0,0.3)",
+                              backdropFilter: "blur(6px)",
+                            }}
+                          >
+                            <div style={{ fontWeight: 700, color: "#0099DD", marginBottom: 6 }}>
+                              {p.name}
+                            </div>
+                  
+                            <div style={{ color: corLucro }}>
+                              Lucro: R$ {p.lucro.toFixed(2).replace(".", ",")}
+                            </div>
+                  
+                            <div style={{ color: corRoi }}>
+                              ROI: {p.roi.toFixed(2).replace(".", ",")}%
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
                     }}
                   />
 
@@ -1134,45 +1177,60 @@ export default function Dashboard() {
 
                   {/* Tooltip customizada */}
                   <Tooltip
+                    wrapperStyle={{ background: "none", boxShadow: "none" }}
                     contentStyle={{
-                      backgroundColor: isDarkMode
-                        ? "rgba(20,20,30,0.9)"
-                        : "rgba(255,255,255,0.9)",
-                      border: isDarkMode
-                        ? "1px solid hsl(var(--border))"
-                        : "1px solid #cbd5e1",
-                      borderRadius: "8px",
-                      color: isDarkMode ? "white" : "black",
-                      backdropFilter: "blur(6px)",
+                      background: "none",
+                      border: "none",
+                      boxShadow: "none",
+                      padding: 0,
                     }}
                     cursor={{
                       stroke: isDarkMode ? "hsl(var(--border))" : "#cbd5e1",
                       strokeWidth: 1,
                     }}
-                    separator="" // mantém vazio, mas não afeta mais
-                    formatter={(value: number, name: string) => {
-                      let label = "";
-                      let color = "";
-
-                      if (name === "lucro") {
-                        label = "Lucro (R$)";
-                        color = value >= 0 ? "#3b82f6" : "#ef4444";
-                      } else if (name === "roi") {
-                        label = "ROI (%)";
-                        color = value >= 0 ? "#3b82f6" : "#ef4444";
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const p = payload[0].payload;
+                  
+                        const corLucro = p.lucro >= 0 ? "#3b82f6" : "#ef4444";
+                        const corRoi = p.roi >= 0 ? "#3b82f6" : "#ef4444";
+                  
+                        return (
+                          <div
+                            style={{
+                              backgroundColor: isDarkMode
+                                ? "rgba(20,20,30,0.9)"
+                                : "rgba(255,255,255,0.95)",
+                              border: isDarkMode
+                                ? "1px solid hsl(var(--border))"
+                                : "1px solid #cbd5e1",
+                              borderRadius: "8px",
+                              padding: "8px 10px",
+                              color: isDarkMode ? "#f8fafc" : "#0f172a",
+                              fontSize: 13,
+                              fontWeight: 600,
+                              minWidth: "150px",
+                              boxShadow: "0 0 8px rgba(0,0,0,0.3)",
+                              backdropFilter: "blur(6px)",
+                            }}
+                          >
+                            <div style={{ fontWeight: 700, marginBottom: 6, color: "#0099DD" }}>
+                              {p.name}
+                            </div>
+                  
+                            <div style={{ color: corLucro }}>
+                              Lucro: R$ {p.lucro.toFixed(2).replace(".", ",")}
+                            </div>
+                  
+                            <div style={{ color: corRoi }}>
+                              ROI: {p.roi.toFixed(2).replace(".", ",")}%
+                            </div>
+                          </div>
+                        );
                       }
-
-                      const formatado = value.toFixed(2).replace(".", ",");
-
-                      // 🔥 Retorna um único elemento JSX (não um array)
-                      return (
-                        <span style={{ color, fontWeight: "bold" }}>
-                          {`${label}: ${formatado}`}
-                        </span>
-                      );
+                      return null;
                     }}
                   />
-
                   <Legend
                     align="center"
                     verticalAlign="bottom"
