@@ -121,22 +121,23 @@ export default function Dashboard() {
   // FUNÇÕES AUXILIARES
   // =======================
   
-  function getGradienteCor(lucro: number, min = -150, max = 150) {
-  const clamped = Math.max(min, Math.min(max, lucro));
-  const percent = (clamped - min) / (max - min); // 0 a 1
-
-  const r = percent < 0.5
-    ? 220 + (128 - 220) * (percent / 0.5)
-    : 128 - (128 - 16) * ((percent - 0.5) / 0.5);
-  const g = percent < 0.5
-    ? 38 + (128 - 38) * (percent / 0.5)
-    : 128 + (185 - 128) * ((percent - 0.5) / 0.5);
-  const b = percent < 0.5
-    ? 38 + (128 - 38) * (percent / 0.5)
-    : 128 + (129 - 128) * ((percent - 0.5) / 0.5);
-
-  return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
-}
+    function getGradienteCor(lucro: number, min = -150, max = 150) {
+    const clamped = Math.max(min, Math.min(max, lucro));
+    const percent = (clamped - min) / (max - min); // 0 a 1
+  
+    // Interpolação entre vermelho → branco → azul
+    const r = percent < 0.5
+      ? 255
+      : 255 * (1 - (percent - 0.5) / 0.5); // branco → azul
+    const g = percent < 0.5
+      ? 255 * (percent / 0.5)
+      : 255 * (1 - (percent - 0.5) / 0.5); // branco → azul
+    const b = percent < 0.5
+      ? 255 * (percent / 0.5)
+      : 255; // branco → azul
+  
+    return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+  }
   
   const { data: relatoriosData, isLoading } = useQuery<{
     operacoes: Operacao[];
@@ -832,7 +833,7 @@ export default function Dashboard() {
                   <div
                     style={{
                       color: tooltipData.lucro >= 0
-                        ? (isDarkMode ? "#22c55e" : "#16a34a")
+                        ? (isDarkMode ? "#3b82f6" : "#2563eb")
                         : "#dc2626",
                       marginBottom: 4,
                       fontSize: 12,
@@ -862,10 +863,10 @@ export default function Dashboard() {
             </div>
           
             {/* Legenda de escala */}
-            <div className="flex items-center gap-1 mb-3 text-xs text-muted-foreground">
-              <span className="text-red-500">−150</span>
-              <div className="flex-1 h-2 rounded-full bg-gradient-to-r from-red-500 via-gray-300 to-green-500" />
-              <span className="text-green-500">+150</span>
+            <div className="flex items-center gap-2 mb-3 text-xs text-muted-foreground">
+              <span className="text-red-600">−150</span>
+              <div className="flex-1 h-2 rounded-full bg-gradient-to-r from-red-600 via-white to-blue-600 border" />
+              <span className="text-blue-600">+150</span>
             </div>
           
             {/* Cabeçalho */}
