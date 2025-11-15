@@ -311,33 +311,47 @@ export default function Dashboard() {
     };
   });
   
-    const coresDisponiveis = [
-      "#3b82f6", "#10b981", "#8b5cf6", "#f59e0b", "#ec4899", "#06b6d4", "#94a3b8"
-    ];
-    
-    const motivacoes = [
-      ...new Set(itens.map((item) => item.motivacaoEntrada).filter(Boolean)),
-    ];
-    
-    const radarData = avaliacoes.map((av) => {
-      const linha: any = { autoavaliacao: av };
-    
-      motivacoes.forEach((motivacao) => {
-        const itensFiltrados = itens.filter(
-          (item) =>
-            item.autoavaliacao === av && item.motivacaoEntrada === motivacao
-        );
-    
-        const lucro = itensFiltrados.reduce(
-          (acc, item) => acc + parseFloat(item.resultadoFinanceiro || "0"),
-          0
-        );
-    
-        linha[motivacao] = lucro;
-      });
-    
-      return linha;
-    });
+    // 🎨 Cores padrão do logotipo
+const coresDisponiveis = [
+  "#3b82f6", // azul
+  "#10b981", // verde
+  "#8b5cf6", // roxo
+  "#f59e0b", // laranja
+  "#ec4899", // rosa
+  "#06b6d4", // ciano
+  "#94a3b8", // cinza fallback
+];
+
+// 📌 Motivações únicas extraídas dos dados
+const motivacoes = [
+  ...new Set(itens.map((item) => item.motivacaoEntrada).filter(Boolean)),
+];
+
+// 📌 Autoavaliações únicas extraídas dos dados
+const avaliacoes = [
+  ...new Set(itens.map((item) => item.autoavaliacao).filter(Boolean)),
+];
+
+// 📊 Dados agregados para o gráfico de radar
+const radarData = avaliacoes.map((av) => {
+  const linha: any = { autoavaliacao: av };
+
+  motivacoes.forEach((motivacao) => {
+    const itensFiltrados = itens.filter(
+      (item) =>
+        item.autoavaliacao === av && item.motivacaoEntrada === motivacao
+    );
+
+    const lucro = itensFiltrados.reduce(
+      (acc, item) => acc + parseFloat(item.resultadoFinanceiro || "0"),
+      0
+    );
+
+    linha[motivacao] = lucro;
+  });
+
+  return linha;
+});
   
   // Dados da semana (7 dias baseado na semanaBase)
   const diasDaSemana = Array.from({ length: 7 }, (_, i) => addDays(semanaBase, i));
