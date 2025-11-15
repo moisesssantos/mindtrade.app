@@ -786,10 +786,11 @@ export default function Dashboard() {
                 <div
                   style={{
                     position: "fixed",
+                    isolation: "isolate", // 👈 força novo stacking context ALTO
                     left: safeX,
                     top: safeY,
                     backgroundColor: isDarkMode
-                      ? "rgba(30,41,59,0.85)" // 🔥 nova cor com vidro
+                      ? "rgba(30,41,59,0.85)"
                       : "rgba(255,255,255,0.96)",
                     border: isDarkMode
                       ? "1px solid rgba(255,255,255,0.15)"
@@ -800,9 +801,9 @@ export default function Dashboard() {
                     fontSize: 12,
                     fontWeight: 600,
                     boxShadow: "0 0 18px rgba(0,0,0,0.45)",
-                    backdropFilter: "blur(8px)",  // 🔥 aumenta contraste no dark
+                    backdropFilter: "blur(8px)",
                     pointerEvents: "none",
-                    zIndex: 2147483647,
+                    zIndex: 999999999, // 👈 mais alto do que qualquer container
                     maxWidth: "260px",
                     overflow: "hidden",
                     whiteSpace: "normal",
@@ -821,7 +822,9 @@ export default function Dashboard() {
                   </div>
                 
                   <div style={{
-                    color: tooltipData.lucro >= 0 ? "#16a34a" : "#dc2626"
+                    color: tooltipData.lucro >= 0
+                      ? (isDarkMode ? "#22c55e" : "#16a34a")  // verde igual aos cards
+                        : "#dc2626"
                   }}>
                     Lucro: <b>R$ {tooltipData.lucro.toFixed(2).replace(".", ",")}</b>
                   </div>
@@ -842,10 +845,7 @@ export default function Dashboard() {
             <div className="mb-4">
               <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>
                 Motivação × Autoavaliação (Lucro)
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Lucro total por combinação (Heatmap compacto)
-              </p>
+              </h3>              
             </div>
           
             {/* Cabeçalho: Autoavaliações */}
