@@ -117,6 +117,30 @@ export default function Dashboard() {
     return () => observer.disconnect();
   }, []);
 
+  // =======================
+  // FUNÇÕES AUXILIARES
+  // =======================
+  
+  function getGradienteCor(lucro: number) {
+    const maxLucro = 200;
+    const minLucro = -200;
+    const clamped = Math.max(minLucro, Math.min(maxLucro, lucro));
+    const percent = (clamped - minLucro) / (maxLucro - minLucro); // 0 a 1
+  
+    // Interpolação entre vermelho → cinza → verde
+    const r = percent < 0.5
+      ? 220 + (128 - 220) * (percent / 0.5)
+      : 128 - (128 - 16) * ((percent - 0.5) / 0.5);
+    const g = percent < 0.5
+      ? 38 + (128 - 38) * (percent / 0.5)
+      : 128 + (185 - 128) * ((percent - 0.5) / 0.5);
+    const b = percent < 0.5
+      ? 38 + (128 - 38) * (percent / 0.5)
+      : 128 + (129 - 128) * ((percent - 0.5) / 0.5);
+  
+    return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+  }
+  
   const { data: relatoriosData, isLoading } = useQuery<{
     operacoes: Operacao[];
     itens: OperacaoItem[];
@@ -818,20 +842,18 @@ export default function Dashboard() {
                       fontSize: 12,
                     }}
                   >
-                    Lucro:{" "}
-                    <b>R$ {tooltipData.lucro.toFixed(2).replace(".", ",")}</b>
+                    Lucro: <b>R$ {tooltipData.lucro.toFixed(2).replace(".", ",")}</b>
                   </div>
-                
+          
                   <div
                     style={{
                       color: tooltipData.roi >= 0 ? "#3b82f6" : "#ef4444",
                       marginBottom: 4,
                     }}
                   >
-                    ROI:{" "}
-                    <b>{tooltipData.roi.toFixed(2).replace(".", ",")}%</b>
+                    ROI: <b>{tooltipData.roi.toFixed(2).replace(".", ",")}%</b>
                   </div>
-                
+          
                   <div style={{ fontSize: 11, opacity: 0.65 }}>
                     {tooltipData.quantidade} Op.
                   </div>
@@ -843,6 +865,13 @@ export default function Dashboard() {
               <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>
                 Motivação × Autoavaliação (Lucro)
               </h3>
+            </div>
+          
+            {/* Legenda de escala de cores */}
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-xs text-red-600">−200</span>
+              <div className="flex-1 h-3 rounded-full bg-gradient-to-r from-red-600 via-gray-300 to-green-500" />
+              <span className="text-xs text-green-600">+200</span>
             </div>
           
             {/* Cabeçalho: Autoavaliações */}
@@ -877,30 +906,16 @@ export default function Dashboard() {
                     const quantidade = cell.quantidade;
                     const roi = cell.roi;
           
-                    // COR DO HEATMAP
-                    let cor = isDarkMode
-                      ? "rgba(255,255,255,0.08)"
-                      : "rgba(0,0,0,0.05)";
-          
-                    if (lucro > 0) {
-                      cor = `rgba(16, 185, 129, ${
-                        0.25 + Math.min(Math.abs(lucro) / 200, 0.65)
-                      })`; // verde translúcido
-                    } else if (lucro < 0) {
-                      cor = `rgba(220,38,38,${
-                        0.25 + Math.min(Math.abs(lucro) / 200, 0.65)
-                      })`;
-                    }
-          
                     return (
                       <div
                         key={av}
-                        className="w-full h-6 rounded-md border transition-all hover:scale-[1.08] cursor-pointer"
+                        className="w-full h-6 border transition-all hover:scale-[1.08] cursor-pointer"
                         style={{
-                          backgroundColor: cor,
+                          backgroundColor: getGradienteCor(lucro),
                           borderColor: isDarkMode
                             ? "rgba(255,255,255,0.1)"
                             : "rgba(0,0,0,0.1)",
+                          borderRadius: 0,
                         }}
                         onMouseMove={(e) => {
                           setTooltipPos({ x: e.clientX, y: e.clientY });
