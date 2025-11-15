@@ -424,7 +424,7 @@ export default function Partidas() {
           </p>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid gap-6">
           {partidasAtivas.map((partida) => {
             const preAnalise = getPreAnalise(partida.id);
             const operacaoResumo = getOperacaoResumo(partida.id);
