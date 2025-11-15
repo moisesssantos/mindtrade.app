@@ -802,7 +802,6 @@ export default function Dashboard() {
                 : "bg-white border border-gray-200 shadow-sm"
             }`}
           >
-            {/* TOOLTIP VIA PORTAL */}
             {tooltipData && (
               <PortalTooltip>
                 <div
@@ -841,7 +840,6 @@ export default function Dashboard() {
                   >
                     Lucro: <b>R$ {tooltipData.lucro.toFixed(2).replace(".", ",")}</b>
                   </div>
-          
                   <div
                     style={{
                       color: tooltipData.roi >= 0 ? "#3b82f6" : "#ef4444",
@@ -850,7 +848,6 @@ export default function Dashboard() {
                   >
                     ROI: <b>{tooltipData.roi.toFixed(2).replace(".", ",")}%</b>
                   </div>
-          
                   <div style={{ fontSize: 11, opacity: 0.65 }}>
                     {tooltipData.quantidade} Op.
                   </div>
@@ -858,29 +855,26 @@ export default function Dashboard() {
               </PortalTooltip>
             )}
           
-            <div className="mb-4">
+            <div className="mb-3">
               <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>
                 Motivação × Autoavaliação (Lucro)
               </h3>
             </div>
           
-            {/* Legenda de escala de cores */}
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs text-red-600">−150</span>
-              <div className="flex-1 h-3 rounded-full bg-gradient-to-r from-red-600 via-gray-300 to-green-500" />
-              <span className="text-xs text-green-600">+150</span>
+            {/* Legenda de escala */}
+            <div className="flex items-center gap-1 mb-3 text-xs text-muted-foreground">
+              <span className="text-red-500">−150</span>
+              <div className="flex-1 h-2 rounded-full bg-gradient-to-r from-red-500 via-gray-300 to-green-500" />
+              <span className="text-green-500">+150</span>
             </div>
           
-            {/* Cabeçalho: Autoavaliações */}
+            {/* Cabeçalho */}
             <div className="grid grid-cols-[140px_repeat(auto-fit,minmax(20px,1fr))] gap-0 mb-1">
               <div></div>
               {avaliacoes.map((av) => (
                 <div
                   key={av}
-                  className="text-[11px] text-center font-medium text-muted-foreground border-l"
-                  style={{
-                    borderColor: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
-                  }}
+                  className="text-[11px] text-center font-medium text-muted-foreground"
                 >
                   {av}
                 </div>
@@ -889,26 +883,15 @@ export default function Dashboard() {
           
             {/* Linhas */}
             <div className="flex flex-col gap-0">
-              {heatmapMini.map((linha, index) => (
+              {heatmapMini.map((linha) => (
                 <div
                   key={linha.motivacao}
-                  className="grid grid-cols-[140px_repeat(auto-fit,minmax(20px,1fr))] items-center border-b"
-                  style={{
-                    backgroundColor:
-                      index % 2 === 0
-                        ? isDarkMode
-                          ? "rgba(255,255,255,0.02)"
-                          : "#f9fafb"
-                        : "transparent",
-                    borderColor: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
-                  }}
+                  className="grid grid-cols-[140px_repeat(auto-fit,minmax(20px,1fr))] items-center"
                 >
-                  {/* Motivação */}
                   <div className="text-xs font-semibold text-primary">
                     {linha.motivacao}
                   </div>
           
-                  {/* CÉLULAS */}
                   {avaliacoes.map((av) => {
                     const cell = linha[av];
                     const lucro = cell.lucro;
@@ -918,13 +901,10 @@ export default function Dashboard() {
                     return (
                       <div
                         key={av}
-                        className="w-full h-6 border border-l transition-all hover:scale-[1.08] cursor-pointer"
+                        className="w-full h-6 transition-transform hover:scale-[1.05] cursor-pointer"
                         style={{
                           backgroundColor: getGradienteCor(lucro, -150, 150),
-                          borderColor: isDarkMode
-                            ? "rgba(255,255,255,0.08)"
-                            : "rgba(0,0,0,0.06)",
-                          borderRadius: 0,
+                          borderRadius: 4,
                         }}
                         onMouseMove={(e) => {
                           setTooltipPos({ x: e.clientX, y: e.clientY });
