@@ -533,7 +533,7 @@ export default function Dashboard() {
 
           {/* Linha compacta de Resultados Semanais */}
           <Card
-            className={`relative p-4 mb-4 transition-all duration-300 overflow-visible ${
+            className={`relative p-2 mb-3 transition-all duration-300 overflow-visible ${
               isDarkMode
                 ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
                 : "bg-white border border-gray-200 shadow-sm"
@@ -560,7 +560,7 @@ export default function Dashboard() {
               }}
             >
               <div
-                className="flex items-center text-sm font-mono whitespace-nowrap flex-nowrap gap-3"
+                className="flex items-center text-sm font-mono whitespace-nowrap flex-nowrap gap-2"
                 style={{
                   overflow: "hidden",
                 }}
@@ -578,7 +578,7 @@ export default function Dashboard() {
                   return (
                     <React.Fragment key={index}>
                       <div
-                        className={`flex items-center gap-2 px-3 py-2 rounded-md min-w-max ${
+                        className={`flex items-center gap-1 px-2 py-1 rounded-md min-w-max ${
                           dia.temDados ? "" : "opacity-50"
                         }`}
                       >
@@ -833,7 +833,7 @@ export default function Dashboard() {
                   </div>
                 
                   <div style={{ fontSize: 11, opacity: 0.65 }}>
-                    {tooltipData.quantidade} operações
+                    {tooltipData.quantidade} Op.
                   </div>
                 </div>
               </PortalTooltip>
