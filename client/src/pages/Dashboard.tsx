@@ -457,21 +457,6 @@ export default function Dashboard() {
   const roiSeguiuNao =
     stakeSeguiuNao > 0 ? (lucroSeguiuNao / stakeSeguiuNao) * 100 : 0;
 
-  // =======================
-  // MAPA DE CORES (fora do JSX)
-  // =======================
-  const mercadosUsados = Array.from(new Set(porEstrategia.map((e) => e.mercado)));
-
-  const coresDisponiveis = [
-      "#3b82f6", // azul
-      "#10b981", // verde
-      "#8b5cf6", // roxo
-      "#f59e0b", // laranja
-      "#ec4899", // rosa
-      "#06b6d4", // ciano
-      "#94a3b8", // cinza fallback
-  ];
-
   // Mapa consistente entre mercado e cor atribuída
   const mapaCores = mercadosUsados.reduce((acc, nome, i) => {
     acc[nome] = coresDisponiveis[i % coresDisponiveis.length];
