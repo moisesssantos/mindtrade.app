@@ -745,7 +745,7 @@ export default function Dashboard() {
             {/* TOOLTIP ABSOLUTO */}
             {tooltipData && (() => {
               // Evita tooltip sair da tela
-              const safeX = Math.min(tooltipPos.x + 15, window.innerWidth - 200);
+              const safeX = Math.min(tooltipPos.x + 15, window.innerWidth - 260);
               const safeY = Math.min(tooltipPos.y + 15, window.innerHeight - 140);
           
               return (
@@ -769,8 +769,9 @@ export default function Dashboard() {
                     backdropFilter: "blur(6px)",
                     pointerEvents: "none",
                     zIndex: 2147483647,
-                    transform: "translateZ(999px)",
                     maxWidth: "260px",
+                    overflow: "hidden",
+                    whiteSpace: "normal",
                   }}
                 >
                   <div style={{ fontWeight: 700, marginBottom: 6, color: "#0099DD" }}>
