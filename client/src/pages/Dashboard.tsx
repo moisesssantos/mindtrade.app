@@ -116,29 +116,7 @@ export default function Dashboard() {
 
     return () => observer.disconnect();
   }, []);
-
-  // =======================
-  // FUNÇÕES AUXILIARES
-  // =======================
-  
-    function getGradienteCor(lucro: number, min = -150, max = 150) {
-    const clamped = Math.max(min, Math.min(max, lucro));
-    const percent = (clamped - min) / (max - min); // 0 a 1
-  
-    // Interpolação entre vermelho → branco → azul
-    const r = percent < 0.5
-      ? 255
-      : 255 * (1 - (percent - 0.5) / 0.5); // branco → azul
-    const g = percent < 0.5
-      ? 255 * (percent / 0.5)
-      : 255 * (1 - (percent - 0.5) / 0.5); // branco → azul
-    const b = percent < 0.5
-      ? 255 * (percent / 0.5)
-      : 255; // branco → azul
-  
-    return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
-  }
-  
+ 
   const { data: relatoriosData, isLoading } = useQuery<{
     operacoes: Operacao[];
     itens: OperacaoItem[];
@@ -332,47 +310,30 @@ export default function Dashboard() {
       count: itensEstado.length,
     };
   });
-
-    // ===============================
-    // 🔥 MINI HEATMAP – MOTIVAÇÃO × AUTOAVALIAÇÃO (LUCRO)
-    // ===============================
-    
-    // Categorias vindas do BD
-    const avaliacoes = [
-      ...new Set(itens.map((i) => i.autoavaliacao).filter(Boolean))
+  
+    const coresDisponiveis = [
+      "#3b82f6", "#10b981", "#8b5cf6", "#f59e0b", "#ec4899", "#06b6d4", "#94a3b8"
     ];
     
     const motivacoes = [
-      ...new Set(itens.map((i) => i.motivacaoEntrada).filter(Boolean))
+      ...new Set(itens.map((item) => item.motivacaoEntrada).filter(Boolean)),
     ];
     
-    // Matriz compacta
-    const heatmapMini = motivacoes.map((motivacao) => {
-      const linha: Record<string, any> = { motivacao };
+    const radarData = avaliacoes.map((av) => {
+      const linha: any = { autoavaliacao: av };
     
-      avaliacoes.forEach((av) => {
-        const itensMatch = itens.filter(
-          (i) => i.motivacaoEntrada === motivacao && i.autoavaliacao === av
+      motivacoes.forEach((motivacao) => {
+        const itensFiltrados = itens.filter(
+          (item) =>
+            item.autoavaliacao === av && item.motivacaoEntrada === motivacao
         );
     
-        const quantidade = itensMatch.length;
-        const lucro = itensMatch.reduce(
-          (acc, item) => acc + Number(item.resultadoFinanceiro || 0),
+        const lucro = itensFiltrados.reduce(
+          (acc, item) => acc + parseFloat(item.resultadoFinanceiro || "0"),
           0
         );
     
-        const stakeTotal = itensMatch.reduce(
-          (acc, item) => acc + Number(item.stake || 0),
-          0
-        );
-    
-        const roi = stakeTotal > 0 ? (lucro / stakeTotal) * 100 : 0;
-    
-        linha[av] = {
-          quantidade,
-          lucro,
-          roi,
-        };
+        linha[motivacao] = lucro;
       });
     
       return linha;
@@ -502,7 +463,7 @@ export default function Dashboard() {
   const mercadosUsados = Array.from(new Set(porEstrategia.map((e) => e.mercado)));
 
   const coresDisponiveis = [
-    "#3b82f6", // azul
+      "#3b82f6", // azul
       "#10b981", // verde
       "#8b5cf6", // roxo
       "#f59e0b", // laranja
@@ -795,135 +756,32 @@ export default function Dashboard() {
               })()}
             </Card>
 
-         {/* MINI HEATMAP – Motivação × Autoavaliação */}
-          <Card
-            className={`relative p-4 lg:col-span-6 transition-all duration-300 overflow-visible ${
-              isDarkMode
-                ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
-                : "bg-white border border-gray-200 shadow-sm"
-            }`}
-          >
-            {tooltipData && (
-              <PortalTooltip>
-                <div
-                  style={{
-                    position: "fixed",
-                    left: tooltipPos.x + 15,
-                    top: tooltipPos.y + 15,
-                    transform: "translateZ(999px)",
-                    backgroundColor: isDarkMode
-                      ? "rgba(30,41,59,0.88)"
-                      : "rgba(255,255,255,0.96)",
-                    border: isDarkMode
-                      ? "1px solid rgba(255,255,255,0.15)"
-                      : "1px solid #cbd5e1",
-                    padding: "10px 14px",
-                    borderRadius: "8px",
-                    color: isDarkMode ? "#f8fafc" : "#0f172a",
-                    fontSize: 12,
-                    fontWeight: 600,
-                    boxShadow: "0 0 18px rgba(0,0,0,0.45)",
-                    backdropFilter: "blur(8px)",
-                    pointerEvents: "none",
-                    zIndex: 9999999999,
-                    maxWidth: "260px",
-                    whiteSpace: "normal",
-                  }}
-                >
-                  <div
-                    style={{
-                      color: tooltipData.lucro >= 0
-                        ? (isDarkMode ? "#3b82f6" : "#2563eb")
-                        : "#dc2626",
-                      marginBottom: 4,
-                      fontSize: 12,
-                    }}
-                  >
-                    Lucro: <b>R$ {tooltipData.lucro.toFixed(2).replace(".", ",")}</b>
-                  </div>
-                  <div
-                    style={{
-                      color: tooltipData.roi >= 0 ? "#3b82f6" : "#ef4444",
-                      marginBottom: 4,
-                    }}
-                  >
-                    ROI: <b>{tooltipData.roi.toFixed(2).replace(".", ",")}%</b>
-                  </div>
-                  <div style={{ fontSize: 11, opacity: 0.65 }}>
-                    {tooltipData.quantidade} Op.
-                  </div>
-                </div>
-              </PortalTooltip>
-            )}
+         {/* Spider Chart – Motivação × Autoavaliação */}
+          <Card className="p-4 lg:col-span-6">
+            <h3 className="text-lg font-semibold mb-4" style={{ color: "#0099DD" }}>
+              Motivação × Autoavaliação (Lucro)
+            </h3>
           
-            <div className="mb-3">
-              <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>
-                Motivação × Autoavaliação (Lucro)
-              </h3>
-            </div>
+            <ResponsiveContainer width="100%" height={400}>
+              <RadarChart data={radarData}>
+                <PolarGrid />
+                <PolarAngleAxis dataKey="autoavaliacao" />
+                <PolarRadiusAxis angle={30} domain={[-150, 150]} />
+                <Tooltip />
+                <Legend />
           
-            {/* Legenda de escala */}
-            <div className="flex items-center gap-2 mb-3 text-xs text-muted-foreground">
-              <span className="text-red-600">−150</span>
-              <div className="flex-1 h-2 rounded-full bg-gradient-to-r from-red-600 via-white to-blue-600 border" />
-              <span className="text-blue-600">+150</span>
-            </div>
-          
-            {/* Cabeçalho */}
-            <div className="grid grid-cols-[140px_repeat(auto-fit,minmax(20px,1fr))] gap-0 mb-1">
-              <div></div>
-              {avaliacoes.map((av) => (
-                <div
-                  key={av}
-                  className="text-[11px] text-center font-medium text-muted-foreground"
-                >
-                  {av}
-                </div>
-              ))}
-            </div>
-          
-            {/* Linhas */}
-            <div className="flex flex-col gap-0">
-              {heatmapMini.map((linha) => (
-                <div
-                  key={linha.motivacao}
-                  className="grid grid-cols-[140px_repeat(auto-fit,minmax(20px,1fr))] items-center"
-                >
-                  <div className="text-xs font-semibold text-primary">
-                    {linha.motivacao}
-                  </div>
-          
-                  {avaliacoes.map((av) => {
-                    const cell = linha[av];
-                    const lucro = cell.lucro;
-                    const quantidade = cell.quantidade;
-                    const roi = cell.roi;
-          
-                    return (
-                      <div
-                        key={av}
-                        className="w-full h-6 transition-transform hover:scale-[1.05] cursor-pointer"
-                        style={{
-                          backgroundColor: getGradienteCor(lucro, -150, 150),
-                          borderRadius: 4,
-                        }}
-                        onMouseMove={(e) => {
-                          setTooltipPos({ x: e.clientX, y: e.clientY });
-                          setTooltipData({
-                            motivacao: linha.motivacao,
-                            avaliacao: av,
-                            lucro,
-                            roi,
-                            quantidade,
-                          });
-                        }}
-                        onMouseLeave={() => setTooltipData(null)}
-                      ></div>
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
+                {motivacoes.map((motivacao, i) => (
+                  <Radar
+                    key={motivacao}
+                    name={motivacao}
+                    dataKey={motivacao}
+                    stroke={coresDisponiveis[i % coresDisponiveis.length]}
+                    fill={coresDisponiveis[i % coresDisponiveis.length]}
+                    fillOpacity={0.6}
+                  />
+                ))}
+              </RadarChart>
+            </ResponsiveContainer>
           </Card>
 
           {/* Gráfico de Lucro e ROI por Mercado */}
