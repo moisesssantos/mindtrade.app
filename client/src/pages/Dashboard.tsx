@@ -943,36 +943,55 @@ export default function Dashboard() {
                     ))}
                   </div>
           
-                  {/* ESCALA DE CORES DINÂMICA */}
-                  <div className="mt-5 flex flex-col items-center gap-1">
-                    <h4 className="text-[11px] font-medium text-muted-foreground">
-                      Escala de Lucro (R$)
-                    </h4>
-          
-                    {/* Barra */}
-                    <div
-                      className="w-full max-w-xs h-3 rounded-[3px] overflow-hidden"
-                      style={{
-                        background: `
-                          linear-gradient(
-                            to right,
-                            rgba(220,38,38,0.6) 0%,
-                            rgba(220,38,38,0.25) ${zeroPos * 50}%,
-                            ${isDarkMode ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.04)"} ${zeroPos * 100}%,
-                            rgba(16,185,129,0.25) ${(zeroPos + (1 - zeroPos) * 0.5) * 100}%,
-                            rgba(16,185,129,0.6) 100%
-                          )
-                        `,
-                      }}
-                    ></div>
-          
-                    {/* Legenda */}
-                    <div className="flex justify-between w-full max-w-xs text-[10px] text-muted-foreground px-1 mt-1">
-                      <span>{lucroMin.toFixed(0)}</span>
-                      <span>0</span>
-                      <span>{lucroMax.toFixed(0)}</span>
+                  {/* ESCALA DE CORES DINÂMICA – AGORA LARGURA TOTAL E COM TOOLTIP */}
+                    <div className="mt-6 w-full">
+                      <h4 className="text-[11px] font-medium text-muted-foreground text-center mb-1">
+                        Escala de Lucro (R$)
+                      </h4>
+                    
+                      {/* BARRA DA ESCALA */}
+                      <div
+                        className="relative h-4 rounded-md cursor-pointer"
+                        style={{
+                          background: `
+                            linear-gradient(
+                              to right,
+                              rgba(220,38,38,0.65) 0%,
+                              rgba(220,38,38,0.3) ${zeroPos * 45}%,
+                              ${isDarkMode ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.06)"} ${zeroPos * 100}%,
+                              rgba(16,185,129,0.3) ${(zeroPos + (1 - zeroPos) * 0.45) * 100}%,
+                              rgba(16,185,129,0.65) 100%
+                            )
+                          `,
+                        }}
+                        onMouseMove={(e) => {
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          const pct = (e.clientX - rect.left) / rect.width;
+                    
+                          // Valor aproximado do lucro baseado na posição do mouse
+                          const valorInterpolado = lucroMin + pct * (lucroMax - lucroMin);
+                    
+                          setTooltipPos({ x: e.clientX, y: e.clientY });
+                    
+                          setTooltipData({
+                            motivacao: "Escala",
+                            avaliacao: "",
+                            quantidade: "-",
+                            roi: 0,
+                            lucro: valorInterpolado,
+                          });
+                        }}
+                        onMouseLeave={() => setTooltipData(null)}
+                      ></div>
+                    
+                      {/* LEGENDAS EMBAIXO */}
+                      <div className="flex justify-between text-[10px] text-muted-foreground mt-2 px-1">
+                        <span>{lucroMin.toFixed(0)}</span>
+                        <span>0</span>
+                        <span>{lucroMax.toFixed(0)}</span>
+                      </div>
                     </div>
-                  </div>
+
                 </>
               );
             })()}
