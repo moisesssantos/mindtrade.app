@@ -846,7 +846,7 @@ export default function Dashboard() {
             </div>
           
             {/* Cabeçalho: Autoavaliações */}
-            <div className="grid grid-cols-[140px_repeat(auto-fit,minmax(20px,1fr))] gap-2 mb-2">
+            <div className="grid grid-cols-[140px_repeat(auto-fit,minmax(20px,1fr))] gap-1 mb-2">
               <div></div>
               {avaliacoes.map((av) => (
                 <div
@@ -859,7 +859,7 @@ export default function Dashboard() {
             </div>
           
             {/* Linhas */}
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
               {heatmapMini.map((linha) => (
                 <div
                   key={linha.motivacao}
@@ -895,7 +895,7 @@ export default function Dashboard() {
                     return (
                       <div
                         key={av}
-                        className="w-full h-6 rounded-md border transition-all hover:scale-[1.08] cursor-pointer"
+                        className="w-full h-6 rounded-sm border transition-all hover:scale-[1.08] cursor-pointer"
                         style={{
                           backgroundColor: cor,
                           borderColor: isDarkMode
