@@ -228,7 +228,10 @@ export default function ResumoAnual() {
                     tickFormatter={(value) => `R$ ${value.toLocaleString('pt-BR')}`} 
                   />
                   <Tooltip
-                    formatter={(value: number) => formatarMoeda(value)}
+                    formatter={(value: number, name: string) => [
+                      formatarMoeda(value),
+                      "Lucro/Prej. Acumulado"
+                    ]}
                     labelStyle={{ color: isDarkMode ? "white" : "black" }}
                     contentStyle={{
                       backgroundColor: isDarkMode ? "hsl(var(--background))" : "rgba(255,255,255,0.9)",
