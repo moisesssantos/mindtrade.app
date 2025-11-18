@@ -811,27 +811,28 @@ export default function Dashboard() {
                 >
                   <div
                     style={{
-                      color: tooltipData.lucro >= 0
-                        ? (isDarkMode ? "#22c55e" : "#16a34a")
-                        : "#dc2626",
+                      color:
+                        tooltipData.lucro >= 0
+                          ? isDarkMode
+                            ? "#22c55e"
+                            : "#16a34a"
+                          : "#dc2626",
                       marginBottom: 4,
                       fontSize: 12,
                     }}
                   >
-                    Lucro:{" "}
-                    <b>R$ {tooltipData.lucro.toFixed(2).replace(".", ",")}</b>
+                    Lucro: <b>R$ {tooltipData.lucro.toFixed(2).replace(".", ",")}</b>
                   </div>
-                
+          
                   <div
                     style={{
                       color: tooltipData.roi >= 0 ? "#3b82f6" : "#ef4444",
                       marginBottom: 4,
                     }}
                   >
-                    ROI:{" "}
-                    <b>{tooltipData.roi.toFixed(2).replace(".", ",")}%</b>
+                    ROI: <b>{tooltipData.roi.toFixed(2).replace(".", ",")}%</b>
                   </div>
-                
+          
                   <div style={{ fontSize: 11, opacity: 0.65 }}>
                     {tooltipData.quantidade} Op.
                   </div>
@@ -839,86 +840,142 @@ export default function Dashboard() {
               </PortalTooltip>
             )}
           
+            {/* TÍTULO */}
             <div className="mb-4">
               <h3 className="text-lg font-semibold" style={{ color: "#0099DD" }}>
                 Motivação × Autoavaliação (Lucro)
               </h3>
             </div>
           
-            {/* Cabeçalho: Autoavaliações */}
-            <div className="grid grid-cols-[140px_repeat(auto-fit,minmax(20px,1fr))] gap-1 mb-2">
-              <div></div>
-              {avaliacoes.map((av) => (
-                <div
-                  key={av}
-                  className="text-[11px] text-center font-medium text-muted-foreground"
-                >
-                  {av}
-                </div>
-              ))}
-            </div>
+            {/* ❗ CALCULAR ESCALA DINÂMICA */}
+            {(() => {
+              const todosLucros: number[] = [];
           
-            {/* Linhas */}
-            <div className="flex flex-col gap-2">
-              {heatmapMini.map((linha) => (
-                <div
-                  key={linha.motivacao}
-                  className="grid grid-cols-[140px_repeat(auto-fit,minmax(20px,1fr))] gap-2 items-center"
-                >
-                  {/* Motivação */}
-                  <div className="text-xs font-semibold text-primary">
-                    {linha.motivacao}
-                  </div>
+              heatmapMini.forEach((linha) => {
+                avaliacoes.forEach((av) => {
+                  todosLucros.push(linha[av].lucro);
+                });
+              });
           
-                  {/* CÉLULAS */}
-                  {avaliacoes.map((av) => {
-                    const cell = linha[av];
-                    const lucro = cell.lucro;
-                    const quantidade = cell.quantidade;
-                    const roi = cell.roi;
+              const lucroMax = Math.max(...todosLucros);
+              const lucroMin = Math.min(...todosLucros);
           
-                    // COR DO HEATMAP
-                    let cor = isDarkMode
-                      ? "rgba(255,255,255,0.08)"
-                      : "rgba(0,0,0,0.05)";
+              // Posição relativa do zero
+              const zeroPos =
+                lucroMax === lucroMin
+                  ? 0.5
+                  : (0 - lucroMin) / (lucroMax - lucroMin);
           
-                    if (lucro > 0) {
-                      cor = `rgba(16, 185, 129, ${
-                        0.25 + Math.min(Math.abs(lucro) / 200, 0.65)
-                      })`; // verde translúcido
-                    } else if (lucro < 0) {
-                      cor = `rgba(220,38,38,${
-                        0.25 + Math.min(Math.abs(lucro) / 200, 0.65)
-                      })`;
-                    }
-          
-                    return (
+              return (
+                <>
+                  {/* Cabeçalho das colunas */}
+                  <div className="grid grid-cols-[120px_repeat(auto-fit,minmax(18px,1fr))] gap-1 mb-2">
+                    <div></div>
+                    {avaliacoes.map((av) => (
                       <div
                         key={av}
-                        className="w-full h-6 rounded-sm border transition-all hover:scale-[1.08] cursor-pointer"
-                        style={{
-                          backgroundColor: cor,
-                          borderColor: isDarkMode
-                            ? "rgba(255,255,255,0.1)"
-                            : "rgba(0,0,0,0.1)",
-                        }}
-                        onMouseMove={(e) => {
-                          setTooltipPos({ x: e.clientX, y: e.clientY });
-                          setTooltipData({
-                            motivacao: linha.motivacao,
-                            avaliacao: av,
-                            lucro,
-                            roi,
-                            quantidade,
-                          });
-                        }}
-                        onMouseLeave={() => setTooltipData(null)}
-                      ></div>
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
+                        className="text-[11px] text-center font-medium text-muted-foreground"
+                      >
+                        {av}
+                      </div>
+                    ))}
+                  </div>
+          
+                  {/* Corpo do heatmap */}
+                  <div className="flex flex-col gap-2">
+                    {heatmapMini.map((linha) => (
+                      <div
+                        key={linha.motivacao}
+                        className="grid grid-cols-[120px_repeat(auto-fit,minmax(18px,1fr))] gap-1 items-center"
+                      >
+                        {/* Motivação */}
+                        <div className="text-[11px] font-semibold text-primary">
+                          {linha.motivacao}
+                        </div>
+          
+                        {avaliacoes.map((av) => {
+                          const cell = linha[av];
+                          const lucro = cell.lucro;
+                          const quantidade = cell.quantidade;
+                          const roi = cell.roi;
+          
+                          // Cor ajustada pelo lucro
+                          let cor =
+                            isDarkMode
+                              ? "rgba(255,255,255,0.07)"
+                              : "rgba(0,0,0,0.04)";
+          
+                          if (lucro > 0) {
+                            cor = `rgba(16,185,129,${
+                              0.25 + Math.min(Math.abs(lucro) / 200, 0.6)
+                            })`;
+                          } else if (lucro < 0) {
+                            cor = `rgba(220,38,38,${
+                              0.25 + Math.min(Math.abs(lucro) / 200, 0.6)
+                            })`;
+                          }
+          
+                          return (
+                            <div
+                              key={av}
+                              className="w-full h-5 rounded-[3px] border transition-all hover:scale-[1.06] cursor-pointer"
+                              style={{
+                                backgroundColor: cor,
+                                borderColor: isDarkMode
+                                  ? "rgba(255,255,255,0.1)"
+                                  : "rgba(0,0,0,0.1)",
+                              }}
+                              onMouseMove={(e) => {
+                                setTooltipPos({ x: e.clientX, y: e.clientY });
+                                setTooltipData({
+                                  motivacao: linha.motivacao,
+                                  avaliacao: av,
+                                  lucro,
+                                  roi,
+                                  quantidade,
+                                });
+                              }}
+                              onMouseLeave={() => setTooltipData(null)}
+                            ></div>
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
+          
+                  {/* ESCALA DE CORES DINÂMICA */}
+                  <div className="mt-5 flex flex-col items-center gap-1">
+                    <h4 className="text-[11px] font-medium text-muted-foreground">
+                      Escala de Lucro (R$)
+                    </h4>
+          
+                    {/* Barra */}
+                    <div
+                      className="w-full max-w-xs h-3 rounded-[3px] overflow-hidden"
+                      style={{
+                        background: `
+                          linear-gradient(
+                            to right,
+                            rgba(220,38,38,0.6) 0%,
+                            rgba(220,38,38,0.25) ${zeroPos * 50}%,
+                            ${isDarkMode ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.04)"} ${zeroPos * 100}%,
+                            rgba(16,185,129,0.25) ${(zeroPos + (1 - zeroPos) * 0.5) * 100}%,
+                            rgba(16,185,129,0.6) 100%
+                          )
+                        `,
+                      }}
+                    ></div>
+          
+                    {/* Legenda */}
+                    <div className="flex justify-between w-full max-w-xs text-[10px] text-muted-foreground px-1 mt-1">
+                      <span>{lucroMin.toFixed(0)}</span>
+                      <span>0</span>
+                      <span>{lucroMax.toFixed(0)}</span>
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
           </Card>
 
           {/* Gráfico de Lucro e ROI por Mercado */}
