@@ -11,6 +11,7 @@ import { useLocation } from "wouter";
 import { PartidaDialog } from "@/components/PartidaDialog";
 import { PreAnaliseDialog } from "@/components/PreAnaliseDialog";
 import { ArquivarPartidaDialog } from "@/components/ArquivarPartidaDialog";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 interface Partida {
   id: number;
@@ -51,6 +52,9 @@ export default function Partidas() {
   const [preAnaliseData, setPreAnaliseData] = useState<any>(null);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const [confirmDelete, setConfirmDelete] = useState<{ open: boolean; id?: number }>({
+  open: false,
+});
 
   // ✅ Detectar modo escuro/claro (idêntico ao menu Pré-Análises)
   const [isDarkMode, setIsDarkMode] = useState<boolean>(
@@ -261,10 +265,8 @@ export default function Partidas() {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm("Tem certeza que deseja excluir esta partida?")) {
-      deleteMutation.mutate(id);
-    }
-  };
+  setConfirmDelete({ open: true, id });
+};
 
   const handlePartidaSubmit = (data: any) => {
     if (selectedPartida?.id) {
@@ -618,6 +620,20 @@ export default function Partidas() {
         onSubmit={handleArquivarSubmit}
         isLoading={arquivarPartidaMutation.isPending}
       />
+      <ConfirmDialog
+      open={confirmDelete.open}
+      title="Excluir Partida"
+      message="Tem certeza que deseja excluir esta partida? Esta ação não poderá ser desfeita."
+      confirmLabel="Excluir"
+      cancelLabel="Cancelar"
+      onConfirm={() => {
+        if (confirmDelete.id) {
+          deleteMutation.mutate(confirmDelete.id);
+        }
+        setConfirmDelete({ open: false });
+      }}
+      onCancel={() => setConfirmDelete({ open: false })}
+    />
     </div>
   );
 }
