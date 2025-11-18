@@ -821,10 +821,10 @@ export default function Dashboard() {
                               ? "#22c55e"
                               : "#16a34a"
                             : "#dc2626",
-                        fontSize: 12,
+                        fontSize: 10,
                       }}
                     >
-                      Lucro estimado:{" "}
+                      Lucro/Prej. estimado:{" "}
                       <b>R$ {tooltipData.lucro.toFixed(2).replace(".", ",")}</b>
                     </div>
                   ) : (
