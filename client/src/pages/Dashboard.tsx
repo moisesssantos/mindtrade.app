@@ -809,33 +809,58 @@ export default function Dashboard() {
                     whiteSpace: "normal",
                   }}
                 >
-                  <div
-                    style={{
-                      color:
-                        tooltipData.lucro >= 0
-                          ? isDarkMode
-                            ? "#22c55e"
-                            : "#16a34a"
-                          : "#dc2626",
-                      marginBottom: 4,
-                      fontSize: 12,
-                    }}
-                  >
-                    Lucro: <b>R$ {tooltipData.lucro.toFixed(2).replace(".", ",")}</b>
-                  </div>
           
-                  <div
-                    style={{
-                      color: tooltipData.roi >= 0 ? "#3b82f6" : "#ef4444",
-                      marginBottom: 4,
-                    }}
-                  >
-                    ROI: <b>{tooltipData.roi.toFixed(2).replace(".", ",")}%</b>
-                  </div>
+                  {/* 🔥 DIFERENCIAÇÃO ENTRE ESCALA E CELULAS */}
+                  {tooltipData.escala ? (
+                    /* 🔥 Tooltip da ESCALA → SOMENTE LUCRO */
+                    <div
+                      style={{
+                        color:
+                          tooltipData.lucro >= 0
+                            ? isDarkMode
+                              ? "#22c55e"
+                              : "#16a34a"
+                            : "#dc2626",
+                        fontSize: 12,
+                      }}
+                    >
+                      Lucro estimado:{" "}
+                      <b>R$ {tooltipData.lucro.toFixed(2).replace(".", ",")}</b>
+                    </div>
+                  ) : (
+                    /* 🔥 Tooltip ORIGINAL DO HEATMAP → mantém ROI e Op */
+                    <>
+                      <div
+                        style={{
+                          color:
+                            tooltipData.lucro >= 0
+                              ? isDarkMode
+                                ? "#22c55e"
+                                : "#16a34a"
+                              : "#dc2626",
+                          marginBottom: 4,
+                          fontSize: 12,
+                        }}
+                      >
+                        Lucro:{" "}
+                        <b>R$ {tooltipData.lucro.toFixed(2).replace(".", ",")}</b>
+                      </div>
           
-                  <div style={{ fontSize: 11, opacity: 0.65 }}>
-                    {tooltipData.quantidade} Op.
-                  </div>
+                      <div
+                        style={{
+                          color: tooltipData.roi >= 0 ? "#3b82f6" : "#ef4444",
+                          marginBottom: 4,
+                        }}
+                      >
+                        ROI: <b>{tooltipData.roi.toFixed(2).replace(".", ",")}%</b>
+                      </div>
+          
+                      <div style={{ fontSize: 11, opacity: 0.65 }}>
+                        {tooltipData.quantidade} Op.
+                      </div>
+                    </>
+                  )}
+          
                 </div>
               </PortalTooltip>
             )}
@@ -862,9 +887,7 @@ export default function Dashboard() {
           
               // Posição relativa do zero
               const zeroPos =
-                lucroMax === lucroMin
-                  ? 0.5
-                  : (0 - lucroMin) / (lucroMax - lucroMin);
+                lucroMax === lucroMin ? 0.5 : (0 - lucroMin) / (lucroMax - lucroMin);
           
               return (
                 <>
@@ -900,10 +923,9 @@ export default function Dashboard() {
                           const roi = cell.roi;
           
                           // Cor ajustada pelo lucro
-                          let cor =
-                            isDarkMode
-                              ? "rgba(255,255,255,0.07)"
-                              : "rgba(0,0,0,0.04)";
+                          let cor = isDarkMode
+                            ? "rgba(255,255,255,0.07)"
+                            : "rgba(0,0,0,0.04)";
           
                           if (lucro > 0) {
                             cor = `rgba(16,185,129,${
@@ -927,12 +949,15 @@ export default function Dashboard() {
                               }}
                               onMouseMove={(e) => {
                                 setTooltipPos({ x: e.clientX, y: e.clientY });
+          
+                                // Tooltip COMPLETA para o heatmap
                                 setTooltipData({
                                   motivacao: linha.motivacao,
                                   avaliacao: av,
                                   lucro,
                                   roi,
                                   quantidade,
+                                  escala: false,
                                 });
                               }}
                               onMouseLeave={() => setTooltipData(null)}
@@ -943,55 +968,58 @@ export default function Dashboard() {
                     ))}
                   </div>
           
-                  {/* ESCALA DE CORES DINÂMICA – AGORA LARGURA TOTAL E COM TOOLTIP */}
-                    <div className="mt-6 w-full">
-                      <h4 className="text-[11px] font-medium text-muted-foreground text-center mb-1">
-                        Escala de Lucro (R$)
-                      </h4>
-                    
-                      {/* BARRA DA ESCALA */}
-                      <div
-                        className="relative h-4 rounded-md cursor-pointer"
-                        style={{
-                          background: `
-                            linear-gradient(
-                              to right,
-                              rgba(220,38,38,0.65) 0%,
-                              rgba(220,38,38,0.3) ${zeroPos * 45}%,
-                              ${isDarkMode ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.06)"} ${zeroPos * 100}%,
-                              rgba(16,185,129,0.3) ${(zeroPos + (1 - zeroPos) * 0.45) * 100}%,
-                              rgba(16,185,129,0.65) 100%
-                            )
-                          `,
-                        }}
-                        onMouseMove={(e) => {
-                          const rect = e.currentTarget.getBoundingClientRect();
-                          const pct = (e.clientX - rect.left) / rect.width;
-                    
-                          // Valor aproximado do lucro baseado na posição do mouse
-                          const valorInterpolado = lucroMin + pct * (lucroMax - lucroMin);
-                    
-                          setTooltipPos({ x: e.clientX, y: e.clientY });
-                    
-                          setTooltipData({
-                            motivacao: "Escala",
-                            avaliacao: "",
-                            quantidade: "-",
-                            roi: 0,
-                            lucro: valorInterpolado,
-                          });
-                        }}
-                        onMouseLeave={() => setTooltipData(null)}
-                      ></div>
-                    
-                      {/* LEGENDAS EMBAIXO */}
-                      <div className="flex justify-between text-[10px] text-muted-foreground mt-2 px-1">
-                        <span>{lucroMin.toFixed(0)}</span>
-                        <span>0</span>
-                        <span>{lucroMax.toFixed(0)}</span>
-                      </div>
+                  {/* ESCALA DE CORES DINÂMICA */}
+                  <div className="mt-6 w-full">
+                    <h4 className="text-[11px] font-medium text-muted-foreground text-center mb-1">
+                      Escala de Lucro (R$)
+                    </h4>
+          
+                    {/* BARRA DA ESCALA */}
+                    <div
+                      className="relative h-4 rounded-md cursor-pointer"
+                      style={{
+                        background: `
+                          linear-gradient(
+                            to right,
+                            rgba(220,38,38,0.65) 0%,
+                            rgba(220,38,38,0.3) ${zeroPos * 45}%,
+                            ${
+                              isDarkMode
+                                ? "rgba(255,255,255,0.10)"
+                                : "rgba(0,0,0,0.06)"
+                            } ${zeroPos * 100}%,
+                            rgba(16,185,129,0.3) ${
+                              (zeroPos + (1 - zeroPos) * 0.45) * 100
+                            }%,
+                            rgba(16,185,129,0.65) 100%
+                          )
+                        `,
+                      }}
+                      onMouseMove={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        const pct = (e.clientX - rect.left) / rect.width;
+          
+                        // Valor aproximado do lucro baseado na posição do mouse
+                        const valorInterpolado = lucroMin + pct * (lucroMax - lucroMin);
+          
+                        setTooltipPos({ x: e.clientX, y: e.clientY });
+          
+                        // Tooltip da ESCALA → APENAS lucro
+                        setTooltipData({
+                          escala: true,
+                          lucro: valorInterpolado,
+                        });
+                      }}
+                      onMouseLeave={() => setTooltipData(null)}
+                    ></div>
+          
+                    {/* LEGENDAS EMBAIXO */}
+                    <div className="flex justify-between text-[10px] text-muted-foreground mt-2 px-1">
+                      <span>{lucroMin.toFixed(0)}</span>
+                      <span>0</span>
+                      <span>{lucroMax.toFixed(0)}</span>
                     </div>
-
+                  </div>
                 </>
               );
             })()}
