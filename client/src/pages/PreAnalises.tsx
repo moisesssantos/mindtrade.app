@@ -130,14 +130,15 @@ export default function PreAnalises() {
                 case "NAO_OPERADA":
                   return (
                     <Badge
-                      variant="destructive"
-                      className="gap-1.5"
+                      className="gap-1.5 text-white"
+                      style={{ backgroundColor: "#5F2C82" }}
                       data-testid={`badge-status-${partida.id}`}
                     >
                       <XCircle className="h-3.5 w-3.5" />
                       Não Operada
                     </Badge>
                   );
+
                 case "OPERACAO_PENDENTE":
                   return (
                     <Badge
