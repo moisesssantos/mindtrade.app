@@ -22,7 +22,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import * as XLSX from "xlsx";
 
 type Operacao = {
   id: number;
@@ -522,7 +521,9 @@ export default function Relatorios() {
   };
 
     // === EXPORTAR EXCEL (Completo) ===
-    const exportarExcel = () => {
+    const exportarExcel = async () => {
+      const XLSX = await import("xlsx");
+    
       const dadosExcel = itensFiltrados.map((item) => {
         const op = operacoes.find((o) => o.id === item.operacaoId);
         const partida = partidas.find((p) => p.id === op?.partidaId);
