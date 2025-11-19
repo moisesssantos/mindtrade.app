@@ -457,106 +457,6 @@ export default function Relatorios() {
     });
   };
 
-    // === EXPORTAR PDF (Sintético) ===
-    const exportarPDF = async () => {
-    const jsPDFModule = await import(/* @vite-ignore */ ("j" + "spdf"));
-    const autoTableModule = await import(
-      /* @vite-ignore */ ("js" + "pdf" + "-autotable")
-    );
-
-    const jsPDF = jsPDFModule.default;
-    const autoTable = autoTableModule.default;
-  
-    const doc = new jsPDF();
-  
-    doc.setFontSize(14);
-    doc.text("Relatório Sintético - MindTrade", 14, 15);
-  
-    const dadosPDF = itensFiltrados.map((item) => {
-      const op = operacoes.find((o) => o.id === item.operacaoId);
-      const partida = partidas.find((p) => p.id === op?.partidaId);
-      const mercado = mercados.find((m) => m.id === item.mercadoId);
-      const estrategia = estrategias.find((e) => e.id === item.estrategiaId);
-  
-      const stake = parseFloat(item.stake || "0");
-      const resultado = parseFloat(item.resultadoFinanceiro || "0");
-      const roiStake = stake > 0 ? (resultado / stake) * 100 : 0;
-  
-      return [
-        partida?.data || "",
-        competicoes.find((c) => c.id === partida?.competicaoId)?.nome || "",
-        equipes.find((e) => e.id === partida?.mandanteId)?.nome || "",
-        equipes.find((e) => e.id === partida?.visitanteId)?.nome || "",
-        mercado?.nome || "",
-        estrategia?.nome || "",
-        `R$ ${stake.toFixed(2).replace(".", ",")}`,
-        `R$ ${resultado.toFixed(2).replace(".", ",")}`,
-        `${roiStake.toFixed(1).replace(".", ",")}%`,
-        `${roi.toFixed(1).replace(".", ",")}%`,
-        `R$ ${lucroTotal.toFixed(2).replace(".", ",")}`,
-      ];
-    });
-  
-    autoTable(doc, {
-      startY: 25,
-      head: [
-        [
-          "Data",
-          "Competição",
-          "Mandante",
-          "Visitante",
-          "Mercado",
-          "Estratégia",
-          "Stake (R$)",
-          "Resultado (R$)",
-          "ROI/Stake (%)",
-          "Acumulado (%)",
-          "Total Acumulado (R$)",
-        ],
-      ],
-      body: dadosPDF,
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [0, 153, 221] },
-    });
-  
-    doc.save("Relatorio_MindTrade.pdf");
-  };
-
-    // === EXPORTAR EXCEL (Completo) ===
-    const exportarExcel = async () => {
-      const XLSX = await import(/* @vite-ignore */ ("x" + "lsx"));
-    
-      const dadosExcel = itensFiltrados.map((item) => {
-        const op = operacoes.find((o) => o.id === item.operacaoId);
-        const partida = partidas.find((p) => p.id === op?.partidaId);
-    
-        return {
-          Data: partida?.data || "",
-          Competicao:
-            competicoes.find((c) => c.id === partida?.competicaoId)?.nome || "",
-          Mandante:
-            equipes.find((e) => e.id === partida?.mandanteId)?.nome || "",
-          Visitante:
-            equipes.find((e) => e.id === partida?.visitanteId)?.nome || "",
-          Mercado: mercados.find((m) => m.id === item.mercadoId)?.nome || "",
-          Estrategia:
-            estrategias.find((e) => e.id === item.estrategiaId)?.nome || "",
-          Stake: parseFloat(item.stake || "0"),
-          Resultado: parseFloat(item.resultadoFinanceiro || "0"),
-          TempoExposicaoMin: item.tempoExposicaoMin,
-          SeguiuPlano: item.seguiuPlano,
-          EstadoEmocional: item.estadoEmocional,
-          MotivacaoEntrada: item.motivacaoEntrada,
-          Autoavaliacao: item.autoavaliacao,
-        };
-      });
-    
-      const ws = XLSX.utils.json_to_sheet(dadosExcel);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Operações");
-      XLSX.writeFile(wb, "Relatorio_MindTrade_Completo.xlsx");
-    };
-
   // === UI ===
   return (
     <div className="container mx-auto px-4 py-8">
@@ -738,27 +638,6 @@ export default function Relatorios() {
             icon={BarChart3}
           />
         </div>
-
-        {/* === BOTÕES DE EXPORTAÇÃO === */}
-          <div className="flex justify-end gap-3 mb-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-sm flex items-center gap-2"
-              onClick={exportarPDF}
-            >
-              📄 PDF Sintético
-            </Button>
-          
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-sm flex items-center gap-2"
-              onClick={exportarExcel}
-            >
-              📊 Excel Completo
-            </Button>
-          </div>
 
         {/* === Tabs === */}
         <Tabs defaultValue="geral" className="space-y-4">
