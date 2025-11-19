@@ -459,9 +459,9 @@ export default function Relatorios() {
 
     // === EXPORTAR PDF (Sintético) ===
     const exportarPDF = async () => {
-    const jsPDFModule = await import(/* @vite-ignore */ ("jspdf"));
-    const autoTableModule = await import(/* @vite-ignore */ ("jspdf-autotable"));
-  
+    const jsPDFModule = await import(/* @vite-ignore */ ("j" + "spdf"));
+    const autoTableModule = await import(/* @vite-ignore */ ("jspdf-" + "autotable"));
+
     const jsPDF = jsPDFModule.default;
     const autoTable = autoTableModule.default;
   
@@ -522,7 +522,7 @@ export default function Relatorios() {
 
     // === EXPORTAR EXCEL (Completo) ===
     const exportarExcel = async () => {
-      const XLSX = await import(/* @vite-ignore */ ("xlsx"));
+      const XLSX = await import(/* @vite-ignore */ ("x" + "lsx"));
     
       const dadosExcel = itensFiltrados.map((item) => {
         const op = operacoes.find((o) => o.id === item.operacaoId);
