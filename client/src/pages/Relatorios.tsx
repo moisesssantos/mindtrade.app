@@ -22,8 +22,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 
 type Operacao = {
@@ -461,61 +459,67 @@ export default function Relatorios() {
   };
 
     // === EXPORTAR PDF (Sintético) ===
-    const exportarPDF = () => {
-      const doc = new jsPDF();
-    
-      doc.setFontSize(14);
-      doc.text("Relatório Sintético - MindTrade", 14, 15);
-    
-      const dadosPDF = itensFiltrados.map((item) => {
-        const op = operacoes.find((o) => o.id === item.operacaoId);
-        const partida = partidas.find((p) => p.id === op?.partidaId);
-        const mercado = mercados.find((m) => m.id === item.mercadoId);
-        const estrategia = estrategias.find((e) => e.id === item.estrategiaId);
-    
-        const stake = parseFloat(item.stake || "0");
-        const resultado = parseFloat(item.resultadoFinanceiro || "0");
-        const roiStake = stake > 0 ? (resultado / stake) * 100 : 0;
-    
-        return [
-          partida?.data || "",
-          competicoes.find((c) => c.id === partida?.competicaoId)?.nome || "",
-          equipes.find((e) => e.id === partida?.mandanteId)?.nome || "",
-          equipes.find((e) => e.id === partida?.visitanteId)?.nome || "",
-          mercado?.nome || "",
-          estrategia?.nome || "",
-          `R$ ${stake.toFixed(2).replace(".", ",")}`,
-          `R$ ${resultado.toFixed(2).replace(".", ",")}`,
-          `${roiStake.toFixed(1).replace(".", ",")}%`,
-          `${roi.toFixed(1).replace(".", ",")}%`,
-          `R$ ${lucroTotal.toFixed(2).replace(".", ",")}`,
-        ];
-      });
-    
-      autoTable(doc, {
-        startY: 25,
-        head: [
-          [
-            "Data",
-            "Competição",
-            "Mandante",
-            "Visitante",
-            "Mercado",
-            "Estratégia",
-            "Stake (R$)",
-            "Resultado (R$)",
-            "ROI/Stake (%)",
-            "Acumulado (%)",
-            "Total Acumulado (R$)",
-          ],
+    const exportarPDF = async () => {
+    const jsPDFModule = await import("jspdf");
+    const autoTableModule = await import("jspdf-autotable");
+  
+    const jsPDF = jsPDFModule.default;
+    const autoTable = autoTableModule.default;
+  
+    const doc = new jsPDF();
+  
+    doc.setFontSize(14);
+    doc.text("Relatório Sintético - MindTrade", 14, 15);
+  
+    const dadosPDF = itensFiltrados.map((item) => {
+      const op = operacoes.find((o) => o.id === item.operacaoId);
+      const partida = partidas.find((p) => p.id === op?.partidaId);
+      const mercado = mercados.find((m) => m.id === item.mercadoId);
+      const estrategia = estrategias.find((e) => e.id === item.estrategiaId);
+  
+      const stake = parseFloat(item.stake || "0");
+      const resultado = parseFloat(item.resultadoFinanceiro || "0");
+      const roiStake = stake > 0 ? (resultado / stake) * 100 : 0;
+  
+      return [
+        partida?.data || "",
+        competicoes.find((c) => c.id === partida?.competicaoId)?.nome || "",
+        equipes.find((e) => e.id === partida?.mandanteId)?.nome || "",
+        equipes.find((e) => e.id === partida?.visitanteId)?.nome || "",
+        mercado?.nome || "",
+        estrategia?.nome || "",
+        `R$ ${stake.toFixed(2).replace(".", ",")}`,
+        `R$ ${resultado.toFixed(2).replace(".", ",")}`,
+        `${roiStake.toFixed(1).replace(".", ",")}%`,
+        `${roi.toFixed(1).replace(".", ",")}%`,
+        `R$ ${lucroTotal.toFixed(2).replace(".", ",")}`,
+      ];
+    });
+  
+    autoTable(doc, {
+      startY: 25,
+      head: [
+        [
+          "Data",
+          "Competição",
+          "Mandante",
+          "Visitante",
+          "Mercado",
+          "Estratégia",
+          "Stake (R$)",
+          "Resultado (R$)",
+          "ROI/Stake (%)",
+          "Acumulado (%)",
+          "Total Acumulado (R$)",
         ],
-        body: dadosPDF,
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [0, 153, 221] }, // azul MindTrade
-      });
-    
-      doc.save("Relatorio_MindTrade.pdf");
-    };
+      ],
+      body: dadosPDF,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [0, 153, 221] },
+    });
+  
+    doc.save("Relatorio_MindTrade.pdf");
+  };
 
     // === EXPORTAR EXCEL (Completo) ===
     const exportarExcel = () => {
