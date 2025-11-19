@@ -460,7 +460,9 @@ export default function Relatorios() {
     // === EXPORTAR PDF (Sintético) ===
     const exportarPDF = async () => {
     const jsPDFModule = await import(/* @vite-ignore */ ("j" + "spdf"));
-    const autoTableModule = await import(/* @vite-ignore */ ("jspdf-" + "autotable"));
+    const autoTableModule = await import(
+      /* @vite-ignore */ ("js" + "pdf" + "-autotable")
+    );
 
     const jsPDF = jsPDFModule.default;
     const autoTable = autoTableModule.default;
