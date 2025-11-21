@@ -299,7 +299,7 @@ const handleClose = () => {
         <FormControl>
           <Input
             {...field}
-            placeholder="M"
+            placeholder="2"
             maxLength={2}
             data-testid="input-classificacao-m"
             className="text-center"
@@ -319,7 +319,7 @@ const handleClose = () => {
         <FormControl>
           <Input
             {...field}
-            placeholder="V"
+            placeholder="9"
             maxLength={2}
             data-testid="input-classificacao-v"
             className="text-center"
@@ -501,7 +501,7 @@ const handleClose = () => {
     name="importanciaProxPartidaM"
     render={({ field }) => (
       <FormItem>
-        <FormLabel>Importância Próx. M</FormLabel>
+        <FormLabel>Import. Próx. Partida M</FormLabel>
         <Select
           onValueChange={(value) => {
             if (value === "__manage__") {
@@ -541,7 +541,7 @@ const handleClose = () => {
     name="importanciaProxPartidaV"
     render={({ field }) => (
       <FormItem>
-        <FormLabel>Importância Próx. V</FormLabel>
+        <FormLabel>Import. Próx. Partida V</FormLabel>
         <Select
           onValueChange={(value) => {
             if (value === "__manage__") {
