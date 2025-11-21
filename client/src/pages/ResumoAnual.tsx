@@ -213,70 +213,73 @@ export default function ResumoAnual() {
             </Card>
           </div>
 
-          {/* Gráfico de Evolução do Lucro */}
+          {/* Gráfico de Evolução Completo */}
           <Card className={isDarkMode ? "bg-[#2a2b2e] border-[#44494d]" : "bg-white border border-gray-200 shadow-sm"}>
             <CardHeader>
               <CardTitle>
-                Evolução Acumulada dos Ganhos/Prejuízos {anoSelecionado}
+                Fluxo Mensal e Evolução Acumulada {anoSelecionado}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart 
-                  data={dadosMensais?.map((m, i) => ({
+              <ResponsiveContainer width="100%" height={350}>
+                <ComposedChart
+                  data={(dadosMensais || []).map((m, i) => ({
                     mes: m.mes,
                     lucro: m.lucro,
-                    lucroAcumulado: dadosGrafico[i]?.lucroAcumulado || 0
-                  }))} 
+                    depositos: m.depositos,
+                    saques: m.saques,
+                    lucroAcumulado: dadosGrafico[i]?.lucroAcumulado ?? 0,
+                  }))}
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "hsl(var(--border))" : "#e2e8f0"} />
                   <XAxis dataKey="mes" stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"} />
                   <YAxis
                     stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"}
-                    tickFormatter={(value) => `R$ ${value.toLocaleString('pt-BR')}`}
+                    tickFormatter={(value) => `R$ ${value.toLocaleString("pt-BR")}`}
                   />
                   <Tooltip
                     formatter={(value: number, name: string) => [
                       formatarMoeda(value),
-                      name === "lucro" ? "Lucro Mensal" : "Lucro/Prej. Acumulado"
+                      name === "lucro"
+                        ? "Lucro Mensal"
+                        : name === "depositos"
+                        ? "Depósitos"
+                        : name === "saques"
+                        ? "Saques"
+                        : "Lucro Acumulado",
                     ]}
-                    labelStyle={{ color: isDarkMode ? "white" : "black" }}
-                    contentStyle={{
-                      backgroundColor: isDarkMode ? "hsl(var(--background))" : "rgba(255,255,255,0.9)",
-                      border: isDarkMode ? "1px solid hsl(var(--border))" : "1px solid #cbd5e1",
-                      borderRadius: "8px",
-                      color: isDarkMode ? "white" : "black",
-                      backdropFilter: "blur(4px)",
-                    }}
                   />
+                  <Legend />
           
-                  {/* Barras com lucro mensal (verde se positivo, vermelho se negativo) */}
-                  <Bar 
-                    dataKey="lucro" 
-                    name="Lucro Mensal"
-                    fillOpacity={0.8}
-                  >
-                    {dadosMensais?.map((entry, index) => (
-                      <Cell 
-                        key={`cell-${index}`} 
-                        fill={entry.lucro >= 0 ? "hsl(145, 60%, 45%)" : "hsl(0, 70%, 50%)"} 
+                  {/* Barras empilhadas de Depósitos e Saques */}
+                  <Bar dataKey="depositos" stackId="fluxo" name="Depósitos" fill="hsl(145, 60%, 45%)" />
+                  <Bar dataKey="saques" stackId="fluxo" name="Saques" fill="hsl(0, 70%, 50%)" />
+          
+                  {/* Barra de Lucro Mensal com cor dinâmica */}
+                  <Bar dataKey="lucro" name="Lucro Mensal" barSize={24}>
+                    {(dadosMensais || []).map((m, idx) => (
+                      <Cell
+                        key={`cell-${idx}`}
+                        fill={m.lucro >= 0 ? "hsl(145, 60%, 45%)" : "hsl(0, 70%, 50%)"}
                       />
                     ))}
                   </Bar>
           
-                  {/* Linha com lucro acumulado */}
+                  {/* Linha de Lucro Acumulado */}
                   <Line
                     type="monotone"
                     dataKey="lucroAcumulado"
                     stroke="hsl(var(--primary))"
                     strokeWidth={2}
-                    dot={{ fill: 'hsl(var(--primary))' }}
+                    dot={{ fill: "hsl(var(--primary))" }}
                     name="Lucro Acumulado"
                   />
-                </LineChart>
+                </ComposedChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
+
+
 
           {/* Tabela de Dados Mensais */}
           <Card
