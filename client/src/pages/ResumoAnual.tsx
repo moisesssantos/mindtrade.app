@@ -337,7 +337,19 @@ export default function ResumoAnual() {
                     }}
                   />
 
-                  <Legend />
+                  <Legend
+                    verticalAlign="top"
+                    align="center"
+                    wrapperStyle={{
+                      paddingTop: 20,
+                      paddingBottom: 10,
+                      lineHeight: "28px",
+                      fontSize: 14,
+                      gap: "24px",
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
+                  />
 
                   {/* Depósitos */}
                   <Bar
@@ -351,7 +363,7 @@ export default function ResumoAnual() {
                       position="center"
                       content={({ x, y, value, width, height }) => {
                         const cx = x + width / 2;
-                        const cy = y + height / 2;
+                        const cy = y - 4;
                         return (
                           <text
                             x={cx}
@@ -381,7 +393,7 @@ export default function ResumoAnual() {
                       position="center"
                       content={({ x, y, value, width, height }) => {
                         const cx = x + width / 2;
-                        const cy = y + height / 2;
+                        const cy = y - 4;
                         return (
                           <text
                             x={cx}
@@ -415,7 +427,7 @@ export default function ResumoAnual() {
                       position="center"
                       content={({ x, y, value, width, height }) => {
                         const cx = x + width / 2;
-                        const cy = y + height / 2;
+                        const cy = y - 4;
                         return (
                           <text
                             x={cx}
