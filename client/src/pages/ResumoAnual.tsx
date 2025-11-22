@@ -338,7 +338,7 @@ export default function ResumoAnual() {
                   />
 
                   <Legend
-                    verticalAlign="top"
+                    verticalAlign="bottom"
                     align="center"
                     wrapperStyle={{
                       paddingTop: 20,
@@ -363,7 +363,7 @@ export default function ResumoAnual() {
                       position="center"
                       content={({ x, y, value, width, height }) => {
                         const cx = x + width / 2;
-                        const cy = y - 4;
+                        const cy = y - 10;
                         return (
                           <text
                             x={cx}
@@ -393,7 +393,7 @@ export default function ResumoAnual() {
                       position="center"
                       content={({ x, y, value, width, height }) => {
                         const cx = x + width / 2;
-                        const cy = y - 4;
+                        const cy = y - 10;
                         return (
                           <text
                             x={cx}
@@ -427,7 +427,7 @@ export default function ResumoAnual() {
                       position="center"
                       content={({ x, y, value, width, height }) => {
                         const cx = x + width / 2;
-                        const cy = y - 4;
+                        const cy = y - 10;
                         return (
                           <text
                             x={cx}
