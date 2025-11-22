@@ -4,7 +4,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, Bar, Cell, Legend, LabelList } from "recharts";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  ComposedChart,
+  Bar,
+  Cell,
+  Legend,
+  LabelList,
+} from "recharts";
 
 interface MesData {
   mes: string;
@@ -21,7 +34,7 @@ export default function ResumoAnual() {
   const anoAtual = new Date().getFullYear();
   const [anoSelecionado, setAnoSelecionado] = useState(anoAtual);
 
-  // ✅ Detectar automaticamente o modo escuro
+  // Detectar automaticamente o modo escuro
   const [isDarkMode, setIsDarkMode] = useState<boolean>(
     document.documentElement.classList.contains("dark")
   );
@@ -51,29 +64,33 @@ export default function ResumoAnual() {
   };
 
   // Calcular totais anuais
-  const totaisAnuais = dadosMensais?.reduce((acc, m) => ({
-    totalLucro: acc.totalLucro + m.lucro,
-    totalDepositos: acc.totalDepositos + m.depositos,
-    totalSaques: acc.totalSaques + m.saques,
-  }), { totalLucro: 0, totalDepositos: 0, totalSaques: 0 }) || { totalLucro: 0, totalDepositos: 0, totalSaques: 0 };
+  const totaisAnuais =
+    dadosMensais?.reduce(
+      (acc, m) => ({
+        totalLucro: acc.totalLucro + m.lucro,
+        totalDepositos: acc.totalDepositos + m.depositos,
+        totalSaques: acc.totalSaques + m.saques,
+      }),
+      { totalLucro: 0, totalDepositos: 0, totalSaques: 0 }
+    ) || { totalLucro: 0, totalDepositos: 0, totalSaques: 0 };
 
   const valorInicialAno = dadosMensais?.[0]?.valorInicial || 0;
   const valorFinalAno = dadosMensais?.[dadosMensais.length - 1]?.valorFinal || 0;
   const roiAnual = valorInicialAno > 0 ? (totaisAnuais.totalLucro / valorInicialAno) * 100 : 0;
 
   // Preparar dados para o gráfico (evolução acumulada)
-  const dadosGrafico = dadosMensais?.reduce((acc, m) => {
-    const lucroAcumulado = acc.length > 0 
-      ? acc[acc.length - 1].lucroAcumulado + m.lucro
-      : m.lucro;
+  const dadosGrafico =
+    dadosMensais?.reduce((acc, m) => {
+      const lucroAcumulado =
+        acc.length > 0 ? acc[acc.length - 1].lucroAcumulado + m.lucro : m.lucro;
 
-    acc.push({
-      mes: m.mes,
-      lucroAcumulado,
-    });
+      acc.push({
+        mes: m.mes,
+        lucroAcumulado,
+      });
 
-    return acc;
-  }, [] as { mes: string; lucroAcumulado: number }[]) || [];
+      return acc;
+    }, [] as { mes: string; lucroAcumulado: number }[]) || [];
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -84,7 +101,7 @@ export default function ResumoAnual() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => setAnoSelecionado(prev => prev - 1)}
+            onClick={() => setAnoSelecionado((prev) => prev - 1)}
             data-testid="button-ano-anterior"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -97,7 +114,7 @@ export default function ResumoAnual() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => setAnoSelecionado(prev => prev + 1)}
+            onClick={() => setAnoSelecionado((prev) => prev + 1)}
             disabled={anoSelecionado >= anoAtual}
             data-testid="button-proximo-ano"
           >
@@ -180,10 +197,7 @@ export default function ResumoAnual() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div
-                  className="text-2xl font-mono font-bold"
-                  data-testid="total-depositos"
-                >
+                <div className="text-2xl font-mono font-bold" data-testid="total-depositos">
                   {formatarMoeda(totaisAnuais.totalDepositos)}
                 </div>
               </CardContent>
@@ -203,10 +217,7 @@ export default function ResumoAnual() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div
-                  className="text-2xl font-mono font-bold"
-                  data-testid="total-saques"
-                >
+                <div className="text-2xl font-mono font-bold" data-testid="total-saques">
                   {formatarMoeda(totaisAnuais.totalSaques)}
                 </div>
               </CardContent>
@@ -222,9 +233,7 @@ export default function ResumoAnual() {
             }
           >
             <CardHeader>
-              <CardTitle>
-                Fluxo Mensal e Evolução Acumulada {anoSelecionado}
-              </CardTitle>
+              <CardTitle>Fluxo Mensal e Evolução Acumulada {anoSelecionado}</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={350}>
@@ -241,18 +250,18 @@ export default function ResumoAnual() {
                     strokeDasharray="3 3"
                     stroke={isDarkMode ? "hsl(var(--border))" : "#e2e8f0"}
                   />
-          
+
                   <XAxis
                     dataKey="mes"
                     stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"}
                   />
-          
+
                   <YAxis
                     stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"}
                     tickFormatter={(value) => formatarMoeda(value)}
                     domain={["dataMin", "dataMax"]}
                   />
-          
+
                   {/* Tooltip apenas acumulado */}
                   <Tooltip
                     content={({ active, payload }) => {
@@ -279,9 +288,9 @@ export default function ResumoAnual() {
                       return null;
                     }}
                   />
-          
+
                   <Legend />
-          
+
                   {/* Depósitos → ROXO */}
                   <Bar dataKey="depositos" name="Depósitos" barSize={20} fill="#8b5cf6">
                     <LabelList
@@ -306,7 +315,7 @@ export default function ResumoAnual() {
                       }}
                     />
                   </Bar>
-          
+
                   {/* Saques → LARANJA */}
                   <Bar dataKey="saques" name="Saques" barSize={20} fill="#fb923c">
                     <LabelList
@@ -331,7 +340,7 @@ export default function ResumoAnual() {
                       }}
                     />
                   </Bar>
-          
+
                   {/* Lucro com cor dinâmica */}
                   <Bar dataKey="lucro" name="Lucro Mensal" barSize={26}>
                     {(dadosMensais || []).map((m, idx) => (
@@ -359,7 +368,7 @@ export default function ResumoAnual() {
                       }}
                     />
                   </Bar>
-          
+
                   {/* Linha do acumulado */}
                   <Line
                     type="monotone"
@@ -373,34 +382,6 @@ export default function ResumoAnual() {
               </ResponsiveContainer>
             </CardContent>
           </Card>
-              
-                      {/* Linha do acumulado */}
-                      <Line
-                        type="monotone"
-                        dataKey="lucroAcumulado"
-                        stroke="hsl(var(--primary))"
-                        strokeWidth={2}
-                        dot={{ fill: "hsl(var(--primary))" }}
-                        name="Lucro Acumulado"
-                      />
-                    </ComposedChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-            
-                    {/* Linha do acumulado */}
-                    <Line
-                      type="monotone"
-                      dataKey="lucroAcumulado"
-                      stroke="hsl(var(--primary))"
-                      strokeWidth={2}
-                      dot={{ fill: "hsl(var(--primary))" }}
-                      name="Lucro Acumulado"
-                    />
-                  </ComposedChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
 
           {/* Tabela de Dados Mensais */}
           <Card
@@ -431,11 +412,7 @@ export default function ResumoAnual() {
                     <TableRow
                       key={mes.mesNumero}
                       data-testid={`row-mes-${mes.mesNumero}`}
-                      className={
-                        isDarkMode
-                          ? "hover:bg-[#383a3e]" // linha com leve destaque no modo escuro
-                          : "hover:bg-gray-50" // destaque suave no modo claro
-                      }
+                      className={isDarkMode ? "hover:bg-[#383a3e]" : "hover:bg-gray-50"}
                     >
                       <TableCell className="font-medium">{mes.mes}</TableCell>
                       <TableCell className="text-right" data-testid={`valor-inicial-${mes.mesNumero}`}>
@@ -451,17 +428,12 @@ export default function ResumoAnual() {
                       >
                         {formatarMoeda(mes.lucro)}
                       </TableCell>
-                      <TableCell
-                        className="text-right font-medium"
-                        data-testid={`valor-final-${mes.mesNumero}`}
-                      >
+                      <TableCell className="text-right font-medium" data-testid={`valor-final-${mes.mesNumero}`}>
                         {formatarMoeda(mes.valorFinal)}
                       </TableCell>
                       <TableCell
                         className={`text-right ${
-                          mes.roi >= 0
-                            ? "text-green-600 dark:text-green-400"
-                            : "text-red-600 dark:text-red-400"
+                          mes.roi >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
                         }`}
                         data-testid={`roi-${mes.mesNumero}`}
                       >
@@ -469,7 +441,7 @@ export default function ResumoAnual() {
                       </TableCell>
                       <TableCell
                         className="text-right text-green-600 dark:text-green-400"
-                        data-testid={`depositos-${mes.mesNumero}`}
+                        data-testid={`depositos-${mes.mesNumero`}
                       >
                         {formatarMoeda(mes.depositos)}
                       </TableCell>
@@ -485,7 +457,6 @@ export default function ResumoAnual() {
               </Table>
             </CardContent>
           </Card>
-
         </>
       )}
     </div>
