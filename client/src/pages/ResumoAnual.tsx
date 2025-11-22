@@ -214,7 +214,13 @@ export default function ResumoAnual() {
           </div>
 
           {/* Lucro Acumulado — Depósitos/Saques no eixo invertido */}
-            <Card className={isDarkMode ? "bg-[#2a2b2e] border-[#44494d]" : "bg-white border border-gray-200 shadow-sm"}>
+            <Card
+              className={
+                isDarkMode
+                  ? "bg-[#2a2b2e] border-[#44494d]"
+                  : "bg-white border border-gray-200 shadow-sm"
+              }
+            >
               <CardHeader>
                 <CardTitle>
                   Fluxo Mensal e Evolução Acumulada {anoSelecionado}
@@ -231,28 +237,46 @@ export default function ResumoAnual() {
                       lucroAcumulado: dadosGrafico[i]?.lucroAcumulado ?? 0,
                     }))}
                   >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke={isDarkMode ? "hsl(var(--border))" : "#e2e8f0"}
+                    />
             
-                    <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "hsl(var(--border))" : "#e2e8f0"} />
-            
-                    <XAxis dataKey="mes" stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"} />
+                    <XAxis
+                      dataKey="mes"
+                      stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"}
+                    />
             
                     <YAxis
                       stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"}
-                      tickFormatter={(value) => `R$ ${value.toLocaleString("pt-BR")}`}
+                      tickFormatter={(value) => formatarMoeda(value)}
                       domain={["dataMin", "dataMax"]}
                     />
             
-                    {/* Tooltip apenas para acumulado */}
+                    {/* Tooltip apenas acumulado */}
                     <Tooltip
-                      contentStyle={{
-                        backgroundColor: isDarkMode ? "#1e1f22" : "#ffffff",
-                        color: isDarkMode ? "#ffffff" : "#000000",
-                        borderRadius: 8,
-                        border: isDarkMode ? "1px solid #555" : "1px solid #ccc",
-                      }}
-                      formatter={(value: number, name: string) => {
-                        if (name !== "lucroAcumulado") return null;
-                        return [formatarMoeda(value), "Lucro Acumulado"];
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const acumulado = payload.find(
+                            (p: any) => p.dataKey === "lucroAcumulado"
+                          );
+                          if (acumulado) {
+                            return (
+                              <div
+                                style={{
+                                  backgroundColor: isDarkMode ? "#1e1f22" : "#ffffff",
+                                  color: isDarkMode ? "#ffffff" : "#000000",
+                                  borderRadius: 8,
+                                  border: isDarkMode ? "1px solid #555" : "1px solid #ccc",
+                                  padding: "8px",
+                                }}
+                              >
+                                <p>{`Lucro Acumulado: ${formatarMoeda(acumulado.value)}`}</p>
+                              </div>
+                            );
+                          }
+                        }
+                        return null;
                       }}
                     />
             
@@ -262,8 +286,13 @@ export default function ResumoAnual() {
                     <Bar dataKey="depositos" name="Depósitos" barSize={20} fill="#8b5cf6">
                       <LabelList
                         dataKey="depositos"
-                        position="inside"
-                        style={{ fill: "#fff", textAnchor: "middle", dominantBaseline: "middle" }}
+                        position="center"
+                        style={{
+                          fill: "#fff",
+                          textAnchor: "middle",
+                          dominantBaseline: "middle",
+                          fontSize: 9,
+                        }}
                         formatter={(value: number) => formatarMoeda(value)}
                       />
                     </Bar>
@@ -272,8 +301,13 @@ export default function ResumoAnual() {
                     <Bar dataKey="saques" name="Saques" barSize={20} fill="#fb923c">
                       <LabelList
                         dataKey="saques"
-                        position="inside"
-                        style={{ fill: "#fff", textAnchor: "middle", dominantBaseline: "middle" }}
+                        position="center"
+                        style={{
+                          fill: "#fff",
+                          textAnchor: "middle",
+                          dominantBaseline: "middle",
+                          fontSize: 9,
+                        }}
                         formatter={(value: number) => formatarMoeda(value)}
                       />
                     </Bar>
@@ -288,8 +322,13 @@ export default function ResumoAnual() {
                       ))}
                       <LabelList
                         dataKey="lucro"
-                        position="inside"
-                        style={{ fill: "#fff", textAnchor: "middle", dominantBaseline: "middle" }}
+                        position="center"
+                        style={{
+                          fill: "#fff",
+                          textAnchor: "middle",
+                          dominantBaseline: "middle",
+                          fontSize: 9,
+                        }}
                         formatter={(value: number) => formatarMoeda(value)}
                       />
                     </Bar>
@@ -303,7 +342,6 @@ export default function ResumoAnual() {
                       dot={{ fill: "hsl(var(--primary))" }}
                       name="Lucro Acumulado"
                     />
-            
                   </ComposedChart>
                 </ResponsiveContainer>
               </CardContent>
