@@ -339,12 +339,12 @@ export default function ResumoAnual() {
                       content={(props: any) => {
                         const { x = 0, y = 0, value, width = 0 } = props;
                         const cx = x + width / 2;
-                        const cy = y - 6; // topo da barra positiva
+                        const cy = y - 6; // sempre acima da barra
                         return (
                           <text
                             x={cx}
                             y={cy}
-                            fill="#44494D"
+                            fill="#a1a6ab"
                             textAnchor="middle"
                             dominantBaseline="middle"
                             fontSize={12}
@@ -370,7 +370,7 @@ export default function ResumoAnual() {
                           <text
                             x={cx}
                             y={cy}
-                            fill="#44494D"
+                            fill="#a1a6ab"
                             textAnchor="middle"
                             dominantBaseline="middle"
                             fontSize={12}
@@ -402,7 +402,7 @@ export default function ResumoAnual() {
                           <text
                             x={cx}
                             y={cy}
-                            fill="#44494D"
+                            fill="#a1a6ab"
                             textAnchor="middle"
                             dominantBaseline="middle"
                             fontSize={12}
