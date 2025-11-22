@@ -251,21 +251,21 @@ export default function ResumoAnual() {
                   />
                   <Legend />
           
-                  {/* Barras empilhadas de Depósitos e Saques */}
-                  <Bar dataKey="depositos" stackId="fluxo" name="Depósitos" fill="hsl(145, 60%, 45%)" />
-                  <Bar dataKey="saques" stackId="fluxo" name="Saques" fill="hsl(0, 70%, 50%)" />
+                  {/* Depósitos e Saques empilhados entre si */}
+                  <Bar dataKey="depositos" stackId="movimentacoes" name="Depósitos" fill="#3b82f6" />
+                  <Bar dataKey="saques" stackId="movimentacoes" name="Saques" fill="#fb923c" />
           
-                  {/* Barra de Lucro Mensal com cor dinâmica */}
-                  <Bar dataKey="lucro" name="Lucro Mensal" barSize={24}>
+                  {/* Lucro/Prejuízo com cor dinâmica */}
+                  <Bar dataKey="lucro" name="Lucro Mensal" barSize={26}>
                     {(dadosMensais || []).map((m, idx) => (
                       <Cell
-                        key={`cell-${idx}`}
-                        fill={m.lucro >= 0 ? "hsl(145, 60%, 45%)" : "hsl(0, 70%, 50%)"}
+                        key={`lm-${idx}`}
+                        fill={m.lucro >= 0 ? "#22c55e" : "#ef4444"}
                       />
                     ))}
                   </Bar>
           
-                  {/* Linha de Lucro Acumulado */}
+                  {/* Linha do Acumulado */}
                   <Line
                     type="monotone"
                     dataKey="lucroAcumulado"
@@ -278,8 +278,6 @@ export default function ResumoAnual() {
               </ResponsiveContainer>
             </CardContent>
           </Card>
-
-
 
           {/* Tabela de Dados Mensais */}
           <Card
