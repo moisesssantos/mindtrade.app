@@ -344,7 +344,7 @@ export default function ResumoAnual() {
                           <text
                             x={cx}
                             y={cy}
-                            fill="##ada802"
+                            fill="#c2c2c0"
                             textAnchor="middle"
                             dominantBaseline="middle"
                             fontSize={12}
@@ -370,7 +370,7 @@ export default function ResumoAnual() {
                           <text
                             x={cx}
                             y={cy}
-                            fill="##ada802"
+                            fill="#c2c2c0"
                             textAnchor="middle"
                             dominantBaseline="middle"
                             fontSize={12}
@@ -402,7 +402,7 @@ export default function ResumoAnual() {
                           <text
                             x={cx}
                             y={cy}
-                            fill="#ada802"
+                            fill="#c2c2c0"
                             textAnchor="middle"
                             dominantBaseline="middle"
                             fontSize={12}
