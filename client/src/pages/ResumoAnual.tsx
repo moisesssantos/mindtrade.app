@@ -359,7 +359,7 @@ export default function ResumoAnual() {
                             fill="#44494D"
                             textAnchor="middle"
                             dominantBaseline="middle"
-                            fontSize={10}
+                            fontSize={12}
                             transform={`rotate(-90, ${cx}, ${cy})`}
                           >
                             {formatarMoeda(Number(value))}
@@ -389,7 +389,7 @@ export default function ResumoAnual() {
                             fill="#44494D"
                             textAnchor="middle"
                             dominantBaseline="middle"
-                            fontSize={10}
+                            fontSize={12}
                             transform={`rotate(-90, ${cx}, ${cy})`}
                           >
                             {formatarMoeda(Number(value))}
@@ -423,7 +423,7 @@ export default function ResumoAnual() {
                             fill="#44494D"
                             textAnchor="middle"
                             dominantBaseline="middle"
-                            fontSize={10}
+                            fontSize={12}
                             transform={`rotate(-90, ${cx}, ${cy})`}
                           >
                             {formatarMoeda(Number(value))}
