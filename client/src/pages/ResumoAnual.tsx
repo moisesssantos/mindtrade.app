@@ -213,120 +213,113 @@ export default function ResumoAnual() {
             </Card>
           </div>
 
-          {/* Gráfico Acumulado + Depósitos/Saques */}
+          {/* GRÁFICO – Fluxo + Lucro Acumulado */}
           <Card
-            className={`relative p-4 transition-all duration-300 overflow-visible ${
+            className={
               isDarkMode
-                ? "bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-[0_0_15px_rgba(80,80,120,0.2)]"
+                ? "bg-[#2a2b2e] border border-[#44494d]"
                 : "bg-white border border-gray-200 shadow-sm"
-            }`}
+            }
           >
             <CardHeader>
               <CardTitle>
-                Evolução Acumulada + Depósitos/Saques ({anoSelecionado})
+                Fluxo Mensal e Evolução Acumulada {anoSelecionado}
               </CardTitle>
             </CardHeader>
           
-            <CardContent>
+            <CardContent className="pt-6">
               <ResponsiveContainer width="100%" height={350}>
-                <ComposedChart data={dados}>
+                <ComposedChart data={dadosMensais}>
                   
-                  {/* Eixo X */}
-                  <XAxis dataKey="mes" tick={{ fill: isDarkMode ? "#fff" : "#000" }} />
-          
-                  {/* Eixo Y Principal */}
-                  <YAxis
-                    yAxisId="left"
-                    tick={{ fill: isDarkMode ? "#fff" : "#000" }}
-                  />
-          
-                  {/* Eixo Y Secundário (invertido) */}
-                  <YAxis
-                    yAxisId="right"
-                    orientation="right"
-                    tick={{ fill: isDarkMode ? "#fff" : "#000" }}
-                    reversed={true}
-                  />
-          
-                  {/* Tooltip — TOTALMENTE LEGÍVEL */}
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: isDarkMode ? "#1f2937" : "#fff",
-                      border: "1px solid #444",
-                      borderRadius: "8px",
-                      color: "#fff"
-                    }}
-                    itemStyle={{ color: "#fff" }} // <<< AQUI ESTÁ O FIX REAL
-                    labelStyle={{ color: "#fff" }}
-                    formatter={(value, name) => {
-                      if (name === "Lucro Acumulado") {
-                        return [value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }), "Lucro Acumulado"];
-                      }
-                      if (name === "Lucro Mensal") {
-                        return [value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }), "Lucro Mensal"];
-                      }
-                      if (name === "Depósitos") {
-                        return [value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }), "Depósitos"];
-                      }
-                      if (name === "Saques") {
-                        return [value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }), "Saques"];
-                      }
-                      return value;
-                    }}
-                  />
-          
-                  {/* GRID */}
                   <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
           
-                  {/* ÁREA — Lucro Acumulado */}
-                  <Area
-                    yAxisId="left"
-                    type="monotone"
-                    dataKey="acumulado"
-                    name="Lucro Acumulado"
-                    stroke="#3b82f6"
-                    fill="#3b82f6"
-                    fillOpacity={0.15}
+                  <XAxis dataKey="mes" />
+          
+                  <YAxis yAxisId="left" />
+                  <YAxis yAxisId="right" orientation="right" />
+          
+                  {/* === LEGENDA MELHOR DISTRIBUÍDA === */}
+                  <Legend
+                    verticalAlign="top"
+                    align="center"
+                    wrapperStyle={{ marginBottom: 15 }}
                   />
           
-                  {/* LINHA — Lucro Mensal */}
-                  <Line
-                    yAxisId="left"
-                    type="monotone"
-                    dataKey="lucro"
-                    name="Lucro Mensal"
-                    stroke="#22c55e"
-                    strokeWidth={3}
-                    dot={{ r: 4 }}
+                  {/* === TOOLTIP AJUSTADO PARA MODO ESCURO === */}
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: isDarkMode ? "#1e1f22" : "#ffffff",
+                      border: "1px solid #555",
+                      borderRadius: 8,
+                      color: isDarkMode ? "#fff" : "#000",
+                    }}
+                    formatter={(value, name) => {
+                      if (name === "Lucro Acumulado") return [formatarMoeda(value), name];
+                      if (name === "Lucro Mensal") return [formatarMoeda(value), name];
+                      if (name === "Depósitos") return [formatarMoeda(value), name];
+                      if (name === "Saques") return [formatarMoeda(value), name];
+                    }}
                   />
           
-                  {/* BARRA — Depósitos (ROXO MINDTRADE) */}
+                  {/* ============================== */}
+                  {/*       MOVIMENTAÇÃO (BARRAS)    */}
+                  {/* ============================== */}
+          
+                  {/* DEPÓSITOS – ROXO */}
                   <Bar
                     yAxisId="right"
                     dataKey="depositos"
                     name="Depósitos"
-                    fill="#A855F7"   // <<< ROXO FINAL REAL
+                    stackId="fluxo"
                     barSize={20}
+                    fill="#8b5cf6"
+                    radius={[4, 4, 0, 0]}
                   />
           
-                  {/* BARRA — Saques */}
+                  {/* SAQUES – LARANJA (inverter barra) */}
                   <Bar
                     yAxisId="right"
                     dataKey="saques"
                     name="Saques"
-                    fill="#EF4444"   // vermelho
+                    stackId="fluxo"
                     barSize={20}
+                    fill="#f97316"
+                    radius={[0, 0, 4, 4]}
+                    transform="scale(1, -1)"
                   />
           
-                  {/* LEGENDA MELHORADA */}
-                  <Legend
-                    verticalAlign="top"
-                    align="center"
-                    wrapperStyle={{
-                      paddingBottom: "12px",
-                      color: isDarkMode ? "#fff" : "#000",
-                    }}
+                  {/* ============================== */}
+                  {/*         LUCRO MENSAL           */}
+                  {/* ============================== */}
+                  <Bar
+                    yAxisId="right"
+                    dataKey="lucro"
+                    name="Lucro Mensal"
+                    stackId="lucro"
+                    barSize={20}
+                  >
+                    {dadosMensais.map((m, idx) => (
+                      <Cell
+                        key={idx}
+                        fill={m.lucro >= 0 ? "#22c55e" : "#ef4444"} // verde para lucro, vermelho para prejuízo
+                      />
+                    ))}
+                  </Bar>
+          
+                  {/* ============================== */}
+                  {/*       LINHA – ACUMULADO        */}
+                  {/* ============================== */}
+                  <Line
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="acumulado"
+                    name="Lucro Acumulado"
+                    stroke="#3b82f6" // azul
+                    strokeWidth={3}
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
                   />
+          
                 </ComposedChart>
               </ResponsiveContainer>
             </CardContent>
