@@ -288,9 +288,31 @@ export default function ResumoAnual() {
                     domain={["dataMin", "dataMax"]}
                   />
           
+                  {/* Tooltip apenas acumulado */}
                   <Tooltip
-                    formatter={(value) => formatarMoeda(value)}
-                    labelFormatter={(label) => `Mês: ${label}`}
+                    content={({ active, payload, label }) => {
+                      if (active && Array.isArray(payload)) {
+                        const acumulado = payload.find(
+                          (p: any) => p?.dataKey === "lucroAcumulado"
+                        );
+                        if (acumulado && typeof acumulado.value === "number") {
+                          return (
+                            <div
+                              style={{
+                                backgroundColor: isDarkMode ? "#1e1f22" : "#ffffff",
+                                color: isDarkMode ? "#ffffff" : "#000000",
+                                borderRadius: 8,
+                                border: isDarkMode ? "1px solid #555" : "1px solid #ccc",
+                                padding: "8px",
+                              }}
+                            >
+                              <p>{`Lucro Acumulado (${label}): ${formatarMoeda(acumulado.value)}`}</p>
+                            </div>
+                          );
+                        }
+                      }
+                      return null;
+                    }}
                   />
           
                   <Legend
@@ -345,7 +367,8 @@ export default function ResumoAnual() {
                     stroke="hsl(var(--primary))"
                     strokeWidth={2}
                     dot={{ fill: "hsl(var(--primary))" }}
-                    name="Acumulado"
+                    name="Lucro Acumulado"
+                    legendType="line"
                   />
                 </ComposedChart>
               </ResponsiveContainer>
