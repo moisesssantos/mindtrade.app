@@ -213,113 +213,74 @@ export default function ResumoAnual() {
             </Card>
           </div>
 
-          {/* GRÁFICO – Fluxo + Lucro Acumulado */}
-          <Card
-            className={
-              isDarkMode
-                ? "bg-[#2a2b2e] border border-[#44494d]"
-                : "bg-white border border-gray-200 shadow-sm"
-            }
-          >
+          {/* PASSO 2 — Depósitos/Saques no eixo invertido */}
+          <Card className={isDarkMode ? "bg-[#2a2b2e] border-[#44494d]" : "bg-white border border-gray-200 shadow-sm"}>
             <CardHeader>
               <CardTitle>
                 Fluxo Mensal e Evolução Acumulada {anoSelecionado}
               </CardTitle>
             </CardHeader>
-          
-            <CardContent className="pt-6">
+            <CardContent>
               <ResponsiveContainer width="100%" height={350}>
-                <ComposedChart data={dadosMensais}>
-                  
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                <ComposedChart
+                  data={(dadosMensais || []).map((m, i) => ({
+                    mes: m.mes,
+                    lucro: m.lucro,
+                    // PASSO 2: depósitos para cima, saques para baixo
+                    depositos: Math.abs(m.depositos),
+                    saques: -Math.abs(m.saques),
+                    lucroAcumulado: dadosGrafico[i]?.lucroAcumulado ?? 0,
+                  }))}
+                >
           
-                  <XAxis dataKey="mes" />
+                  <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "hsl(var(--border))" : "#e2e8f0"} />
           
-                  <YAxis yAxisId="left" />
-                  <YAxis yAxisId="right" orientation="right" />
+                  <XAxis dataKey="mes" stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"} />
           
-                  {/* === LEGENDA MELHOR DISTRIBUÍDA === */}
-                  <Legend
-                    verticalAlign="top"
-                    align="center"
-                    wrapperStyle={{ marginBottom: 15 }}
+                  <YAxis
+                    stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"}
+                    tickFormatter={(value) => `R$ ${value.toLocaleString("pt-BR")}`}
                   />
           
-                  {/* === TOOLTIP AJUSTADO PARA MODO ESCURO === */}
+                  {/* LabelMap corrigindo o tooltip */}
                   <Tooltip
-                    contentStyle={{
-                      backgroundColor: isDarkMode ? "#1e1f22" : "#ffffff",
-                      border: "1px solid #555",
-                      borderRadius: 8,
-                      color: isDarkMode ? "#fff" : "#000",
-                    }}
-                    formatter={(value, name) => {
-                      if (name === "Lucro Acumulado") return [formatarMoeda(value), name];
-                      if (name === "Lucro Mensal") return [formatarMoeda(value), name];
-                      if (name === "Depósitos") return [formatarMoeda(value), name];
-                      if (name === "Saques") return [formatarMoeda(value), name];
+                    formatter={(value: number, name: string) => {
+                      const labelMap: any = {
+                        lucro: "Lucro Mensal",
+                        depositos: "Depósitos",
+                        saques: "Saques",
+                        lucroAcumulado: "Lucro Acumulado",
+                      };
+          
+                      return [formatarMoeda(value), labelMap[name] || name];
                     }}
                   />
           
-                  {/* ============================== */}
-                  {/*       MOVIMENTAÇÃO (BARRAS)    */}
-                  {/* ============================== */}
+                  <Legend />
           
-                  {/* DEPÓSITOS – ROXO */}
-                  <Bar
-                    yAxisId="right"
-                    dataKey="depositos"
-                    name="Depósitos"
-                    stackId="fluxo"
-                    barSize={20}
-                    fill="#8b5cf6"
-                    radius={[4, 4, 0, 0]}
-                  />
+                  {/* PASSO 2 — Movimentos com eixo invertido */}
+                  <Bar dataKey="depositos" name="Depósitos" barSize={20} fill="#3b82f6" />
+                  <Bar dataKey="saques" name="Saques" barSize={20} fill="#fb923c" />
           
-                  {/* SAQUES – LARANJA (inverter barra) */}
-                  <Bar
-                    yAxisId="right"
-                    dataKey="saques"
-                    name="Saques"
-                    stackId="fluxo"
-                    barSize={20}
-                    fill="#f97316"
-                    radius={[0, 0, 4, 4]}
-                    transform="scale(1, -1)"
-                  />
-          
-                  {/* ============================== */}
-                  {/*         LUCRO MENSAL           */}
-                  {/* ============================== */}
-                  <Bar
-                    yAxisId="right"
-                    dataKey="lucro"
-                    name="Lucro Mensal"
-                    stackId="lucro"
-                    barSize={20}
-                  >
-                    {dadosMensais.map((m, idx) => (
+                  {/* Lucro com cor dinâmica */}
+                  <Bar dataKey="lucro" name="Lucro Mensal" barSize={26}>
+                    {(dadosMensais || []).map((m, idx) => (
                       <Cell
-                        key={idx}
-                        fill={m.lucro >= 0 ? "#22c55e" : "#ef4444"} // verde para lucro, vermelho para prejuízo
+                        key={`lm-${idx}`}
+                        fill={m.lucro >= 0 ? "#22c55e" : "#ef4444"}
                       />
                     ))}
                   </Bar>
           
-                  {/* ============================== */}
-                  {/*       LINHA – ACUMULADO        */}
-                  {/* ============================== */}
+                  {/* Linha do acumulado */}
                   <Line
-                    yAxisId="left"
                     type="monotone"
-                    dataKey="acumulado"
+                    dataKey="lucroAcumulado"
+                    stroke="hsl(var(--primary))"
+                    strokeWidth={2}
+                    dot={{ fill: "hsl(var(--primary))" }}
                     name="Lucro Acumulado"
-                    stroke="#3b82f6" // azul
-                    strokeWidth={3}
-                    dot={{ r: 4 }}
-                    activeDot={{ r: 6 }}
                   />
-          
                 </ComposedChart>
               </ResponsiveContainer>
             </CardContent>
