@@ -249,7 +249,7 @@ export default function ResumoAnual() {
             </Card>
           </div>
 
-          {/* Gráfico: Fluxo Mensal + Lucro Acumulado */}
+         {/* Gráfico: Fluxo Mensal + Lucro Acumulado */}
           <Card
             className={
               isDarkMode
@@ -272,6 +272,7 @@ export default function ResumoAnual() {
                     saques: -Math.abs(m.saques),
                     lucroAcumulado: dadosGrafico[i]?.lucroAcumulado ?? 0,
                   }))}
+                  margin={{ top: 32, right: 24, bottom: 32, left: 24 }} // margem extra para não cortar rótulos
                 >
                   <CartesianGrid
                     strokeDasharray="3 3"
@@ -338,7 +339,7 @@ export default function ResumoAnual() {
                       content={(props: any) => {
                         const { x = 0, y = 0, value, width = 0 } = props;
                         const cx = x + width / 2;
-                        const cy = y - 5; // topo da barra
+                        const cy = y - 6; // topo da barra positiva
                         return (
                           <text
                             x={cx}
@@ -362,9 +363,9 @@ export default function ResumoAnual() {
                       dataKey="saques"
                       position="top"
                       content={(props: any) => {
-                        const { x = 0, y = 0, value, width = 0 } = props;
+                        const { x = 0, y = 0, value, width = 0, height = 0 } = props;
                         const cx = x + width / 2;
-                        const cy = y - 5;
+                        const cy = Number(value) < 0 ? y + height + 12 : y - 6;
                         return (
                           <text
                             x={cx}
@@ -394,9 +395,9 @@ export default function ResumoAnual() {
                       dataKey="lucro"
                       position="top"
                       content={(props: any) => {
-                        const { x = 0, y = 0, value, width = 0 } = props;
+                        const { x = 0, y = 0, value, width = 0, height = 0 } = props;
                         const cx = x + width / 2;
-                        const cy = y - 5;
+                        const cy = Number(value) < 0 ? y + height + 12 : y - 6;
                         return (
                           <text
                             x={cx}
