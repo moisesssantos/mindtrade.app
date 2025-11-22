@@ -213,7 +213,7 @@ export default function ResumoAnual() {
             </Card>
           </div>
 
-          {/* PASSO 2 — Depósitos/Saques no eixo invertido */}
+          {/* GRÁFICO AJUSTADO COM LEGENDA MELHORADA */}
           <Card className={isDarkMode ? "bg-[#2a2b2e] border-[#44494d]" : "bg-white border border-gray-200 shadow-sm"}>
             <CardHeader>
               <CardTitle>
@@ -221,48 +221,51 @@ export default function ResumoAnual() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={350}>
+              <ResponsiveContainer width="100%" height={360}>
                 <ComposedChart
                   data={(dadosMensais || []).map((m, i) => ({
                     mes: m.mes,
                     lucro: m.lucro,
-                    // PASSO 2: depósitos para cima, saques para baixo
                     depositos: Math.abs(m.depositos),
                     saques: -Math.abs(m.saques),
                     lucroAcumulado: dadosGrafico[i]?.lucroAcumulado ?? 0,
                   }))}
                 >
-          
                   <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "hsl(var(--border))" : "#e2e8f0"} />
           
                   <XAxis dataKey="mes" stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"} />
           
                   <YAxis
                     stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"}
-                    tickFormatter={(value) => `R$ ${value.toLocaleString("pt-BR")}`}
+                    tickFormatter={(v) => `R$ ${v.toLocaleString("pt-BR")}`}
                   />
           
-                  {/* LabelMap corrigindo o tooltip */}
+                  {/* Tooltip totalmente corrigido */}
                   <Tooltip
                     formatter={(value: number, name: string) => {
                       const labelMap: any = {
-                        lucro: "Lucro Mensal",
+                        lucro: "Mensal",
                         depositos: "Depósitos",
                         saques: "Saques",
-                        lucroAcumulado: "Lucro Acumulado",
+                        lucroAcumulado: "Acumulado",
                       };
-          
                       return [formatarMoeda(value), labelMap[name] || name];
                     }}
                   />
           
-                  <Legend />
+                  {/* LEGENDA AJUSTADA (PASSO 3) */}
+                  <Legend
+                    layout="horizontal"
+                    verticalAlign="top"
+                    align="center"
+                    wrapperStyle={{ paddingBottom: 20, fontSize: 13 }}
+                  />
           
-                  {/* PASSO 2 — Movimentos com eixo invertido */}
-                  <Bar dataKey="depositos" name="Depósitos" barSize={20} fill="#3b82f6" />
-                  <Bar dataKey="saques" name="Saques" barSize={20} fill="#fb923c" />
+                  {/* Barras de movimentos */}
+                  <Bar dataKey="depositos" name="Depósitos" barSize={20} fill="#0ea5e9" />
+                  <Bar dataKey="saques" name="Saques" barSize={20} fill="#f97316" />
           
-                  {/* Lucro com cor dinâmica */}
+                  {/* Lucro/Prejuízo */}
                   <Bar dataKey="lucro" name="Lucro Mensal" barSize={26}>
                     {(dadosMensais || []).map((m, idx) => (
                       <Cell
@@ -281,6 +284,7 @@ export default function ResumoAnual() {
                     dot={{ fill: "hsl(var(--primary))" }}
                     name="Lucro Acumulado"
                   />
+          
                 </ComposedChart>
               </ResponsiveContainer>
             </CardContent>
