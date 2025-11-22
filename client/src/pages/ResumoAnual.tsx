@@ -214,142 +214,165 @@ export default function ResumoAnual() {
           </div>
 
           {/* Lucro Acumulado — Depósitos/Saques no eixo invertido */}
-            <Card
-                className={
-                  isDarkMode
-                    ? "bg-[#2a2b2e] border-[#44494d]"
-                    : "bg-white border border-gray-200 shadow-sm"
-                }
-              >
-                <CardHeader>
-                  <CardTitle>
-                    Fluxo Mensal e Evolução Acumulada {anoSelecionado}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={350}>
-                    <ComposedChart
-                      data={(dadosMensais || []).map((m, i) => ({
-                        mes: m.mes,
-                        lucro: m.lucro,
-                        depositos: Math.abs(m.depositos),
-                        saques: -Math.abs(m.saques),
-                        lucroAcumulado: dadosGrafico[i]?.lucroAcumulado ?? 0,
-                      }))}
-                    >
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        stroke={isDarkMode ? "hsl(var(--border))" : "#e2e8f0"}
-                      />
-              
-                      <XAxis
-                        dataKey="mes"
-                        stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"}
-                      />
-              
-                      <YAxis
-                        stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"}
-                        tickFormatter={(value) => formatarMoeda(value)}
-                        domain={["dataMin", "dataMax"]}
-                      />
-              
-                      {/* Tooltip apenas acumulado */}
-                      <Tooltip
-                        content={({ active, payload }) => {
-                          if (active && payload && payload.length) {
-                            const acumulado = payload.find(
-                              (p: any) => p.dataKey === "lucroAcumulado"
-                            );
-                            if (acumulado) {
-                              return (
-                                <div
-                                  style={{
-                                    backgroundColor: isDarkMode ? "#1e1f22" : "#ffffff",
-                                    color: isDarkMode ? "#ffffff" : "#000000",
-                                    borderRadius: 8,
-                                    border: isDarkMode ? "1px solid #555" : "1px solid #ccc",
-                                    padding: "8px",
-                                  }}
-                                >
-                                  <p>{`Lucro Acumulado: ${formatarMoeda(acumulado.value)}`}</p>
-                                </div>
-                              );
-                            }
-                          }
-                          return null;
-                        }}
-                      />
-              
-                      <Legend />
-              
-                      {/* Depósitos → ROXO */}
-                      <Bar dataKey="depositos" name="Depósitos" barSize={20} fill="#8b5cf6">
-                        <LabelList
-                          dataKey="depositos"
-                          position="center"
-                          content={({ x, y, value, width, height }) => (
-                            <text
-                              x={x + width / 2}
-                              y={y + height / 2}
-                              fill="#44494D"
-                              textAnchor="middle"
-                              dominantBaseline="middle"
-                              fontSize={10}
-                              transform={`rotate(-90, ${x + width / 2}, ${y + height / 2})`}
+          <Card
+            className={
+              isDarkMode
+                ? "bg-[#2a2b2e] border-[#44494d]"
+                : "bg-white border border-gray-200 shadow-sm"
+            }
+          >
+            <CardHeader>
+              <CardTitle>
+                Fluxo Mensal e Evolução Acumulada {anoSelecionado}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={350}>
+                <ComposedChart
+                  data={(dadosMensais || []).map((m, i) => ({
+                    mes: m.mes,
+                    lucro: m.lucro,
+                    depositos: Math.abs(m.depositos),
+                    saques: -Math.abs(m.saques),
+                    lucroAcumulado: dadosGrafico[i]?.lucroAcumulado ?? 0,
+                  }))}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke={isDarkMode ? "hsl(var(--border))" : "#e2e8f0"}
+                  />
+          
+                  <XAxis
+                    dataKey="mes"
+                    stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"}
+                  />
+          
+                  <YAxis
+                    stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"}
+                    tickFormatter={(value) => formatarMoeda(value)}
+                    domain={["dataMin", "dataMax"]}
+                  />
+          
+                  {/* Tooltip apenas acumulado */}
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (active && Array.isArray(payload) && payload.length > 0) {
+                        const acumulado = payload.find(
+                          (p: any) => p?.dataKey === "lucroAcumulado"
+                        );
+                        if (acumulado && typeof acumulado.value === "number") {
+                          return (
+                            <div
+                              style={{
+                                backgroundColor: isDarkMode ? "#1e1f22" : "#ffffff",
+                                color: isDarkMode ? "#ffffff" : "#000000",
+                                borderRadius: 8,
+                                border: isDarkMode ? "1px solid #555" : "1px solid #ccc",
+                                padding: "8px",
+                              }}
                             >
-                              {formatarMoeda(value)}
-                            </text>
-                          )}
-                        />
-                      </Bar>
-              
-                      {/* Saques → LARANJA */}
-                      <Bar dataKey="saques" name="Saques" barSize={20} fill="#fb923c">
-                        <LabelList
-                          dataKey="saques"
-                          position="center"
-                          content={({ x, y, value, width, height }) => (
-                            <text
-                              x={x + width / 2}
-                              y={y + height / 2}
-                              fill="#44494D"
-                              textAnchor="middle"
-                              dominantBaseline="middle"
-                              fontSize={10}
-                              transform={`rotate(-90, ${x + width / 2}, ${y + height / 2})`}
-                            >
-                              {formatarMoeda(value)}
-                            </text>
-                          )}
-                        />
-                      </Bar>
-              
-                      {/* Lucro com cor dinâmica */}
-                      <Bar dataKey="lucro" name="Lucro Mensal" barSize={26}>
-                        {(dadosMensais || []).map((m, idx) => (
-                          <Cell
-                            key={`lm-${idx}`}
-                            fill={m.lucro >= 0 ? "#22c55e" : "#ef4444"}
-                          />
-                        ))}
-                        <LabelList
-                          dataKey="lucro"
-                          position="center"
-                          content={({ x, y, value, width, height }) => (
-                            <text
-                              x={x + width / 2}
-                              y={y + height / 2}
-                              fill="#44494D"
-                              textAnchor="middle"
-                              dominantBaseline="middle"
-                              fontSize={10}
-                              transform={`rotate(-90, ${x + width / 2}, ${y + height / 2})`}
-                            >
-                              {formatarMoeda(value)}
-                            </text>
-                          )}
-                        />
-                      </Bar>
+                              <p>{`Lucro Acumulado: ${formatarMoeda(acumulado.value)}`}</p>
+                            </div>
+                          );
+                        }
+                      }
+                      return null;
+                    }}
+                  />
+          
+                  <Legend />
+          
+                  {/* Depósitos → ROXO */}
+                  <Bar dataKey="depositos" name="Depósitos" barSize={20} fill="#8b5cf6">
+                    <LabelList
+                      dataKey="depositos"
+                      position="center"
+                      content={({ x, y, value, width, height }) => {
+                        const cx = x + width / 2;
+                        const cy = y + height / 2;
+                        return (
+                          <text
+                            x={cx}
+                            y={cy}
+                            fill="#44494D"
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                            fontSize={10}
+                            transform={`rotate(-90, ${cx}, ${cy})`}
+                          >
+                            {formatarMoeda(Number(value))}
+                          </text>
+                        );
+                      }}
+                    />
+                  </Bar>
+          
+                  {/* Saques → LARANJA */}
+                  <Bar dataKey="saques" name="Saques" barSize={20} fill="#fb923c">
+                    <LabelList
+                      dataKey="saques"
+                      position="center"
+                      content={({ x, y, value, width, height }) => {
+                        const cx = x + width / 2;
+                        const cy = y + height / 2;
+                        return (
+                          <text
+                            x={cx}
+                            y={cy}
+                            fill="#44494D"
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                            fontSize={10}
+                            transform={`rotate(-90, ${cx}, ${cy})`}
+                          >
+                            {formatarMoeda(Number(value))}
+                          </text>
+                        );
+                      }}
+                    />
+                  </Bar>
+          
+                  {/* Lucro com cor dinâmica */}
+                  <Bar dataKey="lucro" name="Lucro Mensal" barSize={26}>
+                    {(dadosMensais || []).map((m, idx) => (
+                      <Cell key={`lm-${idx}`} fill={m.lucro >= 0 ? "#22c55e" : "#ef4444"} />
+                    ))}
+                    <LabelList
+                      dataKey="lucro"
+                      position="center"
+                      content={({ x, y, value, width, height }) => {
+                        const cx = x + width / 2;
+                        const cy = y + height / 2;
+                        return (
+                          <text
+                            x={cx}
+                            y={cy}
+                            fill="#44494D"
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                            fontSize={10}
+                            transform={`rotate(-90, ${cx}, ${cy})`}
+                          >
+                            {formatarMoeda(Number(value))}
+                          </text>
+                        );
+                      }}
+                    />
+                  </Bar>
+          
+                  {/* Linha do acumulado */}
+                  <Line
+                    type="monotone"
+                    dataKey="lucroAcumulado"
+                    stroke="hsl(var(--primary))"
+                    strokeWidth={2}
+                    dot={{ fill: "hsl(var(--primary))" }}
+                    name="Lucro Acumulado"
+                  />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
               
                       {/* Linha do acumulado */}
                       <Line
