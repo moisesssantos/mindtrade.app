@@ -213,7 +213,7 @@ export default function ResumoAnual() {
             </Card>
           </div>
 
-          {/* Gráfico de Evolução Completo */}
+          {/* PASSO 2 — Depósitos/Saques no eixo invertido */}
           <Card className={isDarkMode ? "bg-[#2a2b2e] border-[#44494d]" : "bg-white border border-gray-200 shadow-sm"}>
             <CardHeader>
               <CardTitle>
@@ -226,36 +226,43 @@ export default function ResumoAnual() {
                   data={(dadosMensais || []).map((m, i) => ({
                     mes: m.mes,
                     lucro: m.lucro,
-                    depositos: m.depositos,
-                    saques: m.saques,
+                    // PASSO 2: depósitos para cima, saques para baixo
+                    depositos: Math.abs(m.depositos),
+                    saques: -Math.abs(m.saques),
                     lucroAcumulado: dadosGrafico[i]?.lucroAcumulado ?? 0,
                   }))}
                 >
+          
                   <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "hsl(var(--border))" : "#e2e8f0"} />
+          
                   <XAxis dataKey="mes" stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"} />
+          
                   <YAxis
                     stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"}
                     tickFormatter={(value) => `R$ ${value.toLocaleString("pt-BR")}`}
                   />
+          
+                  {/* LabelMap corrigindo o tooltip */}
                   <Tooltip
-                    formatter={(value: number, name: string) => [
-                      formatarMoeda(value),
-                      name === "lucro"
-                        ? "Lucro Mensal"
-                        : name === "depositos"
-                        ? "Depósitos"
-                        : name === "saques"
-                        ? "Saques"
-                        : "Lucro Acumulado",
-                    ]}
+                    formatter={(value: number, name: string) => {
+                      const labelMap: any = {
+                        lucro: "Lucro Mensal",
+                        depositos: "Depósitos",
+                        saques: "Saques",
+                        lucroAcumulado: "Lucro Acumulado",
+                      };
+          
+                      return [formatarMoeda(value), labelMap[name] || name];
+                    }}
                   />
+          
                   <Legend />
           
-                  {/* Depósitos e Saques empilhados entre si */}
-                  <Bar dataKey="depositos" stackId="movimentacoes" name="Depósitos" fill="#3b82f6" />
-                  <Bar dataKey="saques" stackId="movimentacoes" name="Saques" fill="#fb923c" />
+                  {/* PASSO 2 — Movimentos com eixo invertido */}
+                  <Bar dataKey="depositos" name="Depósitos" barSize={20} fill="#3b82f6" />
+                  <Bar dataKey="saques" name="Saques" barSize={20} fill="#fb923c" />
           
-                  {/* Lucro/Prejuízo com cor dinâmica */}
+                  {/* Lucro com cor dinâmica */}
                   <Bar dataKey="lucro" name="Lucro Mensal" barSize={26}>
                     {(dadosMensais || []).map((m, idx) => (
                       <Cell
@@ -265,7 +272,7 @@ export default function ResumoAnual() {
                     ))}
                   </Bar>
           
-                  {/* Linha do Acumulado */}
+                  {/* Linha do acumulado */}
                   <Line
                     type="monotone"
                     dataKey="lucroAcumulado"
