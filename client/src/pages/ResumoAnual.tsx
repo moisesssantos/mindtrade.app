@@ -2,7 +2,14 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   LineChart,
@@ -44,7 +51,10 @@ export default function ResumoAnual() {
       setIsDarkMode(document.documentElement.classList.contains("dark"));
     });
 
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
     return () => observer.disconnect();
   }, []);
 
@@ -75,14 +85,20 @@ export default function ResumoAnual() {
     ) || { totalLucro: 0, totalDepositos: 0, totalSaques: 0 };
 
   const valorInicialAno = dadosMensais?.[0]?.valorInicial || 0;
-  const valorFinalAno = dadosMensais?.[dadosMensais.length - 1]?.valorFinal || 0;
-  const roiAnual = valorInicialAno > 0 ? (totaisAnuais.totalLucro / valorInicialAno) * 100 : 0;
+  const valorFinalAno =
+    dadosMensais?.[dadosMensais.length - 1]?.valorFinal || 0;
+  const roiAnual =
+    valorInicialAno > 0
+      ? (totaisAnuais.totalLucro / valorInicialAno) * 100
+      : 0;
 
   // Preparar dados para o gráfico (evolução acumulada)
   const dadosGrafico =
     dadosMensais?.reduce((acc, m) => {
       const lucroAcumulado =
-        acc.length > 0 ? acc[acc.length - 1].lucroAcumulado + m.lucro : m.lucro;
+        acc.length > 0
+          ? acc[acc.length - 1].lucroAcumulado + m.lucro
+          : m.lucro;
 
       acc.push({
         mes: m.mes,
@@ -107,7 +123,10 @@ export default function ResumoAnual() {
             <ChevronLeft className="h-4 w-4" />
           </Button>
 
-          <div className="text-xl font-semibold min-w-[80px] text-center" data-testid="text-ano-selecionado">
+          <div
+            className="text-xl font-semibold min-w-[80px] text-center"
+            data-testid="text-ano-selecionado"
+          >
             {anoSelecionado}
           </div>
 
@@ -197,7 +216,10 @@ export default function ResumoAnual() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-mono font-bold" data-testid="total-depositos">
+                <div
+                  className="text-2xl font-mono font-bold"
+                  data-testid="total-depositos"
+                >
                   {formatarMoeda(totaisAnuais.totalDepositos)}
                 </div>
               </CardContent>
@@ -217,14 +239,17 @@ export default function ResumoAnual() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-mono font-bold" data-testid="total-saques">
+                <div
+                  className="text-2xl font-mono font-bold"
+                  data-testid="total-saques"
+                >
                   {formatarMoeda(totaisAnuais.totalSaques)}
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Lucro Acumulado — Depósitos/Saques no eixo invertido */}
+          {/* Gráfico: Fluxo Mensal + Lucro Acumulado */}
           <Card
             className={
               isDarkMode
@@ -233,7 +258,9 @@ export default function ResumoAnual() {
             }
           >
             <CardHeader>
-              <CardTitle>Fluxo Mensal e Evolução Acumulada {anoSelecionado}</CardTitle>
+              <CardTitle>
+                Fluxo Mensal e Evolução Acumulada {anoSelecionado}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={350}>
@@ -253,34 +280,55 @@ export default function ResumoAnual() {
 
                   <XAxis
                     dataKey="mes"
-                    stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"}
+                    stroke={
+                      isDarkMode
+                        ? "hsl(var(--muted-foreground))"
+                        : "#334155"
+                    }
                   />
 
                   <YAxis
-                    stroke={isDarkMode ? "hsl(var(--muted-foreground))" : "#334155"}
+                    stroke={
+                      isDarkMode
+                        ? "hsl(var(--muted-foreground))"
+                        : "#334155"
+                    }
                     tickFormatter={(value) => formatarMoeda(value)}
                     domain={["dataMin", "dataMax"]}
                   />
 
-                  {/* Tooltip apenas acumulado */}
+                  {/* Tooltip somente acumulado */}
                   <Tooltip
                     content={({ active, payload }) => {
-                      if (active && Array.isArray(payload) && payload.length > 0) {
+                      if (
+                        active &&
+                        Array.isArray(payload) &&
+                        payload.length > 0
+                      ) {
                         const acumulado = payload.find(
                           (p: any) => p?.dataKey === "lucroAcumulado"
                         );
-                        if (acumulado && typeof acumulado.value === "number") {
+                        if (
+                          acumulado &&
+                          typeof acumulado.value === "number"
+                        ) {
                           return (
                             <div
                               style={{
-                                backgroundColor: isDarkMode ? "#1e1f22" : "#ffffff",
+                                backgroundColor: isDarkMode
+                                  ? "#1e1f22"
+                                  : "#ffffff",
                                 color: isDarkMode ? "#ffffff" : "#000000",
                                 borderRadius: 8,
-                                border: isDarkMode ? "1px solid #555" : "1px solid #ccc",
+                                border: isDarkMode
+                                  ? "1px solid #555"
+                                  : "1px solid #ccc",
                                 padding: "8px",
                               }}
                             >
-                              <p>{`Lucro Acumulado: ${formatarMoeda(acumulado.value)}`}</p>
+                              <p>{`Lucro Acumulado: ${formatarMoeda(
+                                acumulado.value
+                              )}`}</p>
                             </div>
                           );
                         }
@@ -291,8 +339,13 @@ export default function ResumoAnual() {
 
                   <Legend />
 
-                  {/* Depósitos → ROXO */}
-                  <Bar dataKey="depositos" name="Depósitos" barSize={20} fill="#8b5cf6">
+                  {/* Depósitos */}
+                  <Bar
+                    dataKey="depositos"
+                    name="Depósitos"
+                    barSize={20}
+                    fill="#8b5cf6"
+                  >
                     <LabelList
                       dataKey="depositos"
                       position="center"
@@ -316,8 +369,13 @@ export default function ResumoAnual() {
                     />
                   </Bar>
 
-                  {/* Saques → LARANJA */}
-                  <Bar dataKey="saques" name="Saques" barSize={20} fill="#fb923c">
+                  {/* Saques */}
+                  <Bar
+                    dataKey="saques"
+                    name="Saques"
+                    barSize={20}
+                    fill="#fb923c"
+                  >
                     <LabelList
                       dataKey="saques"
                       position="center"
@@ -341,11 +399,17 @@ export default function ResumoAnual() {
                     />
                   </Bar>
 
-                  {/* Lucro com cor dinâmica */}
+                  {/* Lucro */}
                   <Bar dataKey="lucro" name="Lucro Mensal" barSize={26}>
                     {(dadosMensais || []).map((m, idx) => (
-                      <Cell key={`lm-${idx}`} fill={m.lucro >= 0 ? "#22c55e" : "#ef4444"} />
+                      <Cell
+                        key={`lm-${idx}`}
+                        fill={
+                          m.lucro >= 0 ? "#22c55e" : "#ef4444"
+                        }
+                      />
                     ))}
+
                     <LabelList
                       dataKey="lucro"
                       position="center"
@@ -369,7 +433,7 @@ export default function ResumoAnual() {
                     />
                   </Bar>
 
-                  {/* Linha do acumulado */}
+                  {/* Linha Acumulado */}
                   <Line
                     type="monotone"
                     dataKey="lucroAcumulado"
@@ -387,8 +451,8 @@ export default function ResumoAnual() {
           <Card
             className={
               isDarkMode
-                ? "bg-[#2a2b2e] border border-[#44494d]" // fundo e borda no modo escuro
-                : "bg-white border border-gray-200 shadow-sm" // fundo e borda no modo claro
+                ? "bg-[#2a2b2e] border border-[#44494d]"
+                : "bg-white border border-gray-200 shadow-sm"
             }
           >
             <CardHeader>
@@ -399,9 +463,15 @@ export default function ResumoAnual() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Mês</TableHead>
-                    <TableHead className="text-right">Valor Inicial</TableHead>
-                    <TableHead className="text-right">Lucro/Prejuízo</TableHead>
-                    <TableHead className="text-right">Valor Final</TableHead>
+                    <TableHead className="text-right">
+                      Valor Inicial
+                    </TableHead>
+                    <TableHead className="text-right">
+                      Lucro/Prejuízo
+                    </TableHead>
+                    <TableHead className="text-right">
+                      Valor Final
+                    </TableHead>
                     <TableHead className="text-right">ROI</TableHead>
                     <TableHead className="text-right">Depósitos</TableHead>
                     <TableHead className="text-right">Saques</TableHead>
@@ -412,10 +482,19 @@ export default function ResumoAnual() {
                     <TableRow
                       key={mes.mesNumero}
                       data-testid={`row-mes-${mes.mesNumero}`}
-                      className={isDarkMode ? "hover:bg-[#383a3e]" : "hover:bg-gray-50"}
+                      className={
+                        isDarkMode
+                          ? "hover:bg-[#383a3e]"
+                          : "hover:bg-gray-50"
+                      }
                     >
-                      <TableCell className="font-medium">{mes.mes}</TableCell>
-                      <TableCell className="text-right" data-testid={`valor-inicial-${mes.mesNumero}`}>
+                      <TableCell className="font-medium">
+                        {mes.mes}
+                      </TableCell>
+                      <TableCell
+                        className="text-right"
+                        data-testid={`valor-inicial-${mes.mesNumero}`}
+                      >
                         {formatarMoeda(mes.valorInicial)}
                       </TableCell>
                       <TableCell
@@ -428,12 +507,17 @@ export default function ResumoAnual() {
                       >
                         {formatarMoeda(mes.lucro)}
                       </TableCell>
-                      <TableCell className="text-right font-medium" data-testid={`valor-final-${mes.mesNumero}`}>
+                      <TableCell
+                        className="text-right font-medium"
+                        data-testid={`valor-final-${mes.mesNumero}`}
+                      >
                         {formatarMoeda(mes.valorFinal)}
                       </TableCell>
                       <TableCell
                         className={`text-right ${
-                          mes.roi >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                          mes.roi >= 0
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-red-600 dark:text-red-400"
                         }`}
                         data-testid={`roi-${mes.mesNumero}`}
                       >
@@ -441,7 +525,7 @@ export default function ResumoAnual() {
                       </TableCell>
                       <TableCell
                         className="text-right text-green-600 dark:text-green-400"
-                        data-testid={`depositos-${mes.mesNumero`}
+                        data-testid={`depositos-${mes.mesNumero}`}
                       >
                         {formatarMoeda(mes.depositos)}
                       </TableCell>
