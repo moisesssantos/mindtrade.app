@@ -249,7 +249,7 @@ export default function ResumoAnual() {
             </Card>
           </div>
 
-         {/* Gráfico: Fluxo Mensal + Lucro Acumulado */}
+         {/* Gráfico: Lucro Mensal + Lucro Acumulado */}
           <Card
             className={
               isDarkMode
@@ -259,7 +259,7 @@ export default function ResumoAnual() {
           >
             <CardHeader>
               <CardTitle>
-                Fluxo Mensal e Evolução Acumulada {anoSelecionado}
+                Lucro Mensal e Evolução Acumulada {anoSelecionado}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -268,11 +268,9 @@ export default function ResumoAnual() {
                   data={(dadosMensais || []).map((m, i) => ({
                     mes: m.mes,
                     lucro: m.lucro,
-                    depositos: Math.abs(m.depositos),
-                    saques: -Math.abs(m.saques),
                     lucroAcumulado: dadosGrafico[i]?.lucroAcumulado ?? 0,
                   }))}
-                  margin={{ top: 32, right: 24, bottom: 32, left: 24 }} // margem extra para não cortar rótulos
+                  margin={{ top: 32, right: 24, bottom: 32, left: 24 }}
                 >
                   <CartesianGrid
                     strokeDasharray="3 3"
@@ -290,31 +288,9 @@ export default function ResumoAnual() {
                     domain={["dataMin", "dataMax"]}
                   />
           
-                  {/* Tooltip somente acumulado */}
                   <Tooltip
-                    content={({ active, payload }) => {
-                      if (active && Array.isArray(payload) && payload.length > 0) {
-                        const acumulado = payload.find(
-                          (p: any) => p?.dataKey === "lucroAcumulado"
-                        );
-                        if (acumulado && typeof acumulado.value === "number") {
-                          return (
-                            <div
-                              style={{
-                                backgroundColor: isDarkMode ? "#1e1f22" : "#ffffff",
-                                color: isDarkMode ? "#ffffff" : "#000000",
-                                borderRadius: 8,
-                                border: isDarkMode ? "1px solid #555" : "1px solid #ccc",
-                                padding: "8px",
-                              }}
-                            >
-                              <p>{`Lucro Acumulado: ${formatarMoeda(acumulado.value)}`}</p>
-                            </div>
-                          );
-                        }
-                      }
-                      return null;
-                    }}
+                    formatter={(value) => formatarMoeda(value)}
+                    labelFormatter={(label) => `Mês: ${label}`}
                   />
           
                   <Legend
@@ -331,64 +307,12 @@ export default function ResumoAnual() {
                     }}
                   />
           
-                  {/* Depósitos */}
-                  <Bar dataKey="depositos" name="Depósitos" barSize={20} fill="#8b5cf6">
-                    <LabelList
-                      dataKey="depositos"
-                      position="top"
-                      content={(props: any) => {
-                        const { x = 0, y = 0, value, width = 0 } = props;
-                        const cx = x + width / 2;
-                        const cy = y - 6; // sempre acima da barra
-                        return (
-                          <text
-                            x={cx}
-                            y={cy}
-                            fill="#c2c2c0"
-                            textAnchor="middle"
-                            dominantBaseline="middle"
-                            fontSize={12}
-                            transform={`rotate(-90, ${cx}, ${cy})`}
-                          >
-                            {formatarMoeda(Number(value))}
-                          </text>
-                        );
-                      }}
-                    />
-                  </Bar>
-          
-                  {/* Saques */}
-                  <Bar dataKey="saques" name="Saques" barSize={20} fill="#fb923c">
-                    <LabelList
-                      dataKey="saques"
-                      position="top"
-                      content={(props: any) => {
-                        const { x = 0, y = 0, value, width = 0, height = 0 } = props;
-                        const cx = x + width / 2;
-                        const cy = Number(value) < 0 ? y + height + 12 : y - 6;
-                        return (
-                          <text
-                            x={cx}
-                            y={cy}
-                            fill="#c2c2c0"
-                            textAnchor="middle"
-                            dominantBaseline="middle"
-                            fontSize={12}
-                            transform={`rotate(-90, ${cx}, ${cy})`}
-                          >
-                            {formatarMoeda(Number(value))}
-                          </text>
-                        );
-                      }}
-                    />
-                  </Bar>
-          
-                  {/* Lucro */}
+                  {/* Lucro Mensal */}
                   <Bar dataKey="lucro" name="Lucro Mensal" barSize={26}>
                     {(dadosMensais || []).map((m, idx) => (
                       <Cell
                         key={`lm-${idx}`}
-                        fill={m.lucro >= 0 ? "#22c55e" : "#ef4444"}
+                        fill={m.lucro >= 0 ? "#22c55e" : "#ef4444"} // verde para lucro, vermelho para prejuízo
                       />
                     ))}
                     <LabelList
@@ -402,11 +326,10 @@ export default function ResumoAnual() {
                           <text
                             x={cx}
                             y={cy}
-                            fill="#c2c2c0"
+                            fill={isDarkMode ? "#c2c2c0" : "#334155"}
                             textAnchor="middle"
                             dominantBaseline="middle"
                             fontSize={12}
-                            transform={`rotate(-90, ${cx}, ${cy})`}
                           >
                             {formatarMoeda(Number(value))}
                           </text>
@@ -415,14 +338,14 @@ export default function ResumoAnual() {
                     />
                   </Bar>
           
-                  {/* Linha Acumulado */}
+                  {/* Linha Lucro Acumulado */}
                   <Line
                     type="monotone"
                     dataKey="lucroAcumulado"
                     stroke="hsl(var(--primary))"
                     strokeWidth={2}
                     dot={{ fill: "hsl(var(--primary))" }}
-                    name="Lucro Acumulado"
+                    name="Acumulado"
                   />
                 </ComposedChart>
               </ResponsiveContainer>
