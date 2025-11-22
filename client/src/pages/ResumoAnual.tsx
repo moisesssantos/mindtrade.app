@@ -213,7 +213,7 @@ export default function ResumoAnual() {
             </Card>
           </div>
 
-          {/* GRÁFICO AJUSTADO COM LEGENDA MELHORADA */}
+          {/* GRÁFICO AJUSTADO */}
           <Card className={isDarkMode ? "bg-[#2a2b2e] border-[#44494d]" : "bg-white border border-gray-200 shadow-sm"}>
             <CardHeader>
               <CardTitle>
@@ -240,20 +240,25 @@ export default function ResumoAnual() {
                     tickFormatter={(v) => `R$ ${v.toLocaleString("pt-BR")}`}
                   />
           
-                  {/* Tooltip totalmente corrigido */}
+                  {/* Tooltip com visual corrigido para dark/light */}
                   <Tooltip
+                    contentStyle={{
+                      backgroundColor: isDarkMode ? "#1f1f23" : "#ffffff",
+                      border: isDarkMode ? "1px solid #3f3f46" : "1px solid #e2e8f0",
+                      color: isDarkMode ? "#f8fafc" : "#0f172a",
+                    }}
                     formatter={(value: number, name: string) => {
                       const labelMap: any = {
-                        lucro: "Mensal",
+                        lucro: "Lucro Mensal",
                         depositos: "Depósitos",
                         saques: "Saques",
-                        lucroAcumulado: "Acumulado",
+                        lucroAcumulado: "Lucro Acumulado",
                       };
                       return [formatarMoeda(value), labelMap[name] || name];
                     }}
                   />
           
-                  {/* LEGENDA AJUSTADA (PASSO 3) */}
+                  {/* LEGEND ajustada */}
                   <Legend
                     layout="horizontal"
                     verticalAlign="top"
@@ -261,11 +266,23 @@ export default function ResumoAnual() {
                     wrapperStyle={{ paddingBottom: 20, fontSize: 13 }}
                   />
           
-                  {/* Barras de movimentos */}
-                  <Bar dataKey="depositos" name="Depósitos" barSize={20} fill="#0ea5e9" />
-                  <Bar dataKey="saques" name="Saques" barSize={20} fill="#f97316" />
+                  {/* Depósitos ROXO MindTrade */}
+                  <Bar
+                    dataKey="depositos"
+                    name="Depósitos"
+                    barSize={20}
+                    fill="hsl(var(--primary))"
+                  />
           
-                  {/* Lucro/Prejuízo */}
+                  {/* Saques */}
+                  <Bar
+                    dataKey="saques"
+                    name="Saques"
+                    barSize={20}
+                    fill="#f97316"
+                  />
+          
+                  {/* Lucro Mensal dinâmico */}
                   <Bar dataKey="lucro" name="Lucro Mensal" barSize={26}>
                     {(dadosMensais || []).map((m, idx) => (
                       <Cell
