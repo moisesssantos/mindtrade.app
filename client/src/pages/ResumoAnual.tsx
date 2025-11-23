@@ -306,7 +306,7 @@ export default function ResumoAnual() {
                                 padding: "8px",
                               }}
                             >
-                              <p>{`Lucro Acumulado (${label}): ${formatarMoeda(acumulado.value)}`}</p>
+                              <p>{`Acumulado (${label}): ${formatarMoeda(acumulado.value)}`}</p>
                             </div>
                           );
                         }
@@ -315,22 +315,83 @@ export default function ResumoAnual() {
                     }}
                   />
           
+                  {/* Legenda customizada */}
                   <Legend
                     verticalAlign="bottom"
                     align="center"
-                    wrapperStyle={{
-                      paddingTop: 20,
-                      paddingBottom: 10,
-                      lineHeight: "28px",
-                      fontSize: 14,
-                      gap: "24px",
-                      display: "flex",
-                      justifyContent: "center",
-                    }}
+                    content={() => (
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          gap: "24px",
+                          paddingTop: 20,
+                          paddingBottom: 10,
+                          fontSize: 14,
+                          lineHeight: "28px",
+                        }}
+                      >
+                        {/* Lucro Mensal */}
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          <span
+                            style={{
+                              width: 14,
+                              height: 14,
+                              backgroundColor: "#22c55e", // verde
+                              borderRadius: 2,
+                              display: "inline-block",
+                            }}
+                          />
+                          <span
+                            style={{
+                              color: isDarkMode ? "#c2c2c0" : "#334155",
+                            }}
+                          >
+                            Lucro
+                          </span>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          <span
+                            style={{
+                              width: 14,
+                              height: 14,
+                              backgroundColor: "#ef4444", // vermelho
+                              borderRadius: 2,
+                              display: "inline-block",
+                            }}
+                          />
+                          <span
+                            style={{
+                              color: isDarkMode ? "#c2c2c0" : "#334155",
+                            }}
+                          >
+                            Prejuízo
+                          </span>
+                        </div>
+                        {/* Lucro Acumulado */}
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          <span
+                            style={{
+                              width: 24,
+                              height: 2,
+                              backgroundColor: "hsl(var(--primary))", // cor da linha
+                              display: "inline-block",
+                            }}
+                          />
+                          <span
+                            style={{
+                              color: isDarkMode ? "#c2c2c0" : "#334155",
+                            }}
+                          >
+                            Lucro Acumulado
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   />
           
                   {/* Lucro Mensal */}
-                  <Bar dataKey="lucro" name="Lucro Mensal" barSize={26}>
+                  <Bar dataKey="lucro" barSize={26}>
                     {(dadosMensais || []).map((m, idx) => (
                       <Cell
                         key={`lm-${idx}`}
@@ -367,8 +428,6 @@ export default function ResumoAnual() {
                     stroke="hsl(var(--primary))"
                     strokeWidth={2}
                     dot={{ fill: "hsl(var(--primary))" }}
-                    name="Lucro Acumulado"
-                    legendType="line"
                   />
                 </ComposedChart>
               </ResponsiveContainer>
