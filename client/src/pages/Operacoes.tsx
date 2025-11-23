@@ -55,11 +55,9 @@ export default function Operacoes() {
   const [mostrarTudo, setMostrarTudo] = useState(true);
 
   // 🔵 NOVO — filtro por estratégia
-  const [estrategiaFiltro, setEstrategiaFiltro] = useState<number | "TODAS">(
-    "TODAS"
-  );
+  const [estrategiaFiltro, setEstrategiaFiltro] = useState<number | "TODAS">("TODAS");
 
-  // === Queries principais ===
+  // === QUERIES ===
   const { data: operacoes = [], isLoading: isLoadingOperacoes } = useQuery<Operacao[]>({
     queryKey: ["/api/operacoes"],
   });
@@ -71,37 +69,26 @@ export default function Operacoes() {
   const { data: estrategias = [] } = useQuery<Estrategia[]>({ queryKey: ["/api/estrategias"] });
   const { data: relatorios } = useQuery<any>({ queryKey: ["/api/relatorios"] });
 
-  // === Funções auxiliares ===
-  const operacoesConcluidas = operacoes
-    .filter((op) => op.status === "CONCLUIDA")
-    .filter((op) => {
-      if (mostrarTudo) return true;
-      const partida = partidas.find((p) => p.id === op.partidaId);
-      if (!partida) return false;
-      const dataPartida = parseISO(partida.data);
-      return isSameDay(dataPartida, dataSelecionada);
-    })
+  // ===========================================================
+  // ⬆️ FUNÇÕES AUXILIARES — precisam estar AQUI para evitar erros
+  // ===========================================================
 
-    // 🔵 NOVO — aplicar filtro de estratégia
-    .filter((op) => {
-      if (estrategiaFiltro === "TODAS") return true;
-      const itens = getItensOperacao(op.id);
-      return itens.some((i) => i.estrategiaId === estrategiaFiltro);
-    })
-
-    .sort((a, b) => {
-      const partidaA = partidas.find((p) => p.id === a.partidaId);
-      const partidaB = partidas.find((p) => p.id === b.partidaId);
-      if (!partidaA || !partidaB) return 0;
-      const dataA = new Date(`${partidaA.data}T${partidaA.hora}`);
-      const dataB = new Date(`${partidaB.data}T${partidaB.hora}`);
-      return dataB.getTime() - dataA.getTime();
-    });
+  const getItensOperacao = (operacaoId: number): OperacaoItem[] => {
+    if (!relatorios?.itens) return [];
+    return relatorios.itens.filter((item: OperacaoItem) => item.operacaoId === operacaoId);
+  };
 
   const getPartidaInfo = (partidaId: number) => {
     const partida = partidas.find((p) => p.id === partidaId);
     if (!partida)
-      return { mandante: "", visitante: "", competicao: "", data: "", hora: "", dataFormatada: "" };
+      return {
+        mandante: "",
+        visitante: "",
+        competicao: "",
+        data: "",
+        hora: "",
+        dataFormatada: "",
+      };
 
     const mandante = equipes.find((e) => e.id === partida.mandanteId)?.nome || "";
     const visitante = equipes.find((e) => e.id === partida.visitanteId)?.nome || "";
@@ -110,12 +97,14 @@ export default function Operacoes() {
     const dataFormatada = `${dia}/${mes}/${ano}`;
     const horaFormatada = partida.hora.substring(0, 5);
 
-    return { mandante, visitante, competicao, data: partida.data, hora: horaFormatada, dataFormatada };
-  };
-
-  const getItensOperacao = (operacaoId: number): OperacaoItem[] => {
-    if (!relatorios?.itens) return [];
-    return relatorios.itens.filter((item: OperacaoItem) => item.operacaoId === operacaoId);
+    return {
+      mandante,
+      visitante,
+      competicao,
+      data: partida.data,
+      hora: horaFormatada,
+      dataFormatada,
+    };
   };
 
   const getEstrategiaInfo = (estrategiaId: number) => {
@@ -127,12 +116,42 @@ export default function Operacoes() {
 
   const calcularEstatisticas = (itens: OperacaoItem[]) => {
     const totalStake = itens.reduce((acc, item) => acc + parseFloat(item.stake || "0"), 0);
-    const resultadoTotal = itens.reduce((acc, item) => acc + parseFloat(item.resultadoFinanceiro || "0"), 0);
+    const resultadoTotal = itens.reduce(
+      (acc, item) => acc + parseFloat(item.resultadoFinanceiro || "0"),
+      0
+    );
     const roi = totalStake > 0 ? (resultadoTotal / totalStake) * 100 : 0;
     return { totalStake, resultadoTotal, roi, numItens: itens.length };
   };
 
-  // === Modo escuro ===
+  // ===========================================================
+  // 🔵 FILTRO + ORDENAR OPERAÇÕES
+  // ===========================================================
+
+  const operacoesConcluidas = operacoes
+    .filter((op) => op.status === "CONCLUIDA")
+    .filter((op) => {
+      if (mostrarTudo) return true;
+      const partida = partidas.find((p) => p.id === op.partidaId);
+      if (!partida) return false;
+      const dataPartida = parseISO(partida.data);
+      return isSameDay(dataPartida, dataSelecionada);
+    })
+    .filter((op) => {
+      if (estrategiaFiltro === "TODAS") return true;
+      const itens = getItensOperacao(op.id);
+      return itens.some((i) => i.estrategiaId === estrategiaFiltro);
+    })
+    .sort((a, b) => {
+      const partidaA = partidas.find((p) => p.id === a.partidaId);
+      const partidaB = partidas.find((p) => p.id === b.partidaId);
+      if (!partidaA || !partidaB) return 0;
+      const dataA = new Date(`${partidaA.data}T${partidaA.hora}`);
+      const dataB = new Date(`${partidaB.data}T${partidaB.hora}`);
+      return dataB.getTime() - dataA.getTime();
+    });
+
+  // === MODO ESCURO ===
   const [isDarkMode, setIsDarkMode] = useState<boolean>(
     document.documentElement.classList.contains("dark")
   );
@@ -148,6 +167,7 @@ export default function Operacoes() {
     return () => observer.disconnect();
   }, []);
 
+  // === LOADING ===
   if (isLoadingOperacoes) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -156,10 +176,12 @@ export default function Operacoes() {
     );
   }
 
-  // === Renderização ===
+  // ===========================================================
+  // RENDERIZAÇÃO
+  // ===========================================================
+
   return (
     <div className="container mx-auto px-4 py-8">
-
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
           <h1 className="text-3xl font-bold">Operações Concluídas</h1>
@@ -169,8 +191,7 @@ export default function Operacoes() {
         </div>
 
         <div className="flex-shrink-0 flex gap-2 flex-wrap justify-end">
-          
-          {/* FILTRO DE ESTRATÉGIA */}
+          {/* 🔵 FILTRO DE ESTRATÉGIA */}
           <select
             value={estrategiaFiltro}
             onChange={(e) =>
@@ -212,7 +233,13 @@ export default function Operacoes() {
       </div>
 
       {operacoesConcluidas.length === 0 ? (
-        <Card className={isDarkMode ? "bg-[#2a2b2e] border border-[#44494d]" : "bg-white border border-gray-200"}>
+        <Card
+          className={
+            isDarkMode
+              ? "bg-[#2a2b2e] border border-[#44494d]"
+              : "bg-white border border-gray-200"
+          }
+        >
           <CardContent className="py-12 text-center text-muted-foreground">
             Nenhuma operação concluída até o momento.
           </CardContent>
@@ -227,17 +254,21 @@ export default function Operacoes() {
             return (
               <Card
                 key={operacao.id}
-                className={isDarkMode ? "bg-[#2a2b2e] border border-[#44494d]" : "bg-white border border-gray-200"}
+                className={
+                  isDarkMode
+                    ? "bg-[#2a2b2e] border border-[#44494d]"
+                    : "bg-white border border-gray-200"
+                }
               >
                 <CardHeader className="relative">
                   <CardTitle className="text-lg mb-1">
                     {info.competicao} - {info.mandante} vs {info.visitante}
                   </CardTitle>
-                
+
                   <p className="text-sm text-muted-foreground">
                     {info.dataFormatada} às {info.hora} — <Badge>Concluída</Badge>
                   </p>
-                
+
                   <div className="absolute top-2 right-2 flex gap-2">
                     <Button
                       variant="outline"
@@ -251,7 +282,6 @@ export default function Operacoes() {
                 </CardHeader>
 
                 <CardContent>
-
                   {/* MÉTRICAS */}
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                     <div className="bg-muted/30 p-3 rounded-md">
@@ -261,16 +291,27 @@ export default function Operacoes() {
 
                     <div className="bg-muted/30 p-3 rounded-md">
                       <div className="text-xs text-muted-foreground mb-1">Total Investido</div>
-                      <div className="text-lg font-mono font-bold">R$ {stats.totalStake.toFixed(2).replace(".", ",")}</div>
+                      <div className="text-lg font-mono font-bold">
+                        R$ {stats.totalStake.toFixed(2).replace(".", ",")}
+                      </div>
                     </div>
 
                     <div className="bg-muted/30 p-3 rounded-md">
                       <div className="text-xs text-muted-foreground mb-1">Resultado</div>
-                      <div className={`text-lg font-mono font-bold flex items-center gap-1 ${
-                        stats.resultadoTotal > 0 ? "text-green-600 dark:text-green-400" :
-                        stats.resultadoTotal < 0 ? "text-red-600 dark:text-red-400" : ""}`}>
-                        {stats.resultadoTotal > 0 ? <TrendingUp className="w-4 h-4" /> :
-                         stats.resultadoTotal < 0 ? <TrendingDown className="w-4 h-4" /> : null}
+                      <div
+                        className={`text-lg font-mono font-bold flex items-center gap-1 ${
+                          stats.resultadoTotal > 0
+                            ? "text-green-600 dark:text-green-400"
+                            : stats.resultadoTotal < 0
+                            ? "text-red-600 dark:text-red-400"
+                            : ""
+                        }`}
+                      >
+                        {stats.resultadoTotal > 0 ? (
+                          <TrendingUp className="w-4 h-4" />
+                        ) : stats.resultadoTotal < 0 ? (
+                          <TrendingDown className="w-4 h-4" />
+                        ) : null}
                         R$ {stats.resultadoTotal.toFixed(2).replace(".", ",")}
                       </div>
                     </div>
@@ -283,84 +324,88 @@ export default function Operacoes() {
                     </div>
                   </div>
 
-                    {itens.length > 0 && (
-                      <div>
-                        <h3 className="text-sm font-semibold mb-2" style={{ color: "#0099DD" }}>Operações</h3>
+                  {/* LISTA DE ITENS */}
+                  {itens.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-semibold mb-2" style={{ color: "#0099DD" }}>
+                        Operações
+                      </h3>
 
-                        <div className="space-y-1.5">
-                          {itens.map((item) => {
-                            const estrategiaInfo = getEstrategiaInfo(item.estrategiaId);
-                            const resultado = item.resultadoFinanceiro
-                              ? parseFloat(item.resultadoFinanceiro)
-                              : 0;
+                      <div className="space-y-1.5">
+                        {itens.map((item) => {
+                          const estrategiaInfo = getEstrategiaInfo(item.estrategiaId);
+                          const resultado = item.resultadoFinanceiro
+                            ? parseFloat(item.resultadoFinanceiro)
+                            : 0;
 
-                            return (
-                              <div
-                                key={item.id}
-                                className={`px-3 py-2 rounded-md flex justify-between gap-2 ${
-                                  isDarkMode
-                                    ? "bg-[#2a2b2e] border border-[#44494d]"
-                                    : "bg-white border border-gray-200"
-                                }`}
-                              >
-                                {/* ESQUERDA */}
-                                <div className="flex flex-col gap-2 flex-1">
-                                  <div className="flex flex-wrap items-center gap-2 w-full">
-                                    <Badge variant="outline">{estrategiaInfo.mercadoNome}</Badge>
-                                    <Badge>{estrategiaInfo.nome}</Badge>
+                          return (
+                            <div
+                              key={item.id}
+                              className={`px-3 py-2 rounded-md flex justify-between gap-2 ${
+                                isDarkMode
+                                  ? "bg-[#2a2b2e] border border-[#44494d]"
+                                  : "bg-white border border-gray-200"
+                              }`}
+                            >
+                              <div className="flex flex-col gap-2 flex-1">
+                                <div className="flex flex-wrap items-center gap-2 w-full">
+                                  <Badge variant="outline">{estrategiaInfo.mercadoNome}</Badge>
+                                  <Badge>{estrategiaInfo.nome}</Badge>
 
+                                  <span className="text-xs text-muted-foreground">
+                                    <strong>Stake:</strong>{" "}
+                                    R$ {parseFloat(item.stake).toFixed(2).replace(".", ",")}
+                                  </span>
+
+                                  <span className="text-xs text-muted-foreground">
+                                    Entrada:{" "}
+                                    {parseFloat(item.oddEntrada).toFixed(2).replace(".", ",")}
+                                  </span>
+
+                                  {item.oddSaida && (
                                     <span className="text-xs text-muted-foreground">
-                                      <strong>Stake:</strong> R$ {parseFloat(item.stake).toFixed(2).replace(".", ",")}
+                                      Saída:{" "}
+                                      {parseFloat(item.oddSaida).toFixed(2).replace(".", ",")}
                                     </span>
-
-                                    <span className="text-xs text-muted-foreground">
-                                      Entrada: {parseFloat(item.oddEntrada).toFixed(2).replace(".", ",")}
-                                    </span>
-
-                                    {item.oddSaida && (
-                                      <span className="text-xs text-muted-foreground">
-                                        Saída: {parseFloat(item.oddSaida).toFixed(2).replace(".", ",")}
-                                      </span>
-                                    )}
-
-                                    <span
-                                      className={`ml-auto font-mono font-semibold text-xs ${
-                                        resultado > 0
-                                          ? "text-green-600 dark:text-green-400"
-                                          : resultado < 0
-                                          ? "text-red-600 dark:text-red-400"
-                                          : ""
-                                      }`}
-                                    >
-                                      R$ {resultado.toFixed(2).replace(".", ",")}
-                                    </span>
-                                  </div>
-
-                                  {item.motivacaoSaidaObservacao && (
-                                    <div className="mt-1 w-full rounded-md bg-muted/30 p-2 text-xs text-muted-foreground whitespace-pre-wrap">
-                                      <span
-                                        className="font-semibold text-white px-2 py-0.5 rounded"
-                                        style={{ backgroundColor: "#5F2C82" }}
-                                      >
-                                        Obs:
-                                      </span>{" "}
-                                      {item.motivacaoSaidaObservacao}
-                                    </div>
                                   )}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
 
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    );
+                                  <span
+                                    className={`ml-auto font-mono font-semibold text-xs ${
+                                      resultado > 0
+                                        ? "text-green-600 dark:text-green-400"
+                                        : resultado < 0
+                                        ? "text-red-600 dark:text-red-400"
+                                        : ""
+                                    }`}
+                                  >
+                                    R$ {resultado.toFixed(2).replace(".", ",")}
+                                  </span>
+                                </div>
+
+                                {item.motivacaoSaidaObservacao && (
+                                  <div className="mt-1 w-full rounded-md bg-muted/30 p-2 text-xs text-muted-foreground whitespace-pre-wrap">
+                                    <span
+                                      className="font-semibold text-white px-2 py-0.5 rounded"
+                                      style={{ backgroundColor: "#5F2C82" }}
+                                    >
+                                      Obs:
+                                    </span>{" "}
+                                    {item.motivacaoSaidaObservacao}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
 }
