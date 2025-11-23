@@ -54,6 +54,11 @@ export default function Operacoes() {
   const [dataSelecionada, setDataSelecionada] = useState(new Date());
   const [mostrarTudo, setMostrarTudo] = useState(true);
 
+  // 🔵 NOVO — filtro por estratégia
+  const [estrategiaFiltro, setEstrategiaFiltro] = useState<number | "TODAS">(
+    "TODAS"
+  );
+
   // === Queries principais ===
   const { data: operacoes = [], isLoading: isLoadingOperacoes } = useQuery<Operacao[]>({
     queryKey: ["/api/operacoes"],
@@ -76,6 +81,14 @@ export default function Operacoes() {
       const dataPartida = parseISO(partida.data);
       return isSameDay(dataPartida, dataSelecionada);
     })
+
+    // 🔵 NOVO — aplicar filtro de estratégia
+    .filter((op) => {
+      if (estrategiaFiltro === "TODAS") return true;
+      const itens = getItensOperacao(op.id);
+      return itens.some((i) => i.estrategiaId === estrategiaFiltro);
+    })
+
     .sort((a, b) => {
       const partidaA = partidas.find((p) => p.id === a.partidaId);
       const partidaB = partidas.find((p) => p.id === b.partidaId);
@@ -120,222 +133,234 @@ export default function Operacoes() {
   };
 
   // === Modo escuro ===
-const [isDarkMode, setIsDarkMode] = useState<boolean>(
-  document.documentElement.classList.contains("dark")
-);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(
+    document.documentElement.classList.contains("dark")
+  );
 
-useEffect(() => {
-  const observer = new MutationObserver(() => {
-    setIsDarkMode(document.documentElement.classList.contains("dark"));
-  });
-  observer.observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ["class"],
-  });
-  return () => observer.disconnect();
-}, []);
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    return () => observer.disconnect();
+  }, []);
 
-if (isLoadingOperacoes) {
+  if (isLoadingOperacoes) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center text-muted-foreground">Carregando operações...</div>
+      </div>
+    );
+  }
+
+  // === Renderização ===
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="text-center text-muted-foreground">Carregando operações...</div>
-    </div>
-  );
-}
 
-// === Renderização ===
-return (
-  <div className="container mx-auto px-4 py-8">
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <h1 className="text-3xl font-bold">Operações Concluídas</h1>
+          <p className="text-muted-foreground mt-1">
+            Histórico de operações finalizadas com resumos completos
+          </p>
+        </div>
 
-    <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-      <div>
-        <h1 className="text-3xl font-bold">Operações Concluídas</h1>
-        <p className="text-muted-foreground mt-1">
-          Histórico de operações finalizadas com resumos completos
-        </p>
+        <div className="flex-shrink-0 flex gap-2 flex-wrap justify-end">
+          
+          {/* FILTRO DE ESTRATÉGIA */}
+          <select
+            value={estrategiaFiltro}
+            onChange={(e) =>
+              setEstrategiaFiltro(
+                e.target.value === "TODAS" ? "TODAS" : Number(e.target.value)
+              )
+            }
+            className={`border rounded-md px-2 py-1 text-sm ${
+              isDarkMode
+                ? "bg-[#2a2b2e] border-[#44494d] text-white"
+                : "bg-white border-gray-300 text-black"
+            }`}
+          >
+            <option value="TODAS">Todas estratégias</option>
+            {estrategias.map((est) => (
+              <option key={est.id} value={est.id}>
+                {est.nome}
+              </option>
+            ))}
+          </select>
+
+          <DateNavigator
+            onChange={(novaData) => {
+              setDataSelecionada(novaData);
+              setMostrarTudo(false);
+            }}
+          />
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setMostrarTudo(true)}
+            className="flex items-center gap-1"
+          >
+            <ListFilter className="w-4 h-4" />
+            <span className="hidden sm:inline">Tudo</span>
+          </Button>
+        </div>
       </div>
 
-      <div className="flex-shrink-0 flex gap-2 flex-wrap justify-end">
-        <DateNavigator
-          onChange={(novaData) => {
-            setDataSelecionada(novaData);
-            setMostrarTudo(false);
-          }}
-        />
+      {operacoesConcluidas.length === 0 ? (
+        <Card className={isDarkMode ? "bg-[#2a2b2e] border border-[#44494d]" : "bg-white border border-gray-200"}>
+          <CardContent className="py-12 text-center text-muted-foreground">
+            Nenhuma operação concluída até o momento.
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-6">
+          {operacoesConcluidas.map((operacao) => {
+            const info = getPartidaInfo(operacao.partidaId);
+            const itens = getItensOperacao(operacao.id);
+            const stats = calcularEstatisticas(itens);
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setMostrarTudo(true)}
-          className="flex items-center gap-1"
-        >
-          <ListFilter className="w-4 h-4" />
-          <span className="hidden sm:inline">Tudo</span>
-        </Button>
-      </div>
-    </div>
-
-    {operacoesConcluidas.length === 0 ? (
-      <Card className={isDarkMode ? "bg-[#2a2b2e] border border-[#44494d]" : "bg-white border border-gray-200"}>
-        <CardContent className="py-12 text-center text-muted-foreground">
-          Nenhuma operação concluída até o momento.
-        </CardContent>
-      </Card>
-    ) : (
-      <div className="grid gap-6">
-        {operacoesConcluidas.map((operacao) => {
-          const info = getPartidaInfo(operacao.partidaId);
-          const itens = getItensOperacao(operacao.id);
-          const stats = calcularEstatisticas(itens);
-
-          return (
-            <Card
-              key={operacao.id}
-              className={isDarkMode ? "bg-[#2a2b2e] border border-[#44494d]" : "bg-white border border-gray-200"}
-            >
-              <CardHeader className="relative">
-                {/* Título */}
-                <CardTitle className="text-lg mb-1">
-                  {info.competicao} - {info.mandante} vs {info.visitante}
-                </CardTitle>
-              
-                {/* Data e status */}
-                <p className="text-sm text-muted-foreground">
-                  {info.dataFormatada} às {info.hora} — <Badge>Concluída</Badge>
-                </p>
-              
-                {/* ✅ Botões fixos no canto superior direito, só ícones */}
-                <div className="absolute top-2 right-2 flex gap-2">
-                  {/*<Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setLocation(`/operacoes/${operacao.partidaId}`)}
-                    data-testid={`button-view-${operacao.id}`}
-                  >
-                    <Eye className="w-4 h-4" />
-                  </Button>*/}
-              
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setLocation(`/operacoes/${operacao.partidaId}`)}
-                    data-testid={`button-edit-${operacao.id}`}
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                </div>
-              </CardHeader>
-
-              <CardContent>
-                {/* 📌 MÉTRICAS EM LINHA */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                  <div className="bg-muted/30 p-3 rounded-md">
-                    <div className="text-xs text-muted-foreground mb-1">Itens</div>
-                    <div className="text-lg font-mono font-bold">{stats.numItens}</div>
+            return (
+              <Card
+                key={operacao.id}
+                className={isDarkMode ? "bg-[#2a2b2e] border border-[#44494d]" : "bg-white border border-gray-200"}
+              >
+                <CardHeader className="relative">
+                  <CardTitle className="text-lg mb-1">
+                    {info.competicao} - {info.mandante} vs {info.visitante}
+                  </CardTitle>
+                
+                  <p className="text-sm text-muted-foreground">
+                    {info.dataFormatada} às {info.hora} — <Badge>Concluída</Badge>
+                  </p>
+                
+                  <div className="absolute top-2 right-2 flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setLocation(`/operacoes/${operacao.partidaId}`)}
+                      data-testid={`button-edit-${operacao.id}`}
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
                   </div>
-                  <div className="bg-muted/30 p-3 rounded-md">
-                    <div className="text-xs text-muted-foreground mb-1">Total Investido</div>
-                    <div className="text-lg font-mono font-bold">R$ {stats.totalStake.toFixed(2).replace(".", ",")}</div>
-                  </div>
-                  <div className="bg-muted/30 p-3 rounded-md">
-                    <div className="text-xs text-muted-foreground mb-1">Resultado</div>
-                    <div className={`text-lg font-mono font-bold flex items-center gap-1 ${
-                      stats.resultadoTotal > 0 ? "text-green-600 dark:text-green-400" :
-                      stats.resultadoTotal < 0 ? "text-red-600 dark:text-red-400" : ""}`}>
-                      {stats.resultadoTotal > 0 ? <TrendingUp className="w-4 h-4" /> :
-                       stats.resultadoTotal < 0 ? <TrendingDown className="w-4 h-4" /> : null}
-                      R$ {stats.resultadoTotal.toFixed(2).replace(".", ",")}
+                </CardHeader>
+
+                <CardContent>
+
+                  {/* MÉTRICAS */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                    <div className="bg-muted/30 p-3 rounded-md">
+                      <div className="text-xs text-muted-foreground mb-1">Itens</div>
+                      <div className="text-lg font-mono font-bold">{stats.numItens}</div>
                     </div>
-                  </div>
-                  <div className="bg-muted/30 p-3 rounded-md">
-                    <div className="text-xs text-muted-foreground mb-1">ROI</div>
-                    <div className="text-lg font-mono font-bold">
-                      {stats.roi.toFixed(2).replace(".", ",")}% 
+
+                    <div className="bg-muted/30 p-3 rounded-md">
+                      <div className="text-xs text-muted-foreground mb-1">Total Investido</div>
+                      <div className="text-lg font-mono font-bold">R$ {stats.totalStake.toFixed(2).replace(".", ",")}</div>
                     </div>
-                  </div>
-                </div>
 
-                  {/* ==== ITENS DA OPERAÇÃO ==== */}
-                  {itens.length > 0 && (
-                    <div>
-                      <h3 className="text-sm font-semibold mb-2" style={{ color: "#0099DD" }}>Operações</h3>
-
-                      <div className="space-y-1.5">
-                        {itens.map((item) => {
-                          const estrategiaInfo = getEstrategiaInfo(item.estrategiaId);
-                          const resultado = item.resultadoFinanceiro
-                            ? parseFloat(item.resultadoFinanceiro)
-                            : 0;
-
-                          return (
-                            <div
-                              key={item.id}
-                              className={`px-3 py-2 rounded-md flex justify-between gap-2 ${
-                                isDarkMode
-                                  ? "bg-[#2a2b2e] border border-[#44494d]"
-                                  : "bg-white border border-gray-200"
-                              }`}
-                            >
-                              {/* ESQUERDA */}
-                              <div className="flex flex-col gap-2 flex-1">
-                                <div className="flex flex-wrap items-center gap-2 w-full">
-                                  <Badge variant="outline">{estrategiaInfo.mercadoNome}</Badge>
-                                  <Badge>{estrategiaInfo.nome}</Badge>
-
-                                  <span className="text-xs text-muted-foreground">
-                                    <strong>Stake:</strong> R$ {parseFloat(item.stake).toFixed(2).replace(".", ",")}
-                                  </span>
-
-                                  <span className="text-xs text-muted-foreground">
-                                    Entrada: {parseFloat(item.oddEntrada).toFixed(2).replace(".", ",")}
-                                  </span>
-
-                                  {item.oddSaida && (
-                                    <span className="text-xs text-muted-foreground">
-                                      Saída: {parseFloat(item.oddSaida).toFixed(2).replace(".", ",")}
-                                    </span>
-                                  )}
-
-                                  {/* RESULTADO → topo direita */}
-                                  <span
-                                    className={`ml-auto font-mono font-semibold text-xs ${
-                                      resultado > 0
-                                        ? "text-green-600 dark:text-green-400"
-                                        : resultado < 0
-                                        ? "text-red-600 dark:text-red-400"
-                                        : ""
-                                    }`}
-                                  >
-                                    R$ {resultado.toFixed(2).replace(".", ",")}
-                                  </span>
-                                </div>
-
-                                {/* OBSERVAÇÃO */}
-                                {item.motivacaoSaidaObservacao && (
-                                  <div className="mt-1 w-full rounded-md bg-muted/30 p-2 text-xs text-muted-foreground whitespace-pre-wrap">
-                                    <span
-                                      className="font-semibold text-white px-2 py-0.5 rounded"
-                                      style={{ backgroundColor: "#5F2C82" }}
-                                    >
-                                      Obs:
-                                    </span>{" "}
-                                    {item.motivacaoSaidaObservacao}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
+                    <div className="bg-muted/30 p-3 rounded-md">
+                      <div className="text-xs text-muted-foreground mb-1">Resultado</div>
+                      <div className={`text-lg font-mono font-bold flex items-center gap-1 ${
+                        stats.resultadoTotal > 0 ? "text-green-600 dark:text-green-400" :
+                        stats.resultadoTotal < 0 ? "text-red-600 dark:text-red-400" : ""}`}>
+                        {stats.resultadoTotal > 0 ? <TrendingUp className="w-4 h-4" /> :
+                         stats.resultadoTotal < 0 ? <TrendingDown className="w-4 h-4" /> : null}
+                        R$ {stats.resultadoTotal.toFixed(2).replace(".", ",")}
                       </div>
                     </div>
-                  )}
 
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
+                    <div className="bg-muted/30 p-3 rounded-md">
+                      <div className="text-xs text-muted-foreground mb-1">ROI</div>
+                      <div className="text-lg font-mono font-bold">
+                        {stats.roi.toFixed(2).replace(".", ",")}% 
+                      </div>
+                    </div>
+                  </div>
+
+                    {itens.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-semibold mb-2" style={{ color: "#0099DD" }}>Operações</h3>
+
+                        <div className="space-y-1.5">
+                          {itens.map((item) => {
+                            const estrategiaInfo = getEstrategiaInfo(item.estrategiaId);
+                            const resultado = item.resultadoFinanceiro
+                              ? parseFloat(item.resultadoFinanceiro)
+                              : 0;
+
+                            return (
+                              <div
+                                key={item.id}
+                                className={`px-3 py-2 rounded-md flex justify-between gap-2 ${
+                                  isDarkMode
+                                    ? "bg-[#2a2b2e] border border-[#44494d]"
+                                    : "bg-white border border-gray-200"
+                                }`}
+                              >
+                                {/* ESQUERDA */}
+                                <div className="flex flex-col gap-2 flex-1">
+                                  <div className="flex flex-wrap items-center gap-2 w-full">
+                                    <Badge variant="outline">{estrategiaInfo.mercadoNome}</Badge>
+                                    <Badge>{estrategiaInfo.nome}</Badge>
+
+                                    <span className="text-xs text-muted-foreground">
+                                      <strong>Stake:</strong> R$ {parseFloat(item.stake).toFixed(2).replace(".", ",")}
+                                    </span>
+
+                                    <span className="text-xs text-muted-foreground">
+                                      Entrada: {parseFloat(item.oddEntrada).toFixed(2).replace(".", ",")}
+                                    </span>
+
+                                    {item.oddSaida && (
+                                      <span className="text-xs text-muted-foreground">
+                                        Saída: {parseFloat(item.oddSaida).toFixed(2).replace(".", ",")}
+                                      </span>
+                                    )}
+
+                                    <span
+                                      className={`ml-auto font-mono font-semibold text-xs ${
+                                        resultado > 0
+                                          ? "text-green-600 dark:text-green-400"
+                                          : resultado < 0
+                                          ? "text-red-600 dark:text-red-400"
+                                          : ""
+                                      }`}
+                                    >
+                                      R$ {resultado.toFixed(2).replace(".", ",")}
+                                    </span>
+                                  </div>
+
+                                  {item.motivacaoSaidaObservacao && (
+                                    <div className="mt-1 w-full rounded-md bg-muted/30 p-2 text-xs text-muted-foreground whitespace-pre-wrap">
+                                      <span
+                                        className="font-semibold text-white px-2 py-0.5 rounded"
+                                        style={{ backgroundColor: "#5F2C82" }}
+                                      >
+                                        Obs:
+                                      </span>{" "}
+                                      {item.motivacaoSaidaObservacao}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
 }
